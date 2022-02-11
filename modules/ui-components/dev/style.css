@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+@layer base {
+  * {
+    @apply text-fontPrimary;
+  }
+  h1 {
+    @apply text-xl font-semibold;
+  }
+  h2 {
+    @apply text-lg font-semibold;
+  }
+  div {
+    @apply bodyLarge text-fontSecondary;
+  }
+  label {
+    @apply bodyLarge;
+  }
+  input {
+    @apply text-sm font-medium focus:outline-none;
+  }
+  button {
+    @apply bodyLarge;
+  }
+}
+
+@layer components {
+  .subtitle {
+    @apply text-xl font-semibold;
+  }
+  .bodyLarge {
+    @apply font-medium text-md;
+  }
+  .bodySmall {
+    @apply font-normal text-sm;
+  }
+  .icons {
+    @apply border border-stroke w-10 h-10 flex items-center justify-center rounded;
+  }
+}

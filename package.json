@@ -1,0 +1,20 @@
+{
+  "name": "welz-frontend",
+  "version": "1.0.0",
+  "description": "Lerna Monorepo",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "pbf": "cd ./modules/patient-booking-frontend && npm run serve",
+    "pbf:build": "cd ./modules/patient-booking-frontend && npm run build",
+    "pbf:test": "cd ./modules/patient-booking-frontend && npm run test",
+    "test": "lerna exec -- npm run test",
+    "lint": "lerna exec -- npm run lint"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.26.0",
+    "eslint-plugin-vue": "^7.9.0",
+    "lerna": "^4.0.0"
+  }
+}
