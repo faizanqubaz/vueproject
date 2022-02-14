@@ -4,11 +4,14 @@
   "description": "Lerna Monorepo",
   "main": "index.js",
   "scripts": {
-    "postinstall": "lerna bootstrap",
+    "postinstall": "lerna bootstrap && lerna exec -- npm i  && lerna link && cd ./modules/ui-components && npm run build",
     "pbf": "cd ./modules/patient-booking-frontend && npm run serve",
     "pbf:build": "cd ./modules/patient-booking-frontend && npm run build",
     "pbf:test": "cd ./modules/patient-booking-frontend && npm run test",
     "test": "lerna exec -- npm run test",
+    "ui": "cd ./modules/ui-components && npm run serve",
+    "ui:build": "cd ./modules/ui-components && npm run build",
+    "ui:test": "cd ./modules/ui-components && npm run test",
     "lint": "lerna exec -- npm run lint"
   },
   "devDependencies": {

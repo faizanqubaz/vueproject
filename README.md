@@ -1,4 +1,4 @@
-# Welz Front End Monorepo
+# Welz Frontend
 
 ## Project setup
 
