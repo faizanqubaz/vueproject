@@ -13,6 +13,14 @@ export default new Vuex.Store({
     },
     appointment: {
       timeslot: ''
+    },
+    patient: {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      gender: [],
+      dob: '',
+      email: '',
     }
   }
 })
