@@ -4,7 +4,7 @@
       class="rounded p-4 cursor-pointer border flex justify-center"
       :class="[
         inputVal === label ? 'border-primary' : 'border-stroke',
-        alignItems(),
+        alignItems()
       ]"
     >
       <input
@@ -45,47 +45,47 @@
 <script>
 export default {
   props: {
-    align: { type: String, default: "" },
+    align: { type: String, default: '' },
     label: {
       required: true,
-      type: String,
+      type: [String, Number]
     },
-    value: null,
+    value: null
   },
   computed: {
     inputVal: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val) {
-        this.$emit("input", val);
-      },
-    },
+        this.$emit('input', val)
+      }
+    }
   },
   methods: {
     alignItems() {
-      let align = "";
+      let align = ''
       switch (this.align) {
-        case "center":
-          align = "items-center";
-          break;
-        case "start":
-          align = "items-start";
-          break;
-        case "end":
-          align = "items-end";
-          break;
-        case "baseline":
-          align = "items-baseline";
-          break;
-        case "stretch":
-          align = "items-stretch";
-          break;
+        case 'center':
+          align = 'items-center'
+          break
+        case 'start':
+          align = 'items-start'
+          break
+        case 'end':
+          align = 'items-end'
+          break
+        case 'baseline':
+          align = 'items-baseline'
+          break
+        case 'stretch':
+          align = 'items-stretch'
+          break
         default:
-          align;
+          align
       }
-      return align;
-    },
-  },
-};
+      return align
+    }
+  }
+}
 </script>
