@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Appointment from '../views/Appointment.vue'
+import ServiceGroups from '../views/ServiceGroups.vue'
 import Services from '../views/Services.vue'
 import Timepicker from '../views/Timepicker.vue'
 import Details from '../views/PatientDetails.vue'
@@ -12,6 +13,11 @@ const routes: Array<RouteConfig> = [
     path: '/appointment',
     name: 'Appointment',
     component: Appointment
+  },
+  {
+    path: '/servicetypes',
+    name: 'ServiceGroups',
+    component: ServiceGroups
   },
   {
     path: '/services',

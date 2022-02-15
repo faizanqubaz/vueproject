@@ -1,13 +1,12 @@
 <template>
-  <div class="max-w-screen-md mx-auto py-10 gap sm:gap-y-10">
+  <div class="max-w-screen-md mx-auto py-14 gap sm:gap-y-10">
     <div class=" pl-3 pr-3">
       <div class="w-2/5">
       <wz-progress width="4/8" />
     </div>
-    <div class="">
-    <div class="flex justify-between ">
-    <div class="md:w-2/3 ">
-    <h1 class="pt-4 text-xl">Pick a time that works for you</h1>
+    <div class="pt-7 flex justify-between">
+    <div class="md:w-2/3">
+    <h1 class="text-xl">Pick a time that works for you</h1>
     </div>
     <div class="md:w-1/3">
       <wz-button type="button" block text >
@@ -42,7 +41,6 @@
          <div class="text-darkGray">← Go back</div>
         </wz-button>
       </div>
-    </div>
     </div>
   </div>
 </template>

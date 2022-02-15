@@ -1,19 +1,19 @@
 <template>
-  <div class="max-w-screen-md mx-auto py-10 gap sm:gap-y-10">
+  <div class="max-w-screen-md mx-auto py-14 gap sm:gap-y-10">
     <div class="pl-4 pr-4 pt-0">
       <div class="w-2/5">
         <wz-progress width="1/8" />
       </div>
-      <div class="pt-3 sm:pb-10 pb-3">
-        <p class="pt-4 float-left text-lg lg:text-3xl">
+      <div class="pt-7">
+        <h1 class="text-xl">
           Care, wherever you are.
-        </p>
-        <p class="pt-5 float-left text-base lg:text-lg w-full font-normal text-gray-700 antialiased">
+        </h1>
+        <p class="pt-5 text-base lg:text-lg font-normal text-gray-700 antialiased">
           We bring the urgent care directly to you. It’s as easy as using Amazon.
         </p>
       </div>
       <br />
-      <div class="pt-24 sm: text-left">
+      <div class="pt-0">
         <wz-select
           v-model="$store.state.location.address"
           :items="searchResults"
@@ -26,7 +26,7 @@
           :dropdown="false"
           :rules="addressRules"
         />
-        <div class="pt-5">
+        <div class="pt-4">
           <wz-input
             icon="home"
             label="Apartment number"
@@ -107,7 +107,7 @@ export default Vue.extend({
     },
     nextPage () {
       if (this.isInputValid) {
-        this.$router.push('/services')
+        this.$router.push('/servicetypes')
       }
     }
   },
