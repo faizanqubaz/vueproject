@@ -32,7 +32,7 @@
         </wz-checkbox-card>
       </div>
       <div class="pt-5">
-        <wz-button color="primary" block disabled>
+        <wz-button color="primary" block :disabled="!isClickValid" @click="nextPage">
           <div class="text-white">Proceed</div>
         </wz-button>
       </div>
@@ -45,6 +45,7 @@
   </div>
 </template>
 <script>
+import { isEmpty } from 'lodash'
 export default {
   data () {
     return {
@@ -56,6 +57,18 @@ export default {
         '04 PM - 06 PM',
         '06 PM- 08 PM'
       ]
+    }
+  },
+  computed: {
+    isClickValid: function () {
+      return !isEmpty(this.$store.state.appointment.timeslot)
+    }
+  },
+  methods: {
+    nextPage () {
+      if (this.isClickValid) {
+        this.$router.push('/details')
+      }
     }
   }
 }

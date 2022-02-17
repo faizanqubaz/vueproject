@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-screen-md mx-auto py-10 gap sm:gap-y-10">
+  <div class="max-w-screen-md mx-auto py-14 gap sm:gap-y-10">
     <div class="pl-4 pr-4 pt-0">
           <div class="w-2/5">
-        <wz-progress width="4/8" />
+        <wz-progress width="5/8" />
       </div>
       <div class="pt-7">
           <p class="text-xl">Who's being seen today</p>
@@ -58,7 +58,7 @@
           />
       </div>
       <div class="pt-5">
-        <wz-button color="primary" block>
+        <wz-button color="primary" block disabled>
         <div class="text-white">Proceed</div>
       </wz-button>
       </div>

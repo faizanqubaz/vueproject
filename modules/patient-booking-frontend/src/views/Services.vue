@@ -87,7 +87,6 @@ export default Vue.extend({
   },
   computed: {
     isClickValid: function () {
-      console.log(!isEmpty(this.$store.state.appointment.serviceTypeId))
       return !isEmpty(this.$store.state.appointment.serviceTypeId)
     }
   },

@@ -22,6 +22,10 @@ export default new Vuex.Store({
       gender: [],
       dob: '',
       email: ''
+    },
+    insurance: {
+      front: null,
+      back: null
     }
   }
 })
