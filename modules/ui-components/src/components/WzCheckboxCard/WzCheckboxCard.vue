@@ -1,17 +1,17 @@
 <template>
-  <label :for="label">
+  <label :for="itemKey">
     <div
       class="rounded p-4 cursor-pointer border flex justify-center"
       :class="[
-        inputVal === label ? 'border-primary' : 'border-stroke',
+        inputVal === itemKey ? 'border-primary' : 'border-stroke',
         alignItems()
       ]"
     >
       <input
         type="radio"
         class="hidden"
-        :value="label"
-        :id="label"
+        :value="itemKey"
+        :id="itemKey"
         v-model="inputVal"
       />
       <slot name="icon">
@@ -28,14 +28,14 @@
       <div
         class="h-8 w-8 rounded-full flex items-center justify-center border flex-none"
         :class="
-          inputVal === label
+          inputVal === itemKey
             ? 'border-primary bg-primary'
             : 'border-lightGray bg-lightGray'
         "
       >
         <wz-icon
           name="check"
-          :color="inputVal === label ? 'white' : 'darkGray'"
+          :color="inputVal === itemKey ? 'white' : 'darkGray'"
         />
       </div>
     </div>
@@ -46,7 +46,7 @@
 export default {
   props: {
     align: { type: String, default: '' },
-    label: {
+    itemKey: {
       required: true,
       type: [String, Number]
     },
