@@ -8,6 +8,7 @@ import IVDrips from '../views/AtHomeServices.vue'
 import Timepicker from '../views/Timepicker.vue'
 import Details from '../views/PatientDetails.vue'
 import Insurance from '../views/Insurance.vue'
+import Payment from '../views/Payment.vue'
 
 Vue.use(VueRouter)
 
@@ -51,6 +52,11 @@ const routes: Array<RouteConfig> = [
     path: '/insurance',
     name: 'Insurance',
     component: Insurance
+  },
+  {
+    path: '/payment',
+    name: 'Payment',
+    component: Payment
   },
   {
     path: '*',

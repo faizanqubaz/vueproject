@@ -26,6 +26,12 @@ export default new Vuex.Store({
     insurance: {
       front: null,
       back: null
+    },
+    paymentInfo: {
+      cardNumber: '',
+      expirationDate: '',
+      cvc: '',
+      email: ''
     }
   }
 })
