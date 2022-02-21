@@ -4,16 +4,20 @@ import Vue from 'vue'
 // import { WelzUicomponentsSample } from '@/entry.esm';
 
 export default Vue.extend({
-  name: 'ServeDev'
+  name: 'ServeDev',
   // components: {
   //  WelzUicomponentsSample,
-  // }
+  // },
+  data() {
+    return {
+      call: null
+    }
+  }
 })
 </script>
 
 <template>
   <div id="app">
-    <wzi-calendar />
-    <wz-icon name="calendar" color="primary" />
+    <wz-date-picker v-model="call" />
   </div>
 </template>

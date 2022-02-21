@@ -24,6 +24,7 @@
   "dependencies": {
     "@tailwindcss/forms": "^0.4.0",
     "rollup-plugin-vue-inline-svg": "^1.1.2",
+    "v-calendar": "^2.4.1",
     "vue-svg-loader": "^0.16.0"
   },
   "devDependencies": {
