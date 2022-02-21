@@ -16,7 +16,7 @@
         <wz-service-card
           :key="service.id"
           v-for="service in services"
-          @click="$router.push('/services')"
+          @click="$router.push(service.path)"
           :color="service.color"
         >
         <template>
@@ -44,12 +44,14 @@ export default Vue.extend({
       services: [
         {
           id: 0,
+          path: '/covidtesting',
           text: 'Covid-19 Testing',
           image: require('@/assets/covid-19-testing.png'),
           color: 'pink-50'
         },
         {
           id: 1,
+          path: '/ivdrips',
           text: 'IV Drips',
           image: require('@/assets/iv-drips.png'),
           color: 'green-50'
@@ -57,11 +59,13 @@ export default Vue.extend({
         {
           id: 2,
           text: 'STD Testing',
+          path: '',
           image: require('@/assets/std-testing.png'),
           color: 'gray-50'
         },
         {
           id: 3,
+          path: '/athomecare',
           text: 'Urgent Care',
           image: require('@/assets/urgent-care.png'),
           color: 'yellow-50'
