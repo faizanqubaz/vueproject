@@ -12,8 +12,9 @@ export default new Vuex.Store({
       outOfPocket: false
     },
     appointment: {
-      timeslot: '',
-      serviceTypeId: ''
+      serviceId: '',
+      notes: '',
+      timeslot: ''
     },
     patient: {
       firstName: '',

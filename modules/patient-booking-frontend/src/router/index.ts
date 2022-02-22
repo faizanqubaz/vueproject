@@ -4,8 +4,9 @@ import Appointment from '../views/Appointment.vue'
 import ServiceGroups from '../views/ServiceGroups.vue'
 import CovidTesting from '../views/CovidTestServices.vue'
 import AtHomeCare from '../views/AtHomeServices.vue'
-import IVDrips from '../views/AtHomeServices.vue'
+import IVDrips from '../views/IvDripServices.vue'
 import Timepicker from '../views/Timepicker.vue'
+import AdditionalNotes from '../views/AdditionalNotes.vue'
 import Details from '../views/PatientDetails.vue'
 import Insurance from '../views/Insurance.vue'
 import Payment from '../views/Payment.vue'
@@ -37,6 +38,11 @@ const routes: Array<RouteConfig> = [
     path: '/ivdrips',
     name: 'IVDrips',
     component: IVDrips
+  },
+  {
+    path: '/notes',
+    name: 'AdditionalNotes',
+    component: AdditionalNotes
   },
   {
     path: '/timeslots',

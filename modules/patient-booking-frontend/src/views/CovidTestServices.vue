@@ -16,7 +16,7 @@
         <wz-checkbox-card
           :key="serviceType.id"
           v-for="serviceType in serviceTypes"
-          v-model="$store.state.appointment.serviceTypeId"
+          v-model="$store.state.appointment.serviceId"
           :itemKey="serviceType.id"
         >
           <template #content>
@@ -87,13 +87,13 @@ export default Vue.extend({
   },
   computed: {
     isClickValid: function () {
-      return !isEmpty(this.$store.state.appointment.serviceTypeId)
+      return !isEmpty(this.$store.state.appointment.serviceId)
     }
   },
   methods: {
     nextPage () {
       if (this.isClickValid) {
-        this.$router.push('/timeslots')
+        this.$router.push('/notes')
       }
     }
   }
