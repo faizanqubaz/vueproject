@@ -6,7 +6,7 @@
       :class="[
         focus && !errorMessage ? 'border-primary' : '',
         !focus && !errorMessage ? 'border-stroke' : '',
-        errorMessage ? 'border-red' : '',
+        errorMessage ? 'border-red' : ''
       ]"
       tabindex="0"
       ref="containerSelect"
@@ -47,7 +47,7 @@
         <div
           class="absolute -left-px -right-px top-14 rounded border border-stroke bg-white max-h-48 overflow-y-scroll filter drop-shadow-2xl"
           style="z-index: 100"
-          v-show="open && items.length > 0 && inputVal && !dataFilter"
+          v-show="open && items.length > 0 && !dataFilter"
         >
           <div
             v-for="opt in items"
@@ -59,7 +59,7 @@
                 : ''
             "
             @mousedown="
-              (inputVal = itemText ? opt[itemText] : opt),
+              ;(inputVal = itemText ? opt[itemText] : opt),
                 $emit('input', itemText ? opt[itemText] : opt),
                 closeDropdown()
             "
@@ -80,7 +80,7 @@
             :key="opt.id"
             class="py-3 border-b border-stroke cursor-pointer hover:text-primary last:border-none"
             @mousedown="
-              (inputVal = itemText ? opt[itemText] : opt),
+              ;(inputVal = itemText ? opt[itemText] : opt),
                 $emit('input', itemText ? opt[itemText] : opt),
                 closeDropdown()
             "
@@ -106,7 +106,7 @@
         <div
           class="absolute -left-px -right-px top-14 rounded border border-stroke bg-white max-h-48 overflow-y-scroll filter drop-shadow-2xl"
           style="z-index: 100"
-          v-show="open && inputVal.length > 3 && items.length === 0"
+          v-show="open && inputVal && inputVal.length > 3 && items.length === 0"
         >
           <div
             class="py-3 border-b border-stroke cursor-pointer last:border-none px-md text-sm"
@@ -127,48 +127,48 @@ export default {
   props: {
     rules: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     label: {
       type: String,
-      default: "",
+      default: ''
     },
     icon: {
       type: String,
-      default: "",
+      default: ''
     },
     items: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     dropdown: { type: Boolean, default: true },
     itemText: {
       type: String,
-      default: "",
+      default: ''
     },
     filter: {
       type: Boolean,
-      default: true,
+      default: true
     },
     value: {
       type: String,
-      default: "",
+      default: ''
     },
     required: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   computed: {
     inputVal: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val) {
-        this.$emit("input", val);
-      },
-    },
+        this.$emit('input', val)
+      }
+    }
   },
 
   data() {
@@ -177,8 +177,8 @@ export default {
       errorMessage: null,
       open: false,
       dataFilter: null,
-      stopEvent: false,
-    };
+      stopEvent: false
+    }
   },
 
   watch: {
@@ -187,29 +187,29 @@ export default {
         if (e) {
           this.dataFilter = this.items.filter((res) => {
             return this.itemText
-              ? res[this.itemText].includes(e)
-              : res.includes(e);
+              ? res[this.itemText].toLowerCase().includes(e)
+              : res.toLowerCase().includes(e)
             // return res.includes(e);
-          });
+          })
         } else {
-          this.dataFilter = null;
+          this.dataFilter = null
         }
 
         this.items.forEach((res) => {
           if (!this.itemText) {
             if (res === this.inputVal) {
-              this.dataFilter = null;
+              this.dataFilter = null
             }
           } else if (this.itemText) {
             if (res[this.itemText] === this.inputVal) {
-              this.dataFilter = null;
+              this.dataFilter = null
             }
           }
-        });
+        })
       }
-      if (this.required && e) this.errorMessage = null;
-      else if (this.required && !e) this.errorMessage = "Required";
-    },
+      if (this.required && e) this.errorMessage = null
+      else if (this.required && !e) this.errorMessage = 'Required'
+    }
   },
 
   methods: {
@@ -217,50 +217,50 @@ export default {
       if (this.rules && this.rules.length > 0) {
         for (let i = 0; i < this.rules.length; i++) {
           if (this.rules[i](this.inputVal) !== true) {
-            this.errorMessage = this.rules[i](this.inputVal);
-            return;
+            this.errorMessage = this.rules[i](this.inputVal)
+            return
           } else {
-            this.errorMessage = null;
+            this.errorMessage = null
           }
         }
       }
     },
     blur() {
-      if (this.stopEvent === "icon") {
-        this.stopEvent = false;
-        this.$refs.inputFilter.focus();
-        return;
+      if (this.stopEvent === 'icon') {
+        this.stopEvent = false
+        this.$refs.inputFilter.focus()
+        return
       }
 
       let checker = this.items.filter((res) => {
-        return this.inputVal === (this.itemText ? res[this.itemText] : res);
-      });
+        return this.inputVal === (this.itemText ? res[this.itemText] : res)
+      })
       if (checker.length === 0) {
-        this.inputVal = "";
-        this.$emit("input", "");
-        this.rulesChecker();
-        this.closeDropdown();
+        this.inputVal = ''
+        this.$emit('input', '')
+        this.rulesChecker()
+        this.closeDropdown()
       } else {
-        this.closeDropdown();
+        this.closeDropdown()
       }
     },
 
     closeDropdown() {
-      this.open = false;
-      this.focus = false;
+      this.open = false
+      this.focus = false
     },
     openDropdown(data) {
-      this.stopEvent = false;
-      if (data === "icon" && focus) {
-        this.stopEvent = "icon";
+      this.stopEvent = false
+      if (data === 'icon' && focus) {
+        this.stopEvent = 'icon'
       }
 
-      this.$refs.inputFilter.focus();
-      this.focus = true;
-      this.open = true;
-    },
-  },
-};
+      this.$refs.inputFilter.focus()
+      this.focus = true
+      this.open = true
+    }
+  }
+}
 </script>
 
 <style></style>
