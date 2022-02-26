@@ -11,6 +11,7 @@ import Details from '../views/PatientDetails.vue'
 import Insurance from '../views/Insurance.vue'
 import Payment from '../views/Payment.vue'
 import ReviewOrder from '../views/ReviewOrder.vue'
+import Confirmation from '../views/Confirmation.vue'
 
 Vue.use(VueRouter)
 
@@ -69,6 +70,11 @@ const routes: Array<RouteConfig> = [
     path: '/review-order',
     name: 'ReviewOrder',
     component: ReviewOrder
+  },
+  {
+    path: '/confirmation',
+    name: 'Confirmation',
+    component: Confirmation
   },
   {
     path: '*',

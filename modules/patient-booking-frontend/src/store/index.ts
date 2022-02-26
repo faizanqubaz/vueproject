@@ -20,7 +20,7 @@ export default new Vuex.Store({
       firstName: '',
       lastName: '',
       phoneNumber: '',
-      gender: [],
+      gender: '',
       dob: '',
       email: ''
     },
@@ -32,7 +32,8 @@ export default new Vuex.Store({
       cardNumber: '',
       expirationDate: '',
       cvc: '',
-      email: ''
+      email: '',
+      password: ''
     }
   }
 })
