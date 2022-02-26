@@ -73,7 +73,7 @@ export default Vue.extend({
   methods: {
     nextPage () {
       if (this.isClickValid) {
-        this.$router.push('/')
+        this.$router.push('/review-order')
       }
     }
   }

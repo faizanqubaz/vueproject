@@ -10,6 +10,7 @@ import AdditionalNotes from '../views/AdditionalNotes.vue'
 import Details from '../views/PatientDetails.vue'
 import Insurance from '../views/Insurance.vue'
 import Payment from '../views/Payment.vue'
+import ReviewOrder from '../views/ReviewOrder.vue'
 
 Vue.use(VueRouter)
 
@@ -63,6 +64,11 @@ const routes: Array<RouteConfig> = [
     path: '/payment',
     name: 'Payment',
     component: Payment
+  },
+  {
+    path: '/review-order',
+    name: 'ReviewOrder',
+    component: ReviewOrder
   },
   {
     path: '*',
