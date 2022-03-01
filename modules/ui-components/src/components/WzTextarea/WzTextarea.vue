@@ -10,6 +10,7 @@
       "
       v-model="inputVal"
       @keyup="rulesChecker"
+      ref="refInput"
     />
     <div class="bodySmall text-red" v-show="errorMessage">
       {{ errorMessage }}
@@ -22,54 +23,54 @@ export default {
   props: {
     label: {
       type: String,
-      default: "",
+      default: ''
     },
     required: {
       type: Boolean,
-      default: false,
+      default: false
     },
     rules: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     value: {
       type: String,
-      default: "",
-    },
+      default: ''
+    }
   },
 
   computed: {
     inputVal: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val) {
         if (this.required && this.rules.length === 0) {
-          val ? (this.errorMessage = false) : (this.errorMessage = "Required");
+          val ? (this.errorMessage = false) : (this.errorMessage = 'Required')
         }
-        this.$emit("input", val);
-      },
-    },
+        this.$emit('input', val)
+      }
+    }
   },
 
   data() {
     return {
-      errorMessage: null,
-    };
+      errorMessage: null
+    }
   },
   methods: {
     rulesChecker() {
       if (this.rules && this.rules.length > 0) {
         for (let i = 0; i < this.rules.length; i++) {
           if (this.rules[i](this.inputVal) !== true) {
-            this.errorMessage = this.rules[i](this.inputVal);
-            return;
+            this.errorMessage = this.rules[i](this.inputVal)
+            return
           } else {
-            this.errorMessage = null;
+            this.errorMessage = null
           }
         }
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>

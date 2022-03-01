@@ -24,7 +24,7 @@
           type="text"
           class="w-full bg-transparent p-0 m-0 border-none focus:ring-transparent"
           v-model="inputVal"
-          ref="inputFilter"
+          ref="refInput"
           @blur="blur()"
           @keyup="rulesChecker"
         />
@@ -39,6 +39,7 @@
           name="chevron"
           class="transform transition duration-300 ease-in-out"
           :class="focus ? 'rotate-180' : 'rotate-0'"
+          color="darkGray"
         />
       </div>
 
@@ -228,7 +229,7 @@ export default {
     blur() {
       if (this.stopEvent === 'icon') {
         this.stopEvent = false
-        this.$refs.inputFilter.focus()
+        this.$refs.refInput.focus()
         return
       }
 
@@ -255,7 +256,7 @@ export default {
         this.stopEvent = 'icon'
       }
 
-      this.$refs.inputFilter.focus()
+      this.$refs.refInput.focus()
       this.focus = true
       this.open = true
     }

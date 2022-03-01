@@ -1,16 +1,25 @@
 <script lang="ts">
 import Vue from 'vue'
+import WzButton from '../src/components/WzButton/WzButton.vue'
+import WzForm from '../src/components/WzForm/WzForm.vue'
 // Uncomment import and local "components" registration if library is not registered globally.
 // import { WelzUicomponentsSample } from '@/entry.esm';
 
 export default Vue.extend({
+  components: { WzForm, WzButton },
   name: 'ServeDev',
   // components: {
   //  WelzUicomponentsSample,
   // },
   data() {
     return {
-      call: null
+      // call: null
+      name: null,
+      gender: null,
+      address: null,
+      items: ['Male', 'Female', 'Others'],
+      tnc: [],
+      valid: false
     }
   }
 })
@@ -18,6 +27,47 @@ export default Vue.extend({
 
 <template>
   <div id="app">
-    <wz-date-picker v-model="call" />
+    <div class="max-w-screen-md mx-auto py-10">
+      <wz-form v-model="valid" ref="forms">
+        <wz-input
+          v-model="name"
+          label="Name"
+          icon="home"
+          class="mb-2"
+          required
+        />
+
+        <wz-select
+          v-model="gender"
+          :items="items"
+          label="Gender"
+          icon="users"
+          required
+        />
+
+        <wz-input v-model="address" label="address" icon="home" class="mb-2" />
+
+        <wz-checkbox
+          label="Terms and conditions"
+          v-model="tnc"
+          value="Terms and conditions"
+        />
+        <wz-checkbox label="Agreement" v-model="tnc" value="Agreement" />
+        <wz-checkbox label="Other thing" v-model="tnc" value="Other thing" />
+
+        <wz-button
+          type="button"
+          :disabled="!valid"
+          color="primary"
+          @click="valid ? submit() : ''"
+          block
+        >
+          <div class="text-white">Proceed</div>
+        </wz-button>
+        <wz-button type="button" block text>
+          <div class="text-darkGray">← Go back</div>
+        </wz-button>
+      </wz-form>
+    </div>
   </div>
 </template>
