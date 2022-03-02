@@ -2,9 +2,9 @@
   <div id="app">
     <wz-navbar>
       <template #logo>
-        <a href="#">
+        <router-link to="/appointment">
           <img src="@/assets/welz_logo.png" alt="logo" class="h-6" />
-        </a>
+        </router-link>
       </template>
       <template #icon>
         <a href="tel:+16465568500">

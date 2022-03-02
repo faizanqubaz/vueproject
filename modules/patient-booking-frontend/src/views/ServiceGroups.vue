@@ -9,7 +9,7 @@
           Select the type of service
         </h1>
         <p class="pt-4 text-base lg:text-lg font-normal text-gray-700 antialiased">
-          Explore and select services you would like to recive
+          Explore and select the service you would like to receive
         </p>
       </div>
       <div class="grid grid-cols-2 gap-6 pt-10 pr-4">
@@ -19,17 +19,17 @@
           @click="$router.push(service.path)"
           :color="service.color"
         >
-        <template>
-          <h2>{{ service.text }}</h2>
-        </template>
-        <template #image>
+          <template>
+            <h2>{{ service.text }}</h2>
+          </template>
+          <template #image>
           <img :src="service.image" :alt="`${service.text}`" class="lg:h-40 md:h-40 sm:h-20" />
-        </template>
+          </template>
         </wz-service-card>
       </div>
       <div class="pt-6 items-center">
-       <wz-button type="button" block text  @click="$router.back()">
-         <div class="text-darkGray">← Go back</div>
+        <wz-button type="button" block text  @click="$router.back()">
+          <p class="text-darkGray">← Go back</p>
         </wz-button>
       </div>
     </div>
@@ -43,28 +43,28 @@ export default Vue.extend({
     return {
       services: [
         {
-          id: 0,
+          id: 1,
           path: '/covidtesting',
           text: 'Covid-19 Testing',
           image: require('@/assets/covid-19-testing.png'),
           color: 'pink-50'
         },
         {
-          id: 1,
+          id: 2,
           path: '/ivdrips',
           text: 'IV Drips',
           image: require('@/assets/iv-drips.png'),
           color: 'green-50'
         },
         {
-          id: 2,
+          id: 3,
           text: 'STD Testing',
           path: '',
           image: require('@/assets/std-testing.png'),
           color: 'gray-50'
         },
         {
-          id: 3,
+          id: 4,
           path: '/athomecare',
           text: 'Urgent Care',
           image: require('@/assets/urgent-care.png'),

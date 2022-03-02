@@ -5,15 +5,15 @@
         <wz-progress width="4/8" />
       </div>
       <div class="pt-7">
-        <p class="text-xl font-bold">Anything Else?</p>
+        <p class="text-xl font-bold">Anything else?</p>
       </div>
       <div class="pt-3 w-4/5">
-        <p class="text-lg font-light">If you have note for us or anything we should know please write it</p>
+        <p class="text-lg font-light">If you have notes for us or anything we should know, please write them here</p>
       </div>
       <div class="pt-5 text-lg h-20">
         <wz-textarea
           icon="home"
-          label="Additional notes"
+          label="Additional Notes"
           v-model="$store.state.appointment.notes"
           :error="false"
           errorMessage=""
@@ -22,14 +22,14 @@
           <br>
         <div class="pt-0">
           <wz-button color="primary" block @click="$router.push('/timeslots')">
-            <div class="text-white">Proceed</div>
+            <p class="text-white">Proceed</p>
           </wz-button>
         </div>
         <div class="pt-4 items-center">
-         <wz-button type="button" block text  @click="$router.back()">
-           <div class="text-darkGray">← Go back</div>
-        </wz-button>
-      </div>
+          <wz-button type="button" block text  @click="$router.back()">
+            <p class="text-darkGray">← Go back</p>
+          </wz-button>
+        </div>
       </div>
     </div>
   </div>

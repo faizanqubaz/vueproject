@@ -5,7 +5,7 @@
         <wz-progress width="8/8" />
       </div>
       <div class="pt-7">
-        <h1 class="text-xl">Review Order</h1>
+        <h1 class="text-xl">Review order</h1>
         <p class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased">
           Please review your order
         </p>
@@ -30,7 +30,7 @@
             <div>
               <p>{{ $store.state.patient.phoneNumber }}</p>
             </div>
-           <hr class="w-80"/>
+            <hr class="w-80"/>
           </div>
           <div class="gap-y-7">
             <div class="grid grid-cols-2">
@@ -38,10 +38,10 @@
               <label for="dob" class="font-extralight text-sm">Date of Birth</label>
             </div>
             <div class="grid grid-cols-2">
-              <p v-if="!$store.state.patient.gender">
+              <p v-if="$store.state.patient.gender.length != 0">
                 {{ $store.state.patient.gender }}
               </p>
-              <p>{{ $store.state.patient.dateofbirth }}</p>
+              <p>{{ $store.state.patient.dob }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -52,11 +52,11 @@
             <div>
               <p>{{ $store.state.location.address }}</p>
             </div>
-          <hr class="w-80"/>
+            <hr class="w-80"/>
           </div>
           <div class="gap-y-7">
             <div>
-              <label for="apartment" class="font-extralight text-sm">Apartment/Floor</label>
+              <label for="apartment" class="font-extralight text-sm">Apartment #</label>
             </div>
             <div class="grid grid-cols-2">
               <p>{{ $store.state.location.apartment }}</p>
@@ -72,7 +72,7 @@
             <div class="py-5 flex-1 mx-4">
               <div class="mx-4 flex flex-col items-center justify-center">
                 <img src="@/assets/pcr.png" class="mb-4 h-12" alt="image" />
-                <div class="text-fontPrimary mb-2">COVID-19 Test</div>
+                <p class="text-fontPrimary mb-2">COVID-19 Test</p>
                 <p class="font-normal text-fontSecondary mb-2">Get result in 15 minutes</p>
                 <p class="font-normal text-primary">$30.00</p>
               </div>
@@ -86,12 +86,12 @@
       </div>
       <div class="pt-5">
         <wz-button color="primary" @click="nextPage" block>
-          <div class="text-white">Place Order</div>
+          <p class="text-white">Place Order</p>
         </wz-button>
       </div>
       <div class="pt-4 items-center">
         <wz-button type="button" block text @click="$router.back()">
-          <div class="text-darkGray">← Go Back</div>
+          <p class="text-darkGray">← Go Back</p>
         </wz-button>
       </div>
     </div>

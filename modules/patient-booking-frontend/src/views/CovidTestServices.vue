@@ -5,11 +5,9 @@
         <wz-progress width="3/8" />
       </div>
       <div class="pt-7">
-        <h1 class="text-xl">COVID-19 Testing</h1>
-        <p
-          class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased"
-        >
-          Select services for COVID-19 testing
+        <h1 class="text-xl">COVID-19 testing</h1>
+        <p class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased">
+          Select a service for COVID-19 testing
         </p>
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-8">
@@ -30,7 +28,7 @@
               <p class="antialiased font-normal text-gray-500 pt-1">
                 {{ serviceType.text }}
               </p>
-              <p class="text-blue-500 pt-1">{{ serviceType.price }}</p>
+              <p class="font-normal text-primary pt-1">{{ serviceType.price }}</p>
             </div>
           </template>
         </wz-checkbox-card>
@@ -39,15 +37,15 @@
         <wz-button
           color="primary"
           block
-          :disabled="!isClickValid"
+          :disabled="!isValid"
           @click="nextPage"
         >
-          <div class="text-white">Proceed</div>
+          <p class="text-white">Proceed</p>
         </wz-button>
       </div>
       <div class="pt-4 items-center">
         <wz-button type="button" block text @click="$router.back()">
-          <div class="text-darkGray">← Go back</div>
+          <p class="text-darkGray">← Go back</p>
         </wz-button>
       </div>
     </div>
@@ -56,27 +54,26 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { isEmpty } from 'lodash'
 export default Vue.extend({
   data () {
     return {
       serviceTypes: [
         {
-          id: '0',
+          id: 1,
           image: require('@/assets/rapid.png'),
           title: 'Rapid COVID-19 Test',
           text: 'Get result in 15-minutes',
           price: '$30.00'
         },
         {
-          id: '1',
+          id: 2,
           image: require('@/assets/pcr.png'),
           title: 'PCR COVID-19 Test',
           text: 'Get result in 15-minutes',
           price: '$30.00'
         },
         {
-          id: '2',
+          id: 3,
           image: require('@/assets/rapid-pcr.png'),
           title: 'Rapid + PCR COVID-19 Test',
           text: 'Get result in 15-minutes',
@@ -86,13 +83,13 @@ export default Vue.extend({
     }
   },
   computed: {
-    isClickValid: function () {
-      return !isEmpty(this.$store.state.appointment.serviceId)
+    isValid () {
+      return this.$store.state.appointment.serviceId
     }
   },
   methods: {
     nextPage () {
-      if (this.isClickValid) {
+      if (this.isValid) {
         this.$router.push('/notes')
       }
     }

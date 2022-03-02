@@ -6,10 +6,10 @@
       </div>
       <div class="pt-7">
         <h1 class="text-xl">
-          Care, wherever you are.
+          Care, wherever you are
         </h1>
         <p class="pt-5 text-base lg:text-lg font-normal text-gray-700 antialiased">
-          We bring the urgent care directly to you. It’s as easy as using Amazon.
+          We bring the urgent care directly to you. It’s as easy as using Amazon
         </p>
       </div>
       <br />
@@ -19,7 +19,7 @@
           :items="searchResults"
           itemText="description"
           icon="map-pin"
-          label="Your address"
+          label="Your Address"
           :filter="false"
           class="my-2"
           required
@@ -29,7 +29,7 @@
         <div class="pt-4">
           <wz-input
             icon="home"
-            label="Apartment number"
+            label="Apartment #"
             v-model="$store.state.location.apartment"
             type="text"
             :error="false"
@@ -58,7 +58,7 @@
             :disabled="!isInputValid"
             @click="nextPage"
             >
-            <div class="text-white">Proceed</div>
+            <p class="text-white">Proceed</p>
           </wz-button>
         </div>
       </div>
@@ -70,8 +70,6 @@
 // lang is js to disable some type errors with google autocomplete service
 import Vue from 'vue'
 export default Vue.extend({
-  name: 'Appointment',
-  components: {},
   data () {
     return {
       addressRules: [(location) => !!location || 'Address is required'],

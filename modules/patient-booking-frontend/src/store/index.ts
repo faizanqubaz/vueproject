@@ -14,7 +14,8 @@ export default new Vuex.Store({
     appointment: {
       serviceId: '',
       notes: '',
-      timeslot: ''
+      timeslot: '',
+      date: ''
     },
     patient: {
       firstName: '',
@@ -22,7 +23,8 @@ export default new Vuex.Store({
       phoneNumber: '',
       gender: '',
       dob: '',
-      email: ''
+      email: '',
+      consent: false
     },
     insurance: {
       front: null,
