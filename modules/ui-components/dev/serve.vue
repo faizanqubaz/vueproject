@@ -16,7 +16,13 @@ export default Vue.extend({
       address: null,
       items: ['Male', 'Female', 'Others'],
       tnc: [],
+      rad: 'Terms and conditions',
       valid: false
+    }
+  },
+  watch: {
+    rad(e) {
+      console.log('ni rad', e)
     }
   }
 })
@@ -45,13 +51,26 @@ export default Vue.extend({
 
         <wz-input v-model="address" label="address" icon="home" class="mb-2" />
 
-        <wz-checkbox
+        <wz-radio-button
+          label="Terms and conditions"
+          value="Terms and conditions"
+          v-model="rad"
+        >
+        </wz-radio-button>
+        <wz-radio-button
+          label="Second choice"
+          value="Second choice"
+          v-model="rad"
+        >
+        </wz-radio-button>
+
+        <!-- <wz-checkbox
           label="Terms and conditions"
           v-model="tnc"
           value="Terms and conditions"
         />
         <wz-checkbox label="Agreement" v-model="tnc" value="Agreement" />
-        <wz-checkbox label="Other thing" v-model="tnc" value="Other thing" />
+        <wz-checkbox label="Other thing" v-model="tnc" value="Other thing" /> -->
 
         <wz-button
           type="button"

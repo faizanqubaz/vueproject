@@ -5,14 +5,18 @@
 </template>
 
 <script>
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     value: null
   },
   mounted() {
     this.$children.forEach((el, index) => {
       if (el.$refs.refInput) {
-        if (el.$options.name === 'WzCheckbox') {
+        if (
+          el.$options._componentTag === 'wz-checkbox' ||
+          el.$options._componentTag === 'wz-radio-button'
+        ) {
           el.$refs.refInput.addEventListener(
             'change',
             () => {
@@ -92,17 +96,23 @@ export default {
           el.$refs.refInput &&
           (el.required ||
             (typeof el.rules !== 'undefined' && el.rules.length > 0) ||
-            el.$options.name === 'WzCheckbox')
+            el.$options._componentTag === 'wz-checkbox' ||
+            el.$options._componentTag === 'wz-radio-button')
         )
       })
 
       let valCheck = this.$children.filter((el, index) => {
-        if (el.$refs.refInput && el.$options.name !== 'WzCheckbox') {
+        if (
+          el.$refs.refInput &&
+          el.$options._componentTag !== 'wz-checkbox' &&
+          el.$options._componentTag !== 'wz-radio-button'
+        ) {
           return (
             el.$refs.refInput.value &&
             (el.required ||
               (typeof el.rules !== 'undefined' && el.rules.length > 0) ||
-              el.$options.name === 'WzCheckbox')
+              el.$options._componentTag === 'wz-checkbox' ||
+              el.$options._componentTag === 'wz-radio-button')
           )
         } else {
           if (typeof el.value !== 'undefined' && el.value.length > 0) {
@@ -119,7 +129,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style></style>
