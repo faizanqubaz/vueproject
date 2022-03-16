@@ -1,12 +1,9 @@
 <script lang="ts">
 import Vue from 'vue'
-import WzButton from '../src/components/WzButton/WzButton.vue'
-import WzForm from '../src/components/WzForm/WzForm.vue'
 // Uncomment import and local "components" registration if library is not registered globally.
 // import { WelzUicomponentsSample } from '@/entry.esm';
 
 export default Vue.extend({
-  components: { WzForm, WzButton },
   name: 'ServeDev',
   // components: {
   //  WelzUicomponentsSample,
@@ -28,6 +25,7 @@ export default Vue.extend({
 <template>
   <div id="app">
     <div class="max-w-screen-md mx-auto py-10">
+      <wz-loader borderStyle="dashed" size="24" />
       <wz-form v-model="valid" ref="forms">
         <wz-input
           v-model="name"
@@ -62,7 +60,10 @@ export default Vue.extend({
           @click="valid ? submit() : ''"
           block
         >
-          <div class="text-white">Proceed</div>
+          <div class="flex items-center justify-center">
+            <wz-loader color="white" />
+            <div class="text-white">Proceed</div>
+          </div>
         </wz-button>
         <wz-button type="button" block text>
           <div class="text-darkGray">← Go back</div>
