@@ -24,6 +24,7 @@
           type="text"
           class="w-full bg-transparent p-0 m-0 border-none focus:ring-transparent"
           v-model="inputVal"
+          :placeholder="placeholder"
           ref="refInput"
           @blur="blur()"
           @keyup="rulesChecker"
@@ -151,6 +152,7 @@ export default {
       type: Boolean,
       default: true
     },
+    placeholder: String,
     value: {
       type: String,
       default: ''
