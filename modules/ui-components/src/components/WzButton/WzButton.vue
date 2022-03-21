@@ -11,7 +11,7 @@
       color && !text ? 'bg-' + color : text ? '' : 'bg-lightGray',
       text
         ? 'filter hover:bg-opacity-10 active:bg-opacity-30 hover:bg-' + color
-        : '',
+        : ''
     ]"
     @click="$emit('click')"
   >
@@ -20,28 +20,29 @@
 </template>
 
 <script>
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     block: {
       type: Boolean,
-      default: false,
+      default: false
     },
     disabled: {
       type: Boolean,
-      default: false,
+      default: false
     },
     text: {
       type: Boolean,
-      default: false,
+      default: false
     },
     type: {
       type: String,
-      default: null,
+      default: null
     },
     color: {
       type: String,
-      default: null,
-    },
-  },
-};
+      default: null
+    }
+  }
+})
 </script>

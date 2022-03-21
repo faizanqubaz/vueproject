@@ -22,77 +22,78 @@
 </template>
 
 <script>
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     type: {
       type: String,
       default: null,
-      required: true,
+      required: true
     },
     dismissable: {
       type: Boolean,
-      default: false,
+      default: false
     },
     dense: {
       type: Boolean,
-      default: false,
+      default: false
     },
     icon: {
       type: String,
-      default: null,
+      default: null
     },
     color: {
       type: String,
-      default: null,
-    },
+      default: null
+    }
   },
   data() {
     return {
       iconName: null,
       iconColor: null,
-      classComponent: null,
-    };
+      classComponent: null
+    }
   },
   watch: {
     $props: {
       handler() {
-        this.switchType();
+        this.switchType()
       },
       deep: true,
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
     switchType() {
       switch (this.type) {
-        case "success":
-          this.icon ? (this.iconName = this.icon) : (this.iconName = "check");
+        case 'success':
+          this.icon ? (this.iconName = this.icon) : (this.iconName = 'check')
           this.color
             ? (this.iconColor = this.color)
-            : (this.iconColor = "green-500");
-          this.classComponent = "bg-green-500";
-          break;
-        case "info":
-          this.icon ? (this.iconName = this.icon) : (this.iconName = "info");
+            : (this.iconColor = 'green-500')
+          this.classComponent = 'bg-green-500'
+          break
+        case 'info':
+          this.icon ? (this.iconName = this.icon) : (this.iconName = 'info')
           this.color
             ? (this.iconColor = this.color)
-            : (this.iconColor = "blue-500");
-          this.classComponent = "bg-blue-500";
-          break;
-        case "warning":
-          this.icon ? (this.iconName = this.icon) : (this.iconName = "info");
+            : (this.iconColor = 'blue-500')
+          this.classComponent = 'bg-blue-500'
+          break
+        case 'warning':
+          this.icon ? (this.iconName = this.icon) : (this.iconName = 'info')
           this.color
             ? (this.iconColor = this.color)
-            : (this.iconColor = "yellow-500");
-          this.classComponent = "bg-yellow-500";
-          break;
-        case "error":
-          this.icon ? (this.iconName = this.icon) : (this.iconName = "info");
-          this.color ? (this.iconColor = this.color) : (this.iconColor = "red");
-          this.classComponent = "bg-red";
-          break;
+            : (this.iconColor = 'yellow-500')
+          this.classComponent = 'bg-yellow-500'
+          break
+        case 'error':
+          this.icon ? (this.iconName = this.icon) : (this.iconName = 'info')
+          this.color ? (this.iconColor = this.color) : (this.iconColor = 'red')
+          this.classComponent = 'bg-red'
+          break
       }
-    },
-  },
-};
+    }
+  }
+})
 </script>

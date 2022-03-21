@@ -6,7 +6,7 @@
       :class="[
         focus && !errorMessage ? 'border-primary' : '',
         !focus && !errorMessage ? 'border-stroke' : '',
-        errorMessage ? 'border-red' : '',
+        errorMessage ? 'border-red' : ''
       ]"
       @click="$refs.refInput.focus(), (focus = true)"
     >
@@ -32,64 +32,65 @@
   </div>
 </template>
 <script>
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     type: {
       type: String,
-      default: "text",
+      default: 'text'
     },
     icon: {
       type: String,
-      default: "",
+      default: ''
     },
     label: {
       type: String,
-      default: "",
+      default: ''
     },
     rules: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     required: {
       type: Boolean,
-      default: false,
+      default: false
     },
-    value: null,
+    value: null
   },
 
   data() {
     return {
       focus: false,
-      errorMessage: null,
-    };
+      errorMessage: null
+    }
   },
   methods: {
     rulesChecker() {
       if (this.rules && this.rules.length > 0) {
         for (let i = 0; i < this.rules.length; i++) {
           if (this.rules[i](this.inputVal) !== true) {
-            this.errorMessage = this.rules[i](this.inputVal);
-            return;
+            this.errorMessage = this.rules[i](this.inputVal)
+            return
           } else {
-            this.errorMessage = null;
+            this.errorMessage = null
           }
         }
       }
-    },
+    }
   },
 
   computed: {
     inputVal: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val) {
         if (this.required && this.rules.length === 0) {
-          val ? (this.errorMessage = false) : (this.errorMessage = "Required");
+          val ? (this.errorMessage = false) : (this.errorMessage = 'Required')
         }
-        this.$emit("input", val);
-      },
-    },
-  },
-};
+        this.$emit('input', val)
+      }
+    }
+  }
+})
 </script>

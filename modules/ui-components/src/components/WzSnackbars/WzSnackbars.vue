@@ -12,7 +12,7 @@
       class="rounded inline-block"
       :class="[
         color ? 'bg-' + color : 'bg-fontSecondary',
-        multiline ? 'py-4' : 'py-2',
+        multiline ? 'py-4' : 'py-2'
       ]"
     >
       <div class="flex items-center justify-between">
@@ -26,49 +26,50 @@
 </template>
 
 <script>
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     value: {
       type: Boolean,
-      default: false,
+      default: false
     },
     color: {
       type: String,
-      default: "",
+      default: ''
     },
     multiline: {
       type: Boolean,
-      default: false,
+      default: false
     },
     timeout: {
       type: Number,
-      default: 2000,
-    },
+      default: 2000
+    }
   },
   watch: {
     inputVal(val) {
       if (val) {
-        this.showComponent();
+        this.showComponent()
       }
-    },
+    }
   },
   computed: {
     inputVal: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val) {
-        this.$emit("input", val);
-      },
-    },
+        this.$emit('input', val)
+      }
+    }
   },
   methods: {
     showComponent() {
-      this.$emit("input", true);
+      this.$emit('input', true)
       setTimeout(() => {
-        this.$emit("input", false);
-      }, this.timeout);
-    },
-  },
-};
+        this.$emit('input', false)
+      }, this.timeout)
+    }
+  }
+})
 </script>

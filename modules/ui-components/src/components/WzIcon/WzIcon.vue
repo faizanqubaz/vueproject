@@ -2,69 +2,70 @@
   <component :is="`wzi-${name}`" :id="id" />
 </template>
 <script>
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     name: {
       type: String,
-      default: "",
+      default: ''
     },
     color: {
       type: String,
-      default: "",
-    },
+      default: ''
+    }
   },
   data() {
     return {
       el: null,
-      id: null,
-    };
+      id: null
+    }
   },
   mounted() {
-    this.getElement();
+    this.getElement()
   },
 
   watch: {
     color() {
-      this.changeColor();
+      this.changeColor()
     },
     name() {
-      this.getElement();
-    },
+      this.getElement()
+    }
   },
   methods: {
     async changeColor() {
-      let path = this.el.getElementsByTagName("path");
+      let path = this.el.getElementsByTagName('path')
 
-      let newClass;
+      let newClass
       for (let i = 0; i < path.length; i++) {
-        path[i].removeAttribute("class");
-        let attrStroke = path[i].getAttribute("stroke");
+        path[i].removeAttribute('class')
+        let attrStroke = path[i].getAttribute('stroke')
 
-        path[i].setAttribute("class", "");
+        path[i].setAttribute('class', '')
 
         if (path[i].classList.length === 2) {
-          path[i].classList.remove(path[i].classList[1]);
+          path[i].classList.remove(path[i].classList[1])
         }
         if (attrStroke) {
-          newClass = ["stroke-current", "text-" + this.color];
+          newClass = ['stroke-current', 'text-' + this.color]
         } else {
-          newClass = ["fill-current", "text-" + this.color];
+          newClass = ['fill-current', 'text-' + this.color]
         }
 
-        path[i].classList.add(...newClass);
+        path[i].classList.add(...newClass)
       }
     },
     async getElement() {
-      this.id = Math.random().toString(36).slice(2);
-      this.el = null;
+      this.id = Math.random().toString(36).slice(2)
+      this.el = null
       while (!this.el)
         await new Promise((resolve) => {
-          this.el = document.getElementById(this.id);
-          setTimeout(resolve, 100);
-        });
+          this.el = document.getElementById(this.id)
+          setTimeout(resolve, 100)
+        })
 
-      this.changeColor();
-    },
-  },
-};
+      this.changeColor()
+    }
+  }
+})
 </script>

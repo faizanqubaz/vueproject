@@ -27,7 +27,8 @@
 
 <script>
 import { DatePicker } from 'v-calendar'
-export default {
+import Vue from 'vue'
+export default Vue.extend({
   props: {
     value: Date
   },
@@ -56,7 +57,7 @@ export default {
       toggle({ ref: e.target })
     }
   }
-}
+})
 </script>
 
 <style>
