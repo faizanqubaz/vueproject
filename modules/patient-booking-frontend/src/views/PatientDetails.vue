@@ -37,6 +37,7 @@
           :items="genders"
           icon="users"
           label="Gender"
+          placeholder="Select"
           required
           :rules="genderRules"
         />
@@ -59,11 +60,10 @@
       </div>
       <div class="pt-0">
         <wz-button
-          type="button"
-          :disabled="!valid"
-          color="primary"
-          @click="valid ? nextPage() : ''"
           block
+          color="primary"
+          :disabled="!isValid"
+          @click="nextPage"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -89,7 +89,7 @@ export default Vue.extend({
   data () {
     return {
       genderResults: [],
-      genderRules: [(gender) => !!gender || 'Gender is required'],
+      genderRules: [(gender:boolean) => !!gender || 'Gender is required'],
       genders: ['Male', 'Female', 'Other'],
       valid: false
     }
@@ -99,27 +99,21 @@ export default Vue.extend({
       this.genderResults = this.$store.state.patient.gender
     },
     nextPage () {
-      this.$router.push('/insurance')
+      if (this.isValid && this.$store.state.payment.insurance) {
+        this.$router.push('/insurance')
+      } else if (this.isValid) {
+        this.$router.push('/review-appointment')
+      }
     }
   },
   computed: {
-    isFilled () {
-      return [
-        this.$store.state.patient.firstName &&
+    isValid () {
+      return this.$store.state.patient.firstName &&
         this.$store.state.patient.lastName &&
         this.$store.state.patient.phoneNumber &&
         this.$store.state.patient.gender &&
         this.$store.state.patient.dob &&
         this.$store.state.patient.email
-      ].join()
-    }
-  },
-  watch: {
-    isFilled (e) {
-      const fill = e.split(',')
-      for (let i = 0; i < fill.length; i++) {
-        !fill[i] ? (this.valid = false) : (this.valid = true)
-      }
     }
   }
 })

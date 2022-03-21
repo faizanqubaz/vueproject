@@ -14,7 +14,7 @@
         <wz-input
           icon="cardFront"
           label="Card Number"
-          v-model="$store.state.paymentInfo.cardNumber"
+          v-model="$store.state.outOfPocketInfo.cardNumber"
           type="number"
           :error="false"
           errorMessage=""
@@ -24,7 +24,7 @@
         <wz-input
           icon="calendar"
           label="Expiration Date"
-          v-model="$store.state.paymentInfo.expirationDate"
+          v-model="$store.state.outOfPocketInfo.expirationDate"
           type="text"
           :error="false"
           errorMessage=""
@@ -32,7 +32,7 @@
         <wz-input
           icon="cardBack"
           label="CVC"
-          v-model="$store.state.paymentInfo.cvc"
+          v-model="$store.state.outOfPocketInfo.cvc"
           type="number"
           :error="false"
           errorMessage=""
@@ -42,7 +42,7 @@
         <wz-input
           icon="email"
           label="Email"
-          v-model="$store.state.paymentInfo.email"
+          v-model="$store.state.outOfPocketInfo.email"
           type="text"
           :error="false"
           errorMessage=""
@@ -67,16 +67,16 @@ import Vue from 'vue'
 export default Vue.extend({
   computed: {
     isValid: function () {
-      return this.$store.state.paymentInfo.cardNumber &&
-      this.$store.state.paymentInfo.expirationDate &&
-      this.$store.state.paymentInfo.cvc &&
-      this.$store.state.paymentInfo.email
+      return this.$store.state.outOfPocketInfo.cardNumber &&
+      this.$store.state.outOfPocketInfo.expirationDate &&
+      this.$store.state.outOfPocketInfo.cvc &&
+      this.$store.state.outOfPocketInfo.email
     }
   },
   methods: {
     nextPage () {
       if (this.isValid) {
-        this.$router.push('/review-order')
+        this.$router.push('/review-appointment')
       }
     }
   }

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Appointment from '../views/Appointment.vue'
-import ServiceGroups from '../views/ServiceGroups.vue'
+import Services from '../views/Services.vue'
 import CovidTesting from '../views/CovidTestServices.vue'
 import AtHomeCare from '../views/AtHomeServices.vue'
 import IVDrips from '../views/IvDripServices.vue'
@@ -10,7 +10,7 @@ import AdditionalNotes from '../views/AdditionalNotes.vue'
 import Details from '../views/PatientDetails.vue'
 import Insurance from '../views/Insurance.vue'
 import Payment from '../views/Payment.vue'
-import ReviewOrder from '../views/ReviewOrder.vue'
+import ReviewAppointment from '../views/ReviewAppointment.vue'
 import Confirmation from '../views/Confirmation.vue'
 
 Vue.use(VueRouter)
@@ -22,22 +22,22 @@ const routes: Array<RouteConfig> = [
     component: Appointment
   },
   {
-    path: '/servicetypes',
-    name: 'ServiceGroups',
-    component: ServiceGroups
+    path: '/services',
+    name: 'Services',
+    component: Services
   },
   {
-    path: '/covidtesting',
+    path: '/covid19-testing',
     name: 'CovidTesting',
     component: CovidTesting
   },
   {
-    path: '/athomecare',
+    path: '/at-home-care',
     name: 'AtHomeCare',
     component: AtHomeCare
   },
   {
-    path: '/ivdrips',
+    path: '/iv-drips',
     name: 'IVDrips',
     component: IVDrips
   },
@@ -67,9 +67,9 @@ const routes: Array<RouteConfig> = [
     component: Payment
   },
   {
-    path: '/review-order',
-    name: 'ReviewOrder',
-    component: ReviewOrder
+    path: '/review-appointment',
+    name: 'ReviewAppointment',
+    component: ReviewAppointment
   },
   {
     path: '/confirmation',

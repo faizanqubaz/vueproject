@@ -5,24 +5,24 @@
         <wz-progress width="3/8" />
       </div>
       <div class="pt-7">
-        <h1 class="text-xl">Urgent care</h1>
+        <h1 class="text-xl">At home care</h1>
         <p class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased">
-          Select a service for urgent care
+          Please select a symptom for at home care
         </p>
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-10">
         <wz-checkbox-card
-          v-for="serviceType in serviceTypes"
-          :key="serviceType"
-          v-model="$store.state.appointment.serviceId"
-          :itemKey="serviceType.id"
+          v-for="symptom in symptoms"
+          :key="symptom.id"
+          v-model="$store.state.appointment.notes"
+          :itemKey="symptom.name"
           align="center"
         >
           <template #icon>
-            <wz-icon :name="serviceType.icon" />
+            <wz-icon :name="symptom.icon" />
           </template>
           <template #content>
-            <h3 class="font-normal">{{ serviceType.title }}</h3>
+            <h3 class="font-normal">{{ symptom.name }}</h3>
           </template>
         </wz-checkbox-card>
       </div>
@@ -31,7 +31,7 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="nextPage"
+          @click="proceed"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -50,68 +50,69 @@ import Vue from 'vue'
 export default Vue.extend({
   data () {
     return {
-      serviceTypes: [
+      symptoms: [
         {
           id: 1,
           icon: 'flu',
-          title: 'Flu and fever'
+          name: 'Flu and fever'
         },
         {
           id: 2,
           icon: 'MuscularIssue',
-          title: 'Muscular and joint pain'
+          name: 'Muscular and joint pain'
         },
         {
           id: 3,
           icon: 'Cough',
-          title: 'Cough, cold, sinus'
+          name: 'Cough, cold, sinus'
         },
         {
           id: 4,
           icon: 'MinorInjury',
-          title: 'Minor injury'
+          name: 'Minor injury'
         },
         {
           id: 5,
           icon: 'HeadInjury',
-          title: 'Head or ear issue'
+          name: 'Head or ear issue'
         },
         {
           id: 6,
           icon: 'GenitalIssue',
-          title: 'Genital or urinary issue'
+          name: 'Genital or urinary issue'
         },
         {
           id: 7,
           icon: 'EyeIssue',
-          title: 'Eye issue'
+          name: 'Eye issue'
         },
         {
           id: 8,
           icon: 'StomachIssue',
-          title: 'Stomach issue'
+          name: 'Stomach issue'
         },
         {
           id: 9,
           icon: 'StomachIssue',
-          title: 'Skin condition'
+          name: 'Skin condition'
         },
         {
           id: 10,
           icon: 'ExistingCondition',
-          title: 'Existing condition'
+          name: 'Existing condition'
         }
       ]
     }
   },
   computed: {
     isValid () {
-      return this.$store.state.appointment.serviceId
+      return this.$store.state.appointment.notes
     }
   },
   methods: {
-    nextPage () {
+    proceed () {
       if (this.isValid) {
+        this.$store.state.service.id = 4
         this.$router.push('/notes')
       }
     }

@@ -16,14 +16,14 @@
         <wz-service-card
           :key="service.id"
           v-for="service in services"
-          @click="$router.push(service.path)"
-          :color="service.color"
+          @click="$router.push(paths[service.id-1])"
+          :color="colors[service.id-1]"
         >
           <template>
-            <h2>{{ service.text }}</h2>
+            <h2>{{ service.name }}</h2>
           </template>
           <template #image>
-          <img :src="service.image" :alt="`${service.text}`" class="lg:h-40 md:h-40 sm:h-20" />
+          <img :src="images[service.id-1]" :alt="`${service.name}`" class="lg:h-40 md:h-40 sm:h-20" />
           </template>
         </wz-service-card>
       </div>
@@ -41,37 +41,28 @@ import Vue from 'vue'
 export default Vue.extend({
   data () {
     return {
-      services: [
-        {
-          id: 1,
-          path: '/covidtesting',
-          text: 'Covid-19 Testing',
-          image: require('@/assets/covid-19-testing.png'),
-          color: 'pink-50'
-        },
-        {
-          id: 2,
-          path: '/ivdrips',
-          text: 'IV Drips',
-          image: require('@/assets/iv-drips.png'),
-          color: 'green-50'
-        },
-        {
-          id: 3,
-          text: 'STD Testing',
-          path: '',
-          image: require('@/assets/std-testing.png'),
-          color: 'gray-50'
-        },
-        {
-          id: 4,
-          path: '/athomecare',
-          text: 'Urgent Care',
-          image: require('@/assets/urgent-care.png'),
-          color: 'yellow-50'
-        }
-      ]
+      paths: [
+        '/covid19-testing',
+        '/at-home-care',
+        '/iv-drips',
+        '/std-testing'
+      ],
+      colors: [
+        'pink-50',
+        'green-50',
+        'gray-50',
+        'yellow-50'
+      ],
+      images: [
+        require('@/assets/covid-19-testing.png'),
+        require('@/assets/urgent-care.png'),
+        require('@/assets/iv-drips.png'),
+        require('@/assets/std-testing.png')
+      ],
+      services: this.$store.state.services
     }
+  },
+  methods: {
   }
 })
 </script>

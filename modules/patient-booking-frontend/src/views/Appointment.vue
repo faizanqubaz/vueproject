@@ -16,8 +16,7 @@
       <div class="pt-0">
         <wz-select
           v-model="$store.state.location.address"
-          :items="searchResults"
-          itemText="description"
+          ref="input"
           icon="map-pin"
           label="Your Address"
           :filter="false"
@@ -55,66 +54,130 @@
         <div class="pt-6">
           <wz-button color="primary"
             block
-            :disabled="!isInputValid"
-            @click="nextPage"
+            :disabled="!isValid"
+            @click="isServiceAvailable"
             >
             <p class="text-white">Proceed</p>
           </wz-button>
         </div>
       </div>
     </div>
+   <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
+        <template>
+          <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
+        </template>
+        <template #action>
+          <wz-button
+            text
+            @click="snackbar.open= false"
+            color="red"
+            class="text-red mr-4"
+            >Close</wz-button>
+        </template>
+    </wz-snackbars>
   </div>
 </template>
 
-<script lang="js">
-// lang is js to disable some type errors with google autocomplete service
+<script lang="ts">
 import Vue from 'vue'
+import BookingApiClient from '../api/BookingApiClient'
+import { Loader } from '@googlemaps/js-api-loader'
+import { forEach } from 'lodash'
+const loader = new Loader({
+  apiKey: 'AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw',
+  version: 'weekly',
+  libraries: ['places'],
+  region: 'us'
+})
 export default Vue.extend({
   data () {
     return {
-      addressRules: [(location) => !!location || 'Address is required'],
+      addressRules: [(location:boolean) => !!location || 'Address is required'],
       autocomplete: null,
-      searchResults: []
+      valid: false,
+      errorNotification: false,
+      snackbar: {
+        open: false,
+        message: ''
+      }
     }
   },
-  metaInfo () {
-    return {
-      script: [
-        {
-          src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw&libraries=places',
-          async: true,
-          defer: true,
-          callback: () => this.MapsInit()
-        }
-      ]
-    }
+  async mounted (): Promise<void> {
+    loader
+      .load()
+      .then((google) => {
+        const autocomplete = new google.maps.places.Autocomplete(
+          this.$el.querySelector('input') as HTMLInputElement,
+          {
+            types: ['geocode'],
+            componentRestrictions: { country: 'us' },
+            strictBounds: true,
+            fields: ['address_components', 'formatted_address', 'geometry']
+          }
+        )
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace()
+          this.$store.state.location.address =
+            place.formatted_address === undefined
+              ? ''
+              : place.formatted_address
+          if (this.$store.state.location.address) {
+            this.$store.state.location.latitude = place.geometry.location.lat()
+            this.$store.state.location.longitude = place.geometry.location.lng()
+          }
+          forEach(
+            place.address_components,
+            /* eslint-disable camelcase */
+            (component: { types: string[]; long_name: string }) => {
+              if (component.types.includes('postal_code')) {
+                this.$store.state.location.zipCode = component.long_name
+              } else if (component.types.includes('neighborhood')) {
+                this.$store.state.location.city = component.long_name
+              } else if (component.types.includes('administrative_area_level_1')) {
+                this.$store.state.location.state = component.long_name
+              }
+            }
+          )
+        })
+      })
+      .catch((e) => {
+        console.log(e)
+      })
   },
   methods: {
-    MapsInit () {
-      this.autocomplete = new window.google.maps.places.AutocompleteService({
-        bounds: new window.google.maps.LatLngBounds(
-          new window.google.maps.LatLng(37.09024, -95.712891)
-        )
-      })
-    },
-    displaySuggestions (predictions, status) {
-      if (status !== window.google.maps.places.PlacesServiceStatus.OK) {
-        return (this.searchResults = [])
-      }
-      this.searchResults = predictions
-    },
-    nextPage () {
-      if (this.isInputValid) {
-        this.$router.push('/servicetypes')
+    async isServiceAvailable () {
+      this.isLoading = true
+      this.error = null
+      try {
+        const bookingApiClient = new BookingApiClient()
+        const response = await bookingApiClient.getService(this.$store.state.location.zipCode)
+        if (response.result.length > 0) {
+          this.$store.state.services = response.result
+          this.$router.push('/services')
+        } else {
+          this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
+          this.snackbar.open = true
+          this.$store.state.location.address = ''
+          this.$store.state.location.zipCode = ''
+          this.$store.state.payment.insurance = false
+          this.$store.state.payment.outOfPocket = false
+        }
+      } catch (error) {
+        this.isLoading = false
+        this.error = 'Technical Issue. Please try again'
+        return false
       }
     }
   },
   computed: {
-    isInputValid: function () {
-      return this.$store.state.location.address && (this.$store.state.payment.insurance || this.$store.state.payment.outOfPocket)
+    isValid () {
+      return this.$store.state.location.address &&
+      this.$store.state.location.zipCode &&
+      (this.$store.state.payment.insurance || this.$store.state.payment.outOfPocket)
     }
   },
   watch: {
+    // TODO: we need to develop a radio buton and remove this code
     '$store.state.payment.insurance' (newValue) {
       if (newValue) {
         this.$store.state.payment.outOfPocket = false
@@ -123,17 +186,6 @@ export default Vue.extend({
     '$store.state.payment.outOfPocket' (newValue) {
       if (newValue) {
         this.$store.state.payment.insurance = false
-      }
-    },
-    '$store.state.location.address' (newValue) {
-      if (newValue) {
-        this.autocomplete.getPlacePredictions(
-          {
-            input: this.$store.state.location.address,
-            componentRestrictions: { country: 'us' }
-          },
-          this.displaySuggestions
-        )
       }
     }
   }

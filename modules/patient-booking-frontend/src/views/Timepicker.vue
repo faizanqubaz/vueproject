@@ -9,30 +9,35 @@
           <h1 class="text-xl">Pick a time that works for you</h1>
         </div>
         <div class="pt-3 md:w-1/3">
-          <wz-date-picker v-model="$store.state.appointment.date">
-            <p class="text-darkGray ml-24 flex">Today</p>
+          <wz-date-picker v-model="date">
+            <p class="text-darkGray ml-5 flex">{{ this.date.toDateString() }}</p>
           </wz-date-picker>
         </div>
       </div>
       <div class="grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 py-7">
         <wz-checkbox-card
-          v-for="time in timeslot"
-          :key="time"
-          :itemKey="time"
-          v-model="$store.state.appointment.timeslot"
+          v-for="(time, index) in timeSlots"
+          :key="index"
+          :itemKey="index"
+          v-model="selectedSlot"
           align="center"
           class=""
+          disabled
         >
           <template #icon>
             <wz-icon name="clock" />
           </template>
           <template #content>
-            {{ time }}
+            {{ formatTimeSlot(time.startTime) }} - {{ formatTimeSlot(time.endTime) }}
           </template>
         </wz-checkbox-card>
       </div>
       <div class="pt-0">
-        <wz-button color="primary" block :disabled="!isValid" @click="nextPage">
+        <wz-button color="primary"
+          block
+          :disabled="!isValid"
+          @click="nextPage"
+        >
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
@@ -42,33 +47,100 @@
         </wz-button>
       </div>
     </div>
+     <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
+        <template>
+          <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
+        </template>
+        <template #action>
+          <wz-button
+            text
+            @click="snackbar.open= false"
+            color="red"
+            class="text-red mr-4"
+            >Close</wz-button>
+        </template>
+    </wz-snackbars>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import BookingApiClient from '../api/BookingApiClient'
+import { parseInt } from 'lodash'
 export default Vue.extend({
   data () {
     return {
-      timeslot: [
-        '08 AM - 10 AM',
-        '10 AM - 12 AM',
-        '12 PM - 02 PM',
-        '02 PM - 04PM',
-        '04 PM - 06 PM',
-        '06 PM- 08 PM'
-      ]
+      snackbar: {
+        open: false,
+        message: ''
+      },
+      date: new Date(),
+      timeSlots: [],
+      selectedSlot: -1,
+      validation: true
+    }
+  },
+  async beforeMount (): Promise<void> {
+    this.fetchAppointment()
+  },
+  methods: {
+    async fetchAppointment () {
+      this.isLoading = true
+      this.error = null
+      this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
+      const zipCode = 1
+      const serviceId = this.$store.state.service.id
+      try {
+        const bookingApiClient = new BookingApiClient()
+        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date, zipCode, serviceId)
+        if (response.result.length > 0) {
+          this.timeSlots = []
+          this.selectedSlot = -1
+          response.result.forEach((slot) => {
+            this.validation = slot.enabled
+            this.timeSlots.push({
+              startTime: slot.startTime,
+              endTime: slot.endTime
+            })
+          })
+        } else {
+          this.snackbar.message = 'Sorry! We do not have any available time slots.'
+          this.snackbar.open = true
+        }
+      } catch (error) {
+        this.isLoading = false
+        this.error = 'Technical Issue. Please try again'
+      }
+    },
+    // TODO: use MomentJS
+    formatTimeSlot (time) {
+      let hour = parseInt(time.slice(0, 2))
+      const suffix = hour < 12 ? ' AM' : ' PM'
+      hour = hour > 12 ? hour - 12 : hour
+      return ((hour < 10 ? '0' : '') + hour + suffix)
+    },
+    nextPage () {
+      if (this.isValid) {
+        this.$store.state.appointment.startTime = this.timeSlots[this.selectedSlot].startTime
+        this.$store.state.appointment.endTime = this.timeSlots[this.selectedSlot].endTime
+        this.$router.push('/details')
+      }
     }
   },
   computed: {
     isValid () {
-      return this.$store.state.appointment.timeslot
+      return this.$store.state.appointment.date && (this.selectedSlot > -1)
     }
   },
-  methods: {
-    nextPage () {
-      if (this.isValid) {
-        this.$router.push('/details')
+  watch: {
+    date (newValue, oldValue) {
+      const today = new Date().toISOString().slice(0, 10)
+      const newDate = newValue.toISOString().slice(0, 10)
+      if (newValue && newDate >= today) {
+        this.$store.state.appointment.date = newValue
+        this.fetchAppointment()
+      } else {
+        this.date = oldValue
       }
     }
   }

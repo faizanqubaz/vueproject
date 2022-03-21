@@ -14,7 +14,7 @@
         <wz-checkbox-card
           :key="serviceType.id"
           v-for="serviceType in serviceTypes"
-          v-model="$store.state.appointment.serviceId"
+          v-model="$store.state.service.id"
           :itemKey="serviceType.id"
         >
           <template #content>
@@ -84,12 +84,13 @@ export default Vue.extend({
   },
   computed: {
     isValid () {
-      return this.$store.state.appointment.serviceId
+      return this.$store.state.service.id
     }
   },
   methods: {
     nextPage () {
       if (this.isValid) {
+        this.$store.state.service.id = 5
         this.$router.push('/notes')
       }
     }

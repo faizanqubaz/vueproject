@@ -12,23 +12,23 @@
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-8">
         <wz-checkbox-card
-          :key="serviceType.id"
-          v-for="serviceType in serviceTypes"
-          v-model="$store.state.appointment.serviceId"
-          :itemKey="serviceType.id"
+          v-for="service in services"
+          :key="service.id"
+          v-model="$store.state.service.id"
+          :itemKey="service.id"
         >
           <template #content>
             <div class="content-center py-5" align="center">
               <img
-                :src="serviceType.image"
-                :alt="`${serviceType.text}`"
+                :src="images[service.id-1]"
+                :alt="`${service.name}`"
                 class=""
               />
-              <h3 class="pt-4 font-normal">{{ serviceType.title }}</h3>
+              <h3 class="pt-4 font-normal">{{ service.name }}</h3>
               <p class="antialiased font-normal text-gray-500 pt-1">
-                {{ serviceType.text }}
+                {{ service.description }}
               </p>
-              <p class="font-normal text-primary pt-1">{{ serviceType.price }}</p>
+              <p class="font-normal text-primary pt-1">{{ $store.state.payment.outOfPocket ? '$ ' + service.price : '' }}</p>
             </div>
           </template>
         </wz-checkbox-card>
@@ -54,44 +54,33 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { get, find } from 'lodash'
 export default Vue.extend({
   data () {
     return {
-      serviceTypes: [
-        {
-          id: 1,
-          image: require('@/assets/rapid.png'),
-          title: 'Rapid COVID-19 Test',
-          text: 'Get result in 15-minutes',
-          price: '$30.00'
-        },
-        {
-          id: 2,
-          image: require('@/assets/pcr.png'),
-          title: 'PCR COVID-19 Test',
-          text: 'Get result in 15-minutes',
-          price: '$30.00'
-        },
-        {
-          id: 3,
-          image: require('@/assets/rapid-pcr.png'),
-          title: 'Rapid + PCR COVID-19 Test',
-          text: 'Get result in 15-minutes',
-          price: '$30.00'
-        }
-      ]
-    }
-  },
-  computed: {
-    isValid () {
-      return this.$store.state.appointment.serviceId
+      images: [
+        require('@/assets/rapid.png'),
+        require('@/assets/pcr.png'),
+        require('@/assets/rapid-pcr.png')
+      ],
+      services: get(find(this.$store.state.services, { id: 1 }), 'services')
     }
   },
   methods: {
     nextPage () {
       if (this.isValid) {
+        const service = find(this.services, { id: this.$store.state.service.id })
+        this.$store.state.service.name = service.name
+        this.$store.state.service.description = service.description
+        this.$store.state.service.price = service.price
+        this.$store.state.service.image = require('@/assets/rapid.png')
         this.$router.push('/notes')
       }
+    }
+  },
+  computed: {
+    isValid () {
+      return this.$store.state.service.id
     }
   }
 })
