@@ -32,8 +32,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   data() {
     return {
       img: null,
@@ -70,7 +69,7 @@ export default Vue.extend({
       reader.readAsDataURL(file)
     }
   }
-})
+}
 </script>
 
 <style></style>

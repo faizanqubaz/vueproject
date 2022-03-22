@@ -43,8 +43,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   props: {
     align: { type: String, default: '' },
     itemKey: {
@@ -88,5 +87,5 @@ export default Vue.extend({
       return align
     }
   }
-})
+}
 </script>

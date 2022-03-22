@@ -26,8 +26,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   props: {
     value: {
       type: Boolean,
@@ -71,5 +70,5 @@ export default Vue.extend({
       }, this.timeout)
     }
   }
-})
+}
 </script>

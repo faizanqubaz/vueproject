@@ -20,8 +20,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   props: {
     block: {
       type: Boolean,
@@ -44,5 +43,5 @@ export default Vue.extend({
       default: null
     }
   }
-})
+}
 </script>

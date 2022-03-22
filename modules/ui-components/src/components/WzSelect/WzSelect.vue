@@ -125,8 +125,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   props: {
     rules: {
       type: Array,
@@ -264,7 +263,7 @@ export default Vue.extend({
       this.open = true
     }
   }
-})
+}
 </script>
 
 <style></style>

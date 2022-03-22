@@ -12,10 +12,9 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   props: {
     color: { type: String, default: '' }
   }
-})
+}
 </script>

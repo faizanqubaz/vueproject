@@ -2,8 +2,8 @@
   <component :is="`wzi-${name}`" :id="id" />
 </template>
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+
+export default {
   props: {
     name: {
       type: String,
@@ -67,5 +67,5 @@ export default Vue.extend({
       this.changeColor()
     }
   }
-})
+}
 </script>

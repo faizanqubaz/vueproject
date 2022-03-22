@@ -5,8 +5,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   props: {
     value: null
   },
@@ -129,7 +128,7 @@ export default Vue.extend({
       }
     }
   }
-})
+}
 </script>
 
 <style></style>
