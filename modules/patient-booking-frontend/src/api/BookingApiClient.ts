@@ -77,7 +77,7 @@ export default class BookingApiClient extends HttpClient {
     super('http://booking-api-dev.welz.com/api/v1/')
   }
 
-  async getService (zipCode: number): Promise<ServiceResponse> {
+  async getService (zipCode: string): Promise<ServiceResponse> {
     const url = 'services?zip=' + zipCode
     try {
       const response: AxiosResponse<ServiceResponse> = await this.instance.get(url)
@@ -93,8 +93,8 @@ export default class BookingApiClient extends HttpClient {
     }
   }
 
-  async getServiceTimeSlots (date: Date, cityId: number, serviceId: number): Promise<AppointmentTimeSlotResponse> {
-    const url = '/service-time-slots?date=' + date + '&city=' + cityId + '&service=' + serviceId
+  async getServiceTimeSlots (date: Date, zipCode: string, serviceId: number): Promise<AppointmentTimeSlotResponse> {
+    const url = '/service-time-slots?date=' + date + '&zip=' + zipCode + '&service=' + serviceId
     try {
       const response: AxiosResponse<AppointmentTimeSlotResponse> = await this.instance.get(url)
       const { status } = response

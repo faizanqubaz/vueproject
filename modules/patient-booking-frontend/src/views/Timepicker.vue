@@ -88,11 +88,10 @@ export default Vue.extend({
       this.isLoading = true
       this.error = null
       this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
-      const zipCode = 1
-      const serviceId = this.$store.state.service.id
       try {
         const bookingApiClient = new BookingApiClient()
-        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date, zipCode, serviceId)
+        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date,
+          this.$store.state.location.zipCode, this.$store.state.service.id)
         if (response.result.length > 0) {
           this.timeSlots = []
           this.selectedSlot = -1

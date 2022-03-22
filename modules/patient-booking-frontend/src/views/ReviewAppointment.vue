@@ -161,9 +161,9 @@ export default Vue.extend({
           }
         },
         visit: {
-          date: this.$store.state.appointment.date,
-          startTime: this.$store.state.appointment.startTime + ':00',
-          endTime: this.$store.state.appointment.endTime + ':00',
+          date: new Date(this.$store.state.appointment.date).toISOString(),
+          startTime: this.$store.state.appointment.startTime,
+          endTime: this.$store.state.appointment.endTime,
           serviceId: this.$store.state.service.id
         },
         note: this.$store.state.appointment.notes
