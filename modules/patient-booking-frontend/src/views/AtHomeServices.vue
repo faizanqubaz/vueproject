@@ -31,7 +31,7 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="proceed"
+          @click="nextPage"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -104,17 +104,21 @@ export default Vue.extend({
       ]
     }
   },
+  methods: {
+    nextPage () {
+      if (this.isValid) {
+        this.$store.state.service.id = 4
+        this.$store.state.service.name = 'At-home Care'
+        this.$store.state.service.description = 'We treat common health issues'
+        this.$store.state.service.price = 100
+        this.$store.state.service.image = require('@/assets/at-home-care.png')
+        this.$router.push('/notes')
+      }
+    }
+  },
   computed: {
     isValid () {
       return this.$store.state.appointment.notes
-    }
-  },
-  methods: {
-    proceed () {
-      if (this.isValid) {
-        this.$store.state.service.id = 4
-        this.$router.push('/notes')
-      }
     }
   }
 })
