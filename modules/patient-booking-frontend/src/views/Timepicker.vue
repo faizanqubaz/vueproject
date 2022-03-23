@@ -111,7 +111,7 @@ export default Vue.extend({
           this.snackbar.open = true
         }
       } catch (error) {
-        this.snackbar.message = 'Technical Issue. Please try again'
+        this.snackbar.message = 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
       }
     },

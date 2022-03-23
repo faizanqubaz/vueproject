@@ -172,7 +172,7 @@ export default Vue.extend({
         const response = await bookingApiClient.createAppointment(appointment)
         this.$router.push('/confirmation')
       } catch (error) {
-        this.snackbar.message = 'Technical Issue. Please try again'
+        this.snackbar.message = 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
       }
     },
