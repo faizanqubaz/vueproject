@@ -146,8 +146,6 @@ export default Vue.extend({
   },
   methods: {
     async isServiceAvailable () {
-      this.isLoading = true
-      this.error = null
       try {
         const bookingApiClient = new BookingApiClient()
         const response = await bookingApiClient.getService(this.$store.state.location.zipCode)
@@ -163,9 +161,8 @@ export default Vue.extend({
           this.$store.state.payment.outOfPocket = false
         }
       } catch (error) {
-        this.isLoading = false
-        this.error = 'Technical Issue. Please try again'
-        return false
+        this.snackbar.message = 'Technical Issue. Please try again'
+        this.snackbar.open = true
       }
     }
   },

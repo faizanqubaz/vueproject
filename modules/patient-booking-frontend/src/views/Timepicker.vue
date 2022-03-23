@@ -67,6 +67,12 @@
 import Vue from 'vue'
 import BookingApiClient from '../api/BookingApiClient'
 import { parseInt } from 'lodash'
+
+interface SlotType {
+  startTime: string
+  endTime: string
+}
+
 export default Vue.extend({
   data () {
     return {
@@ -75,7 +81,7 @@ export default Vue.extend({
         message: ''
       },
       date: new Date(),
-      timeSlots: [],
+      timeSlots: [] as SlotType[],
       selectedSlot: -1,
       validation: true
     }
@@ -85,8 +91,6 @@ export default Vue.extend({
   },
   methods: {
     async fetchAppointment () {
-      this.isLoading = true
-      this.error = null
       this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
       try {
         const bookingApiClient = new BookingApiClient()
@@ -107,12 +111,12 @@ export default Vue.extend({
           this.snackbar.open = true
         }
       } catch (error) {
-        this.isLoading = false
-        this.error = 'Technical Issue. Please try again'
+        this.snackbar.message = 'Technical Issue. Please try again'
+        this.snackbar.open = true
       }
     },
     // TODO: use MomentJS
-    formatTimeSlot (time) {
+    formatTimeSlot (time: string) {
       let hour = parseInt(time.slice(0, 2))
       const suffix = hour < 12 ? ' AM' : ' PM'
       hour = hour > 12 ? hour - 12 : hour
@@ -127,8 +131,8 @@ export default Vue.extend({
     }
   },
   computed: {
-    isValid () {
-      return this.$store.state.appointment.date && (this.selectedSlot > -1)
+    isValid (): boolean {
+      return this.$store.state.appointment.date && this.selectedSlot > -1
     }
   },
   watch: {

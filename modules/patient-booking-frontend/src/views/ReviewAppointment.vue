@@ -138,8 +138,6 @@ export default Vue.extend({
   },
   methods: {
     async createAppointment () {
-      this.isLoading = true
-      this.error = null
       const appointment = {
         patient: {
           firstName: this.$store.state.patient.firstName,
@@ -174,13 +172,12 @@ export default Vue.extend({
         const response = await bookingApiClient.createAppointment(appointment)
         this.$router.push('/confirmation')
       } catch (error) {
-        this.isLoading = false
-        this.error = 'Technical Issue. Please try again'
-        return false
+        this.snackbar.message = 'Technical Issue. Please try again'
+        this.snackbar.open = true
       }
     },
     // TODO: use MomentJS
-    formatTimeSlot (time) {
+    formatTimeSlot (time: string) {
       let hour = parseInt(time.slice(0, 2))
       const suffix = hour < 12 ? ' AM' : ' PM'
       hour = hour > 12 ? hour - 12 : hour
