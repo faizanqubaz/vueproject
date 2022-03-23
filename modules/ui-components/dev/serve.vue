@@ -17,6 +17,7 @@ export default Vue.extend({
       items: ['Male', 'Female', 'Others'],
       tnc: [],
       rad: 'Terms and conditions',
+      times:null,
       valid: false
     }
   },
@@ -88,6 +89,49 @@ export default Vue.extend({
           <div class="text-darkGray">← Go back</div>
         </wz-button>
       </wz-form>
+       <wz-checkbox-card
+          :itemKey="1"
+          v-model="times"
+          align="center"
+          class=""
+          
+        >
+          <template #icon>
+            <wz-icon name="clock" />
+          </template>
+          <template #content>
+          08.00 - 10.00
+          </template>
+        </wz-checkbox-card>
+       <wz-checkbox-card
+          :itemKey="2"
+          v-model="times"
+          align="center"
+          class=""
+          :disabled="true"
+          
+        >
+          <template #icon>
+            <wz-icon name="clock" />
+          </template>
+          <template #content>
+          08.00 - 10.00
+          </template>
+        </wz-checkbox-card>
+       <wz-checkbox-card
+          :itemKey="3"
+          v-model="times"
+          align="center"
+          class=""
+          
+        >
+          <template #icon>
+            <wz-icon name="clock" />
+          </template>
+          <template #content>
+          08.00 - 10.00
+          </template>
+        </wz-checkbox-card>
     </div>
   </div>
 </template>

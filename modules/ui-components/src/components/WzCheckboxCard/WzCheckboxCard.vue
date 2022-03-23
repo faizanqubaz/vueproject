@@ -1,9 +1,10 @@
 <template>
   <label :for="itemKey">
     <div
-      class="rounded p-4 cursor-pointer border flex justify-center"
+      class="rounded p-4  border flex justify-center"
       :class="[
         inputVal === itemKey ? 'border-primary' : 'border-stroke',
+        disabled ? 'opacity-60 cursor-not-allowed': 'cursor-pointer',
         alignItems()
       ]"
     >
@@ -13,6 +14,7 @@
         :value="itemKey"
         :id="itemKey"
         v-model="inputVal"
+        :disabled="disabled"
       />
       <slot name="icon">
         <div
@@ -49,6 +51,10 @@ export default {
     itemKey: {
       required: true,
       type: [String, Number]
+    },
+    disabled:{
+      type:Boolean,
+      default:false
     },
     value: null
   },
