@@ -133,9 +133,9 @@ export default Vue.extend({
       }
     },
     isAvailable (start: string) {
-      const DATE_FORMAT = 'MM/DD/YYYY'
+      const DATE_FORMAT = 'YYYY/MM/DD'
       const fetchDate = this.date.toISOString().split('T')[0]
-      const startTimeMoment = moment(`${new Date(fetchDate).toLocaleDateString()} ${start}`, `${DATE_FORMAT} ha`).tz(this.timezone)
+      const startTimeMoment = moment(`${fetchDate} ${start}`, `${DATE_FORMAT} ha`).tz(this.timezone)
       return moment().isBefore(startTimeMoment)
     }
   },
