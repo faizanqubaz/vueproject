@@ -43,7 +43,7 @@
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
-      <div class="pt-4 items-center">
+      <div class="pt-4 pb-4 items-center">
         <wz-button type="button" block text @click="$router.back()">
           <p class="text-darkGray">← Go back</p>
         </wz-button>

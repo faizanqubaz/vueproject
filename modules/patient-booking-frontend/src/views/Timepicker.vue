@@ -4,11 +4,11 @@
       <div class="w-2/5">
         <wz-progress width="5/8" />
       </div>
-      <div class="pt-7 flex justify-between">
+      <div class="pt-7 sm:flex justify-between">
         <div class="md:w-2/3">
           <h1 class="text-xl">Pick a time that works for you</h1>
         </div>
-        <div class="pt-3 md:w-1/3">
+        <div class="pt-3 sm:ml-0 md:w-1/3">
           <wz-date-picker v-model="date">
             <p class="text-darkGray ml-5 flex">{{ this.date.toDateString() }}</p>
           </wz-date-picker>
@@ -41,7 +41,7 @@
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
-      <div class="pt-4 items-center">
+      <div class="pt-4 pb-4 items-center">
         <wz-button type="button" block text @click="$router.back()">
           <p class="text-darkGray">← Go back</p>
         </wz-button>
