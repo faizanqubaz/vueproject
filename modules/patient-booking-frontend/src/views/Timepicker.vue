@@ -22,7 +22,7 @@
           v-model="selectedSlot"
           align="center"
           class=""
-          disabled
+          :disabled= "!time.isActive"
         >
           <template #icon>
             <wz-icon name="clock" />
@@ -67,10 +67,13 @@
 import Vue from 'vue'
 import BookingApiClient from '../api/BookingApiClient'
 import { parseInt } from 'lodash'
+import moment from 'moment'
+import 'moment-timezone'
 
 interface SlotType {
   startTime: string
   endTime: string
+  isActive: boolean
 }
 
 export default Vue.extend({
@@ -91,19 +94,18 @@ export default Vue.extend({
   },
   methods: {
     async fetchAppointment () {
-      this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
       try {
+        this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
         const bookingApiClient = new BookingApiClient()
-        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date,
-          this.$store.state.location.zipCode, this.$store.state.service.id)
+        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date, this.$store.state.location.zipCode, this.$store.state.service.id)
         if (response.result.length > 0) {
           this.timeSlots = []
           this.selectedSlot = -1
           response.result.forEach((slot) => {
-            this.validation = slot.enabled
             this.timeSlots.push({
               startTime: slot.startTime,
-              endTime: slot.endTime
+              endTime: slot.endTime,
+              isActive: slot.enabled && this.isAvailable(slot.startTime)
             })
           })
         } else {
@@ -124,15 +126,25 @@ export default Vue.extend({
     },
     nextPage () {
       if (this.isValid) {
+        this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
         this.$store.state.appointment.startTime = this.timeSlots[this.selectedSlot].startTime
         this.$store.state.appointment.endTime = this.timeSlots[this.selectedSlot].endTime
         this.$router.push('/details')
       }
+    },
+    isAvailable (start: string) {
+      const DATE_FORMAT = 'MM/DD/YYYY'
+      const fetchDate = this.date.toISOString().split('T')[0]
+      const startTimeMoment = moment(`${new Date(fetchDate).toLocaleDateString()} ${start}`, `${DATE_FORMAT} ha`).tz(this.timezone)
+      return moment().isBefore(startTimeMoment)
     }
   },
   computed: {
     isValid (): boolean {
-      return this.$store.state.appointment.date && this.selectedSlot > -1
+      return this.date && this.selectedSlot > -1
+    },
+    timezone () {
+      return 'US/Eastern'
     }
   },
   watch: {
@@ -140,7 +152,7 @@ export default Vue.extend({
       const today = new Date().toISOString().slice(0, 10)
       const newDate = newValue.toISOString().slice(0, 10)
       if (newValue && newDate >= today) {
-        this.$store.state.appointment.date = newValue
+        this.date = newValue
         this.fetchAppointment()
       } else {
         this.date = oldValue
