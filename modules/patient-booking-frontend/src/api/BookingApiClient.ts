@@ -74,7 +74,7 @@ export interface AppointmentResponse {
 
 export default class BookingApiClient extends HttpClient {
   constructor () {
-    super('http://booking-api-dev.welz.com/api/v1/')
+    super('https://booking-api-dev.welz.com/api/v1/')
   }
 
   async getService (zipCode: string): Promise<ServiceResponse> {
