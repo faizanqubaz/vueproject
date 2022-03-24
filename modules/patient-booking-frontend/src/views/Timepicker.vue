@@ -133,7 +133,7 @@ export default Vue.extend({
       }
     },
     isAvailable (start: string) {
-      const DATE_FORMAT = 'YYYY/MM/DD'
+      const DATE_FORMAT = 'YYYY-MM-DD'
       const fetchDate = this.date.toISOString().split('T')[0]
       const startTimeMoment = moment(`${fetchDate} ${start}`, `${DATE_FORMAT} ha`).tz(this.timezone)
       return moment().isBefore(startTimeMoment)
