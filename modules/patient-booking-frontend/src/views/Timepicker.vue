@@ -10,7 +10,7 @@
         </div>
         <div class="pt-3 sm:ml-0 md:w-1/3">
           <wz-date-picker v-model="date">
-            <p class="text-darkGray ml-5 flex">{{ this.date.toDateString() }}</p>
+            <p class="text-darkGray ml-0 md:ml-5 flex">{{ this.date.toDateString() }}</p>
           </wz-date-picker>
         </div>
       </div>
