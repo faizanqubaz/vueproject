@@ -8,11 +8,15 @@
     "pbf": "cd ./modules/patient-booking-frontend && npm run serve",
     "pbf:build": "cd ./modules/patient-booking-frontend && npm run build",
     "pbf:test": "cd ./modules/patient-booking-frontend && npm run test",
-    "test": "lerna exec -- npm run test",
+    "pbf:lint": "cd ./modules/patient-booking-frontend && npm run lint",
     "ui": "cd ./modules/ui-components && npm run serve",
     "ui:build": "cd ./modules/ui-components && npm run build",
     "ui:test": "cd ./modules/ui-components && npm run test",
-    "lint": "lerna exec -- npm run lint"
+    "ui:lint": "cd ./modules/ui-components && npm run lint",
+    "oms": "cd ./modules/oms && npm run serve",
+    "oms:build": "cd ./modules/oms && npm run build",
+    "oms:test": "cd ./modules/oms && npm run test",
+    "oms:lint": "cd ./modules/oms && npm run lint"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

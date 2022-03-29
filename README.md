@@ -6,7 +6,7 @@
 npm install
 ```
 
-### Compiles and hot-reloads patient-booking-frontend
+### Compiles and hot reloads patient-booking-frontend
 
 ```
 npm run pbf
@@ -24,16 +24,58 @@ npm run pbf:build
 npm run pbf:test
 ```
 
-### Run your unit tests
+### Lints and fixes files on patient-booking-frontend
 
 ```
-npm run test
+npm run pbf:lint
 ```
 
-### Lints and fixes files
+### Compiles and hot reloads ui-components
 
 ```
-npm run lint
+npm run ui
+```
+
+### Compiles and minifies ui-components
+
+```
+npm run ui:build
+```
+
+### Run your unit tests ui-components
+
+```
+npm run ui:test
+```
+
+### Lints and fixes files on ui-components
+
+```
+npm run ui:lint
+```
+
+### Compiles and hot reloads oms
+
+```
+npm run oms
+```
+
+### Compiles and minifies oms
+
+```
+npm run oms:build
+```
+
+### Run your unit tests oms
+
+```
+npm run oms:test
+```
+
+### Lints and fixes files on oms
+
+```
+npm run oms:lint
 ```
 
 ### Customize configuration
