@@ -160,13 +160,12 @@ export default Vue.extend({
         },
         visit: {
           date: new Date(this.$store.state.appointment.date).toISOString(),
-          startTime: this.$store.state.appointment.startTime,
-          endTime: this.$store.state.appointment.endTime,
+          scheduledStartTime: this.$store.state.appointment.startTime,
+          scheduledEndTime: this.$store.state.appointment.endTime,
           serviceId: this.$store.state.service.id
         },
         note: this.$store.state.appointment.notes
       }
-
       try {
         const bookingApiClient = new BookingApiClient()
         const response = await bookingApiClient.createAppointment(appointment)

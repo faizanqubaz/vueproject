@@ -97,7 +97,7 @@ export default Vue.extend({
       try {
         this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
         const bookingApiClient = new BookingApiClient()
-        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date, this.$store.state.location.zipCode, this.$store.state.service.id)
+        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date, this.$store.state.location.cityId, this.$store.state.service.id)
         if (response.result.length > 0) {
           this.timeSlots = []
           this.selectedSlot = -1
@@ -135,16 +135,13 @@ export default Vue.extend({
     isAvailable (start: string) {
       const DATE_FORMAT = 'YYYY-MM-DD'
       const fetchDate = this.date.toISOString().split('T')[0]
-      const startTimeMoment = moment(`${fetchDate} ${start}`, `${DATE_FORMAT} ha`).tz(this.timezone)
+      const startTimeMoment = moment(`${fetchDate} ${start}`, `${DATE_FORMAT} ha`).tz(this.$store.state.location.timeZone)
       return moment().isBefore(startTimeMoment)
     }
   },
   computed: {
     isValid (): boolean {
       return this.date && this.selectedSlot > -1
-    },
-    timezone () {
-      return 'US/Eastern'
     }
   },
   watch: {

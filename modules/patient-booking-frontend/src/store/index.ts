@@ -12,7 +12,9 @@ const store = new Vuex.Store({
       state: '',
       longitude: '',
       latitude: '',
-      zipCode: ''
+      zipCode: '',
+      cityId: 0,
+      timeZone: ''
     },
     services: [{}],
     payment: {

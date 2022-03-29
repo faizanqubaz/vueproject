@@ -25,8 +25,8 @@ export interface Patient {
 
 export interface Visit {
   date: string;
-  startTime: string;
-  endTime: string;
+  scheduledStartTime: string;
+  scheduledEndTime: string;
   serviceId: number;
 }
 
@@ -44,7 +44,7 @@ export interface ServiceType {
   active: boolean;
 }
 
-export interface Service {
+export interface ServiceGroupType {
   id: number;
   name: string;
   services: ServiceType[];
@@ -57,9 +57,18 @@ export interface TimeSlot {
   enabled: boolean;
 }
 
+export interface ServiceResponseDetails {
+  id: number;
+  name: string;
+  state: string;
+  timeZone: string;
+  active: boolean;
+  serviceGroups: ServiceGroupType[];
+}
+
 export interface ServiceResponse {
   message: string;
-  result: Service[];
+  result: ServiceResponseDetails;
 }
 
 export interface AppointmentTimeSlotResponse {
@@ -78,7 +87,7 @@ export default class BookingApiClient extends HttpClient {
   }
 
   async getService (zipCode: string): Promise<ServiceResponse> {
-    const url = 'services?zip=' + zipCode
+    const url = 'services?zipCode=' + zipCode
     try {
       const response: AxiosResponse<ServiceResponse> = await this.instance.get(url)
       const { status } = response
@@ -93,8 +102,8 @@ export default class BookingApiClient extends HttpClient {
     }
   }
 
-  async getServiceTimeSlots (date: Date, zipCode: string, serviceId: number): Promise<AppointmentTimeSlotResponse> {
-    const url = '/service-time-slots?date=' + date + '&zip=' + zipCode + '&service=' + serviceId
+  async getServiceTimeSlots (date: Date, cityId: number, serviceId: number): Promise<AppointmentTimeSlotResponse> {
+    const url = '/service-time-slots?date=' + date + '&city=' + cityId + '&service=' + serviceId
     try {
       const response: AxiosResponse<AppointmentTimeSlotResponse> = await this.instance.get(url)
       const { status } = response

@@ -149,8 +149,10 @@ export default Vue.extend({
       try {
         const bookingApiClient = new BookingApiClient()
         const response = await bookingApiClient.getService(this.$store.state.location.zipCode)
-        if (response.result.length > 0) {
-          this.$store.state.services = response.result
+        if (response.result.serviceGroups.length > 0) {
+          this.$store.state.services = response.result.serviceGroups
+          this.$store.state.location.cityId = response.result.id
+          this.$store.state.location.timeZone = response.result.timeZone
           this.$router.push('/services')
         } else {
           this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
@@ -159,6 +161,8 @@ export default Vue.extend({
           this.$store.state.location.zipCode = ''
           this.$store.state.payment.insurance = false
           this.$store.state.payment.outOfPocket = false
+          this.$store.state.location.cityId = 0
+          this.$store.state.location.timeZone = ''
         }
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong, please try again.'
