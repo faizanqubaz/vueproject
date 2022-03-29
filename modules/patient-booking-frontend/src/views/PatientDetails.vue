@@ -7,13 +7,20 @@
       <div class="pt-7">
         <h1 class="text-xl">Who's being seen today</h1>
       </div>
-      <div class="py-7 grid md:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-x-5 gap-y-3">
+      <div class="">
+        <wz-form
+          ref="form"
+          v-model="valid"
+          class="py-7 grid md:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-x-5 gap-y-3"
+          autocomplete="on"
+        >
         <wz-input
           icon="user"
           label="First Name"
           v-model="$store.state.patient.firstName"
           type="text"
           :error="false"
+          required
           errorMessage=""
         />
         <wz-input
@@ -22,6 +29,7 @@
           v-model="$store.state.patient.lastName"
           type="text"
           :error="false"
+          required
           errorMessage=""
         />
         <wz-input
@@ -29,6 +37,7 @@
           label="Phone Number"
           v-model="$store.state.patient.phoneNumber"
           type="tel"
+          :rules="phoneRules"
           :error="false"
           errorMessage=""
         />
@@ -47,6 +56,7 @@
           v-model="$store.state.patient.dob"
           type="date"
           :error="false"
+          required
           errorMessage=""
         />
         <wz-input
@@ -55,14 +65,16 @@
           v-model="$store.state.patient.email"
           type="email"
           :error="false"
+          :rules="emailRules"
           errorMessage=""
         />
+        </wz-form>
       </div>
       <div class="pt-0">
         <wz-button
           block
           color="primary"
-          :disabled="!isValid"
+          :disabled="!valid"
           @click="nextPage"
         >
           <p class="text-white">Proceed</p>
@@ -85,13 +97,24 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import phone from 'phone'
+import email from 'email-validator'
 export default Vue.extend({
   data () {
     return {
       genderResults: [],
       genderRules: [(gender:boolean) => !!gender || 'Gender is required'],
       genders: ['Male', 'Female', 'Other'],
-      valid: false
+      valid: false,
+      phoneRules: [
+        (phoneNumber: string) => !!phoneNumber || 'Phone is require',
+        (phoneNumber: string) =>
+          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid.'
+      ],
+      emailRules: [
+        (emailAddress: string) => !!emailAddress || 'Email is required',
+        (emailAddress: string) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid.'
+      ]
     }
   },
   methods: {
@@ -99,21 +122,11 @@ export default Vue.extend({
       this.genderResults = this.$store.state.patient.gender
     },
     nextPage () {
-      if (this.isValid && this.$store.state.payment.insurance) {
+      if (this.valid && this.$store.state.payment.insurance) {
         this.$router.push('/insurance')
-      } else if (this.isValid) {
+      } else if (this.valid) {
         this.$router.push('/review-appointment')
       }
-    }
-  },
-  computed: {
-    isValid () {
-      return this.$store.state.patient.firstName &&
-        this.$store.state.patient.lastName &&
-        this.$store.state.patient.phoneNumber &&
-        this.$store.state.patient.gender &&
-        this.$store.state.patient.dob &&
-        this.$store.state.patient.email
     }
   }
 })
