@@ -29,6 +29,7 @@ const store = new Vuex.Store({
       icon: '',
       price: 0
     },
+    serviceGroup: null,
     appointment: {
       notes: '',
       startTime: '',

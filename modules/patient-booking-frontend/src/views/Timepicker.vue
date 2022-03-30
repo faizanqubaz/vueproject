@@ -8,9 +8,11 @@
         <div class="md:w-2/3">
           <h1 class="text-xl">Pick a time that works for you</h1>
         </div>
-        <div class="pt-3 sm:ml-0 md:w-1/3">
-          <wz-date-picker v-model="date">
-            <p class="text-darkGray ml-0 md:ml-5 flex">{{ this.date.toDateString() }}</p>
+        <div class="pt-3 flex justify-end">
+          <wz-date-picker v-model="date"
+            :minDate="new Date()"
+          >
+            <p class="text-darkGray ml-0 md:ml-5">{{ this.date.toDateString() }}</p>
           </wz-date-picker>
         </div>
       </div>

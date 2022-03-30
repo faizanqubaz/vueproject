@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <div class="flex items-center">
-      <date-picker v-model="inputVal">
+      <date-picker v-model="inputVal" :min-date="minDate" :max-date="maxDate">
         <template #default="{ togglePopover }">
           <div class="flex flex-wrap">
             <button
@@ -29,7 +29,9 @@
 import { DatePicker } from 'v-calendar'
 export default {
   props: {
-    value: Date
+    value: Date,
+    minDate: Date,
+    maxDate: Date
   },
   components: {
     DatePicker

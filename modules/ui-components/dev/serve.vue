@@ -1,9 +1,11 @@
 <script lang="ts">
 import Vue from 'vue'
+import WzServiceCard from '../src/components/WzServiceCard/WzServiceCard.vue'
 // Uncomment import and local "components" registration if library is not registered globally.
 // import { WelzUicomponentsSample } from '@/entry.esm';
 
 export default Vue.extend({
+  components: { WzServiceCard },
   name: 'ServeDev',
   // components: {
   //  WelzUicomponentsSample,
@@ -17,8 +19,10 @@ export default Vue.extend({
       items: ['Male', 'Female', 'Others'],
       tnc: [],
       rad: 'Terms and conditions',
-      times:null,
-      valid: false
+      times: null,
+      valid: false,
+      service: null,
+      date: new Date()
     }
   },
   watch: {
@@ -30,9 +34,57 @@ export default Vue.extend({
 </script>
 
 <template>
-  <div id="app">
+  <div id="app" class="bg-gray-800">
     <div class="max-w-screen-md mx-auto py-10">
-      <wz-loader borderStyle="dashed" size="24" />
+      <!-- <wz-loader borderStyle="dashed" size="24" /> -->
+      <div class="grid grid-cols-2 gap-4 my-4">
+        <wz-service-card color="gray-300" v-model="service" itemKey="satu">
+          <template>
+            <h2>Coba satu</h2>
+          </template>
+        </wz-service-card>
+        <wz-service-card color="blue-300" v-model="service" itemKey="dua">
+          <template>
+            <h2>Coba dua</h2>
+          </template>
+        </wz-service-card>
+        <wz-service-card color="pink-300" v-model="service" itemKey="tiga">
+          <template>
+            <h2>Coba tiga</h2>
+          </template>
+        </wz-service-card>
+        <wz-service-card color="green-300" v-model="service" itemKey="empat">
+          <template>
+            <h2>Coba empat</h2>
+          </template>
+        </wz-service-card>
+      </div>
+      <div class="">
+        <wz-upload v-model="service">
+          <h4>Add image</h4>
+          <p class="font-normal text-gray-700 antialiased">Front of card</p>
+        </wz-upload>
+      </div>
+      <!-- <div class="">
+        <wz-input
+          v-model="name"
+          label="Name"
+          icon="home"
+          class="mb-2"
+          required
+        />
+        <wz-select
+          v-model="gender"
+          :items="items"
+          icon="users"
+          label="Gender"
+          placeholder="Select"
+          required
+        />
+      </div> -->
+      <!-- <div class="">
+        <wz-date-picker v-model="date"> </wz-date-picker>
+      </div> -->
       <wz-form v-model="valid" ref="forms">
         <wz-input
           v-model="name"
@@ -89,49 +141,30 @@ export default Vue.extend({
           <div class="text-darkGray">← Go back</div>
         </wz-button>
       </wz-form>
-       <wz-checkbox-card
-          :itemKey="1"
-          v-model="times"
-          align="center"
-          class=""
-          
-        >
-          <template #icon>
-            <wz-icon name="clock" />
-          </template>
-          <template #content>
-          08.00 - 10.00
-          </template>
-        </wz-checkbox-card>
-       <wz-checkbox-card
-          :itemKey="2"
-          v-model="times"
-          align="center"
-          class=""
-          :disabled="true"
-          
-        >
-          <template #icon>
-            <wz-icon name="clock" />
-          </template>
-          <template #content>
-          08.00 - 10.00
-          </template>
-        </wz-checkbox-card>
-       <wz-checkbox-card
-          :itemKey="3"
-          v-model="times"
-          align="center"
-          class=""
-          
-        >
-          <template #icon>
-            <wz-icon name="clock" />
-          </template>
-          <template #content>
-          08.00 - 10.00
-          </template>
-        </wz-checkbox-card>
+      <wz-checkbox-card :itemKey="1" v-model="times" align="center" class="">
+        <template #icon>
+          <wz-icon name="clock" />
+        </template>
+        <template #content> 08.00 - 10.00 </template>
+      </wz-checkbox-card>
+      <wz-checkbox-card
+        :itemKey="2"
+        v-model="times"
+        align="center"
+        class=""
+        :disabled="true"
+      >
+        <template #icon>
+          <wz-icon name="clock" />
+        </template>
+        <template #content> 08.00 - 10.00 </template>
+      </wz-checkbox-card>
+      <wz-checkbox-card :itemKey="3" v-model="times" align="center" class="">
+        <template #icon>
+          <wz-icon name="clock" />
+        </template>
+        <template #content> 08.00 - 10.00 </template>
+      </wz-checkbox-card>
     </div>
   </div>
 </template>

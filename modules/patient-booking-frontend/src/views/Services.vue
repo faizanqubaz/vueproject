@@ -12,12 +12,13 @@
           Explore and select the service you would like to receive
         </p>
       </div>
-      <div class="grid grid-cols-2 gap-6 pt-10 pr-4">
+      <div class="grid grid-cols-2 gap-6 py-10 pr-4">
         <wz-service-card
-          :key="service.id"
           v-for="service in services"
-          @click="$router.push(paths[service.id-1])"
+          :key="service.id"
           :color="colors[service.id-1]"
+          v-model="serviceId"
+          :itemKey="service.id"
         >
           <template>
             <h2>{{ service.name }}</h2>
@@ -27,7 +28,12 @@
           </template>
         </wz-service-card>
       </div>
-      <div class="pt-6 items-center">
+      <div class="pt-0">
+        <wz-button color="primary" block :disabled="!isValid" @click="proceed">
+          <p class="text-white">Proceed</p>
+        </wz-button>
+      </div>
+      <div class="pt-4 items-center">
         <wz-button type="button" block text  @click="$router.back()">
           <p class="text-darkGray">← Go back</p>
         </wz-button>
@@ -41,28 +47,33 @@ import Vue from 'vue'
 export default Vue.extend({
   data () {
     return {
+      serviceId: 0,
       paths: [
         '/covid19-testing',
-        '/at-home-care',
-        '/iv-drips',
-        '/std-testing'
+        '/at-home-care'
       ],
       colors: [
         'pink-50',
-        'green-50',
-        'gray-50',
-        'yellow-50'
+        'green-50'
       ],
       images: [
         require('@/assets/covid-19-testing.png'),
-        require('@/assets/urgent-care.png'),
-        require('@/assets/iv-drips.png'),
-        require('@/assets/std-testing.png')
+        require('@/assets/urgent-care.png')
       ],
       services: this.$store.state.services
     }
   },
   methods: {
+    proceed () {
+      this.$store.state.serviceGroup = this.serviceId
+      const url = this.paths[this.serviceId - 1]
+      this.$router.push(url)
+    }
+  },
+  computed: {
+    isValid (): boolean {
+      return !!this.serviceId
+    }
   }
 })
 </script>

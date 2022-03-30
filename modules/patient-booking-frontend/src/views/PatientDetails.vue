@@ -21,6 +21,7 @@
           type="text"
           :error="false"
           required
+          :rules="firstNameRules"
           errorMessage=""
         />
         <wz-input
@@ -30,6 +31,7 @@
           type="text"
           :error="false"
           required
+          :rules="lastNameRules"
           errorMessage=""
         />
         <wz-input
@@ -103,17 +105,19 @@ export default Vue.extend({
   data () {
     return {
       genderResults: [],
+      firstNameRules: [(firstName: string) => !!firstName || 'First name is required'],
+      lastNameRules: [(lastName: string) => !!lastName || 'Last name is required'],
       genderRules: [(gender:boolean) => !!gender || 'Gender is required'],
       genders: ['Male', 'Female', 'Other'],
       valid: false,
       phoneRules: [
-        (phoneNumber: string) => !!phoneNumber || 'Phone is require',
+        (phoneNumber: string) => !!phoneNumber || 'Phone number is required',
         (phoneNumber: string) =>
-          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid.'
+          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
       ],
       emailRules: [
         (emailAddress: string) => !!emailAddress || 'Email is required',
-        (emailAddress: string) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid.'
+        (emailAddress: string) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid'
       ]
     }
   },

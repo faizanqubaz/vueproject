@@ -11,6 +11,7 @@
       tabindex="0"
       ref="containerSelect"
       @mousedown="openDropdown()"
+      @keydown="openDropdown()"
     >
       <div
         class="flex-none pr-sm pl-md py-sm"
@@ -180,7 +181,7 @@ export default {
       errorMessage: null,
       open: false,
       dataFilter: null,
-      stopEvent: false
+      stopEvent: false,
     }
   },
 
@@ -257,7 +258,6 @@ export default {
       if (data === 'icon' && focus) {
         this.stopEvent = 'icon'
       }
-
       this.$refs.refInput.focus()
       this.focus = true
       this.open = true

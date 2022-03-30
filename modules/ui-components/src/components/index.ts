@@ -15,6 +15,7 @@ export { default as WziSecurity } from '../assets/security.svg'
 export { default as WziUser } from '../assets/user.svg'
 export { default as WziUsers } from '../assets/users.svg'
 export { default as WziXCircle } from '../assets/x-circle.svg'
+export { default as WziClose } from '../assets/close.svg'
 
 export { default as WziCough } from '../assets/cough.svg'
 export { default as WziExistingCondition } from '../assets/existing-condition.svg'
