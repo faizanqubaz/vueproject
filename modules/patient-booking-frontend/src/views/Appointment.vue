@@ -15,8 +15,9 @@
       <br />
       <div class="pt-0">
         <wz-select
-          v-model="$store.state.location.address"
-          ref="input"
+          v-model="locationAddress"
+          :items="searchResults"
+          itemText="description"
           icon="map-pin"
           label="Your Address"
           :filter="false"
@@ -77,74 +78,57 @@
     </wz-snackbars>
   </div>
 </template>
-
-<script lang="ts">
+<script lang="js">
 import Vue from 'vue'
 import BookingApiClient from '../api/BookingApiClient'
-import { Loader } from '@googlemaps/js-api-loader'
 import { forEach } from 'lodash'
-const loader = new Loader({
-  apiKey: 'AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw',
-  version: 'weekly',
-  libraries: ['places'],
-  region: 'us'
-})
 export default Vue.extend({
   data () {
     return {
-      addressRules: [(location:boolean) => !!location || 'Address is required'],
+      addressRules: [(location) => !!location || 'Address is required'],
       autocomplete: null,
       valid: false,
       errorNotification: false,
       snackbar: {
         open: false,
         message: ''
-      }
+      },
+      searchResults: [],
+      locationAddress: '',
+      map: null
     }
   },
-  async mounted (): Promise<void> {
-    loader
-      .load()
-      .then((google) => {
-        const autocomplete = new google.maps.places.Autocomplete(
-          this.$el.querySelector('input') as HTMLInputElement,
-          {
-            types: ['geocode'],
-            componentRestrictions: { country: 'us' },
-            strictBounds: true,
-            fields: ['address_components', 'formatted_address', 'geometry']
-          }
-        )
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace()
-          this.$store.state.location.address =
-            place.formatted_address === undefined
-              ? ''
-              : place.formatted_address
-          if (this.$store.state.location.address) {
-            this.$store.state.location.latitude = place.geometry.location.lat()
-            this.$store.state.location.longitude = place.geometry.location.lng()
-          }
-          forEach(
-            place.address_components,
-            /* eslint-disable camelcase */
-            (component: { types: string[]; long_name: string }) => {
-              if (component.types.includes('postal_code')) {
-                this.$store.state.location.zipCode = component.long_name
-              } else if (component.types.includes('neighborhood')) {
-                this.$store.state.location.city = component.long_name
-              } else if (component.types.includes('administrative_area_level_1')) {
-                this.$store.state.location.state = component.long_name
-              }
-            }
-          )
-        })
-      })
-      .catch((e) => {
-        console.log(e)
-      })
+  metaInfo () {
+    return {
+      script: [
+        {
+          src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw&libraries=places',
+          async: true,
+          defer: true,
+          callback: () => this.MapsInit()
+        }
+      ]
+    }
   },
   methods: {
+    MapsInit () {
+      this.autocomplete = new window.google.maps.places.AutocompleteService({
+        bounds: new window.google.maps.LatLngBounds(
+          new window.google.maps.LatLng(37.09024, -95.712891)
+        )
+      })
+      this.map = new window.google.maps.Map({
+        bounds: new window.google.maps.LatLngBounds(
+          new window.google.maps.LatLng(37.09024, -95.712891)
+        )
+      })
+    },
+    displaySuggestions (predictions, status) {
+      if (status !== window.google.maps.places.PlacesServiceStatus.OK) {
+        return (this.searchResults = [])
+      }
+      this.searchResults = predictions
+    },
     async isServiceAvailable () {
       try {
         const bookingApiClient = new BookingApiClient()
@@ -178,7 +162,6 @@ export default Vue.extend({
     }
   },
   watch: {
-    // TODO: we need to develop a radio buton and remove this code
     '$store.state.payment.insurance' (newValue) {
       if (newValue) {
         this.$store.state.payment.outOfPocket = false
@@ -187,6 +170,45 @@ export default Vue.extend({
     '$store.state.payment.outOfPocket' (newValue) {
       if (newValue) {
         this.$store.state.payment.insurance = false
+      }
+    },
+    locationAddress (newValue) {
+      if (newValue) {
+        this.autocomplete.getPlacePredictions(
+          {
+            input: this.locationAddress,
+            componentRestrictions: { country: 'us' }
+          },
+          this.displaySuggestions
+        )
+      }
+      if ((typeof newValue) === 'object') {
+        const request = {
+          placeId: newValue.place_id,
+          fields: ['address_components', 'formatted_address', 'geometry']
+        }
+        const service = new window.google.maps.places.PlacesService(this.map)
+        service.getDetails(request, (place, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
+            this.$store.state.location.address = place.formatted_address === undefined ? '' : place.formatted_address
+            if (this.$store.state.location.address) {
+              this.$store.state.location.latitude = place.geometry.location.lat()
+              this.$store.state.location.longitude = place.geometry.location.lng()
+            }
+            forEach(place.address_components,
+              /* eslint-disable camelcase */
+              (component) => {
+                if (component.types.includes('postal_code')) {
+                  this.$store.state.location.zipCode = component.long_name
+                } else if (component.types.includes('neighborhood')) {
+                  this.$store.state.location.city = component.long_name
+                } else if (component.types.includes('administrative_area_level_1')) {
+                  this.$store.state.location.state = component.long_name
+                }
+              }
+            )
+          }
+        })
       }
     }
   }

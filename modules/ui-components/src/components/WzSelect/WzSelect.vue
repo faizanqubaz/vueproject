@@ -62,9 +62,7 @@
                 : ''
             "
             @mousedown="
-              ;(inputVal = itemText ? opt[itemText] : opt),
-                $emit('input', itemText ? opt[itemText] : opt),
-                closeDropdown()
+             mouseDown(opt)
             "
           >
             <div class="px-md text-sm">
@@ -83,9 +81,7 @@
             :key="opt.id"
             class="py-3 border-b border-stroke cursor-pointer hover:text-primary last:border-none"
             @mousedown="
-              ;(inputVal = itemText ? opt[itemText] : opt),
-                $emit('input', itemText ? opt[itemText] : opt),
-                closeDropdown()
+              mouseDown()
             "
           >
             <div class="px-md text-sm">
@@ -155,7 +151,7 @@ export default {
     },
     placeholder: String,
     value: {
-      type: String,
+      type: String | Object,
       default: ''
     },
     required: {
@@ -236,9 +232,14 @@ export default {
         return
       }
 
+
       let checker = this.items.filter((res) => {
-        return this.inputVal === (this.itemText ? res[this.itemText] : res)
+        return this.inputVal === res
       })
+      if (checker.length > 0 && typeof checker[0] === 'object') {
+        this.inputVal = checker[0][this.itemText]
+      }
+
       if (checker.length === 0) {
         this.inputVal = ''
         this.$emit('input', '')
@@ -247,6 +248,10 @@ export default {
       } else {
         this.closeDropdown()
       }
+    },
+    mouseDown(opt) {
+      this.$emit('input', opt)
+      this.closeDropdown()
     },
 
     closeDropdown() {
