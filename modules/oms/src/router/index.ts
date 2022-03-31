@@ -14,12 +14,12 @@ const routes: Array<RouteConfig> = [
         component: () => import("@/views/dashboard/Dashboard.vue"),
         // beforeEnter: authGuard
       },
-      // {
-      //   name: "Cities",
-      //   path: "resources/cities",
-      //   component: () => import("@/views/dashboard/resources/Cities.vue"),
-      //   // beforeEnter: authGuard
-      // },
+      {
+        name: "Cities",
+        path: "resources/cities",
+        component: () => import("@/views/dashboard/resources/Cities.vue"),
+        // beforeEnter: authGuard
+      },
     ],
   },
   {

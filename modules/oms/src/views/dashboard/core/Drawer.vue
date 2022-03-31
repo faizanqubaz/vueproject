@@ -123,7 +123,7 @@ export default Vue.extend({
             title: "Services",
           },
           {
-            to: "",
+            to: "cities",
             title: "Cities",
           },
           {
