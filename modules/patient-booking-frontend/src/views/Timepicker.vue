@@ -9,28 +9,29 @@
           <h1 class="text-xl">Pick a time that works for you</h1>
         </div>
         <div class="pt-3 flex justify-end">
-          <wz-date-picker v-model="date"
+          <wz-date-picker
+            v-model="dateAndTime.date"
             :minDate="new Date()"
           >
-            <p class="text-darkGray ml-0 md:ml-5">{{ this.date.toDateString() }}</p>
+            <p class="text-darkGray ml-0 md:ml-5">{{ printDate }}</p>
           </wz-date-picker>
         </div>
       </div>
       <div class="grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 py-7">
         <wz-checkbox-card
-          v-for="(time, index) in timeSlots"
-          :key="index"
-          :itemKey="index"
-          v-model="selectedSlot"
+          v-for="slot in timeSlots"
+          :key="slot.id"
+          :itemKey="slot.id"
+          v-model="dateAndTime.id"
           align="center"
           class=""
-          :disabled= "!time.isActive"
+          :disabled= "!slot.active"
         >
           <template #icon>
             <wz-icon name="clock" />
           </template>
           <template #content>
-            {{ formatTimeSlot(time.startTime) }} - {{ formatTimeSlot(time.endTime) }}
+            {{ formatTimeSlot(slot.startTime, slot.endTime) }}
           </template>
         </wz-checkbox-card>
       </div>
@@ -38,7 +39,7 @@
         <wz-button color="primary"
           block
           :disabled="!isValid"
-          @click="nextPage"
+          @click="proceed"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -68,14 +69,15 @@
 <script lang="ts">
 import Vue from 'vue'
 import BookingApiClient from '../api/BookingApiClient'
-import { parseInt } from 'lodash'
 import moment from 'moment'
 import 'moment-timezone'
+import { find, cloneDeep } from 'lodash'
 
 interface SlotType {
-  startTime: string
-  endTime: string
-  isActive: boolean
+  startTime: string;
+  endTime: string;
+  active: boolean;
+  id: number;
 }
 
 export default Vue.extend({
@@ -85,29 +87,43 @@ export default Vue.extend({
         open: false,
         message: ''
       },
-      date: new Date(),
+      dateAndTime: {
+        startTime: '',
+        endTime: '',
+        date: '',
+        id: 0
+      },
       timeSlots: [] as SlotType[],
-      selectedSlot: -1,
-      validation: true
+      fromBack: false
     }
   },
-  async beforeMount (): Promise<void> {
-    this.fetchAppointment()
+  beforeMount () {
+    this.dateAndTime = cloneDeep(this.$store.getters.dateAndTime)
+    if (!this.dateAndTime.date) {
+      this.dateAndTime.date = moment().toString()
+    } else {
+      this.fromBack = true
+      this.timeSlots = this.$store.getters.timeSlots
+    }
   },
   methods: {
     async fetchAppointment () {
       try {
-        this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
         const bookingApiClient = new BookingApiClient()
-        const response = await bookingApiClient.getServiceTimeSlots(this.$store.state.appointment.date, this.$store.state.location.cityId, this.$store.state.service.id)
+        const fetchDate = moment(this.dateAndTime.date).format('YYYY-MM-DD')
+        const response = await bookingApiClient.getServiceTimeSlots(fetchDate,
+          this.$store.getters.locationCityId, this.$store.getters.serviceId)
         if (response.result.length > 0) {
           this.timeSlots = []
-          this.selectedSlot = -1
+          this.dateAndTime.id = 0
+          this.dateAndTime.startTime = ''
+          this.dateAndTime.endTime = ''
           response.result.forEach((slot) => {
             this.timeSlots.push({
+              id: slot.id,
               startTime: slot.startTime,
               endTime: slot.endTime,
-              isActive: slot.enabled && this.isAvailable(slot.startTime)
+              active: slot.enabled && this.isAvailable(fetchDate, slot.startTime)
             })
           })
         } else {
@@ -119,42 +135,46 @@ export default Vue.extend({
         this.snackbar.open = true
       }
     },
-    // TODO: use MomentJS
-    formatTimeSlot (time: string) {
-      let hour = parseInt(time.slice(0, 2))
-      const suffix = hour < 12 ? ' AM' : ' PM'
-      hour = hour > 12 ? hour - 12 : hour
-      return ((hour < 10 ? '0' : '') + hour + suffix)
+    formatTimeSlot (startTime: string, endTime: string) {
+      return `${moment(startTime, 'HH:mm:ss').format('h A')} - ${moment(endTime, 'HH:mm:ss').format('h A')}`
     },
-    nextPage () {
-      if (this.isValid) {
-        this.$store.state.appointment.date = this.date.toISOString().split('T')[0]
-        this.$store.state.appointment.startTime = this.timeSlots[this.selectedSlot].startTime
-        this.$store.state.appointment.endTime = this.timeSlots[this.selectedSlot].endTime
-        this.$router.push('/details')
-      }
+    proceed () {
+      this.$store.commit('setDateAndTime', this.dateAndTime)
+      this.$store.commit('setTimeSlots', this.timeSlots)
+      this.$router.push('/details')
     },
-    isAvailable (start: string) {
-      const DATE_FORMAT = 'YYYY-MM-DD'
-      const fetchDate = this.date.toISOString().split('T')[0]
-      const startTimeMoment = moment(`${fetchDate} ${start}`, `${DATE_FORMAT} ha`).tz(this.$store.state.location.timeZone)
-      return moment().isBefore(startTimeMoment)
+    isAvailable (fetchDate: string, startTime: string) {
+      const startMoment = moment(`${fetchDate} ${startTime}`, 'YYYY-MM-DD ha').tz(this.timezone)
+      return moment().isBefore(startMoment)
     }
   },
   computed: {
     isValid (): boolean {
-      return this.date && this.selectedSlot > -1
+      return !!this.dateAndTime.date && !!this.dateAndTime.id && !!this.dateAndTime.startTime && !!this.dateAndTime.endTime
+    },
+    printDate (): string {
+      return moment(this.dateAndTime.date).format('MMMM DD YYYY')
+    },
+    timezone (): string {
+      return this.$store.getters.locationTimeZone
     }
   },
   watch: {
-    date (newValue, oldValue) {
-      const today = new Date().toISOString().slice(0, 10)
-      const newDate = newValue.toISOString().slice(0, 10)
-      if (newValue && newDate >= today) {
-        this.date = newValue
+    'dateAndTime.date' (newDate) {
+      this.dateAndTime.date = newDate
+      if (!this.fromBack) {
         this.fetchAppointment()
       } else {
-        this.date = oldValue
+        this.fromBack = false
+      }
+    },
+    'dateAndTime.id' (newValue) {
+      if (newValue) {
+        const slot = find(this.timeSlots, { id: newValue })
+        if (slot) {
+          this.dateAndTime.startTime = slot.startTime
+          this.dateAndTime.endTime = slot.endTime
+        }
       }
     }
   }

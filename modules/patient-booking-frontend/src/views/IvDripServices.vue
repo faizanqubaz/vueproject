@@ -14,7 +14,7 @@
         <wz-checkbox-card
           :key="serviceType.id"
           v-for="serviceType in serviceTypes"
-          v-model="$store.state.service.id"
+          v-model="serviceId"
           :itemKey="serviceType.id"
         >
           <template #content>
@@ -38,7 +38,7 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="nextPage"
+          @click="proceed"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -57,6 +57,7 @@ import Vue from 'vue'
 export default Vue.extend({
   data () {
     return {
+      serviceId: 0,
       serviceTypes: [
         {
           id: 1,
@@ -83,16 +84,14 @@ export default Vue.extend({
     }
   },
   computed: {
-    isValid () {
-      return this.$store.state.service.id
+    isValid (): boolean {
+      return !!this.serviceId
     }
   },
   methods: {
-    nextPage () {
-      if (this.isValid) {
-        this.$store.state.service.id = 5
-        this.$router.push('/notes')
-      }
+    proceed () {
+      this.serviceId = 5
+      this.$router.push('/notes')
     }
   }
 })

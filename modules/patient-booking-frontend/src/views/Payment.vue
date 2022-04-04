@@ -14,7 +14,7 @@
         <wz-input
           icon="cardFront"
           label="Card Number"
-          v-model="$store.state.outOfPocketInfo.cardNumber"
+          v-model="cardInfo.number"
           type="number"
           :error="false"
           errorMessage=""
@@ -24,7 +24,7 @@
         <wz-input
           icon="calendar"
           label="Expiration Date"
-          v-model="$store.state.outOfPocketInfo.expirationDate"
+          v-model="cardInfo.expirationDate"
           type="text"
           :error="false"
           errorMessage=""
@@ -32,24 +32,14 @@
         <wz-input
           icon="cardBack"
           label="CVC"
-          v-model="$store.state.outOfPocketInfo.cvc"
+          v-model="cardInfo.cvc"
           type="number"
           :error="false"
           errorMessage=""
         />
       </div>
-      <div class="pt-5 grid md:grid-cols-1 lg:grid-cols-1 sm:grid-cols-1 gap-x-5 gap-y-3">
-        <wz-input
-          icon="email"
-          label="Email"
-          v-model="$store.state.outOfPocketInfo.email"
-          type="text"
-          :error="false"
-          errorMessage=""
-        />
-      </div>
       <div class="pt-8">
-        <wz-button color="primary" block :disabled="!isValid" @click="nextPage">
+        <wz-button color="primary" block :disabled="!isValid" @click="proceed">
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
@@ -65,19 +55,24 @@
 <script lang="ts">
 import Vue from 'vue'
 export default Vue.extend({
+  data () {
+    return {
+      cardInfo: {
+        number: '',
+        name: '',
+        expirationDate: '',
+        cvc: ''
+      }
+    }
+  },
   computed: {
-    isValid: function () {
-      return this.$store.state.outOfPocketInfo.cardNumber &&
-      this.$store.state.outOfPocketInfo.expirationDate &&
-      this.$store.state.outOfPocketInfo.cvc &&
-      this.$store.state.outOfPocketInfo.email
+    isValid (): boolean {
+      return !!this.cardInfo.number && !!this.cardInfo.expirationDate && !!this.cardInfo.cvc
     }
   },
   methods: {
-    nextPage () {
-      if (this.isValid) {
-        this.$router.push('/review-appointment')
-      }
+    proceed () {
+      this.$router.push('/review-appointment')
     }
   }
 })

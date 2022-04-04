@@ -60,12 +60,20 @@ export default Vue.extend({
         require('@/assets/covid-19-testing.png'),
         require('@/assets/urgent-care.png')
       ],
-      services: this.$store.state.services
+      services: []
     }
+  },
+  beforeMount () {
+    this.services = this.$store.getters.serviceList
+    this.serviceId = this.$store.getters.serviceId
   },
   methods: {
     proceed () {
-      this.$store.state.serviceGroup = this.serviceId
+      if (this.serviceId !== this.$store.getters.serviceId) {
+        this.$store.commit('setServiceId', this.serviceId)
+        this.$store.commit('clearServiceType')
+      }
+
       const url = this.paths[this.serviceId - 1]
       this.$router.push(url)
     }

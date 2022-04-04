@@ -102,7 +102,7 @@ export default class BookingApiClient extends HttpClient {
     }
   }
 
-  async getServiceTimeSlots (date: Date, cityId: number, serviceId: number): Promise<AppointmentTimeSlotResponse> {
+  async getServiceTimeSlots (date: string, cityId: number, serviceId: number): Promise<AppointmentTimeSlotResponse> {
     const url = '/service-time-slots?date=' + date + '&city=' + cityId + '&service=' + serviceId
     try {
       const response: AxiosResponse<AppointmentTimeSlotResponse> = await this.instance.get(url)

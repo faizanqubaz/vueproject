@@ -12,23 +12,22 @@
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-8">
         <wz-checkbox-card
-          v-for="service in services"
-          :key="service.id"
-          v-model="$store.state.service.id"
-          :itemKey="service.id"
+          v-for="serviceType in serviceTypes"
+          :key="serviceType.id"
+          v-model="serviceTypeId"
+          :itemKey="serviceType.id"
         >
           <template #content>
             <div class="content-center py-5" align="center">
               <img
-                :src="images[service.id-1]"
-                :alt="`${service.name}`"
+                :src="images[serviceType.id-1]"
+                :alt="`${serviceType.name}`"
                 class=""
               />
-              <h3 class="pt-4 font-normal">{{ service.name }}</h3>
+              <h3 class="pt-4 font-normal">{{ serviceType.name }}</h3>
               <p class="antialiased font-normal text-gray-500 pt-1">
-                {{ service.description }}
+                {{ serviceType.description }}
               </p>
-              <p class="font-normal text-primary pt-1">{{ $store.state.payment.outOfPocket ? '$ ' + service.price : '' }}</p>
             </div>
           </template>
         </wz-checkbox-card>
@@ -38,7 +37,7 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="nextPage"
+          @click="proceed"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -55,6 +54,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { get, find } from 'lodash'
+import { ServiceType } from '../api/BookingApiClient'
 export default Vue.extend({
   data () {
     return {
@@ -63,24 +63,39 @@ export default Vue.extend({
         require('@/assets/pcr.png'),
         require('@/assets/rapid-pcr.png')
       ],
-      services: get(find(this.$store.state.services, { id: 1 }), 'services')
+      serviceTypes: [] as ServiceType[],
+      serviceTypeId: 0
     }
   },
+  beforeMount () {
+    this.serviceTypes = get(find(this.$store.getters.serviceList, { id: this.$store.getters.serviceId }), 'services')
+    this.serviceTypeId = this.$store.getters.serviceTypeId
+  },
   methods: {
-    nextPage () {
-      if (this.isValid) {
-        const service = find(this.services, { id: this.$store.state.service.id })
-        this.$store.state.service.name = service.name
-        this.$store.state.service.description = service.description
-        this.$store.state.service.price = service.price
-        this.$store.state.service.image = require('@/assets/rapid.png')
-        this.$router.push('/notes')
+    proceed () {
+      if (this.serviceTypeId !== this.$store.getters.serviceTypeId) {
+        const serviceType = find(this.serviceTypes, { id: this.serviceTypeId })
+        if (serviceType) {
+          const type = {
+            id: this.serviceTypeId,
+            name: serviceType.name,
+            description: serviceType.description,
+            price: serviceType.price,
+            image: this.images[this.serviceTypeId - 1],
+            notes: ''
+          }
+          this.$store.commit('setServiceType', type)
+        }
       }
+      this.$router.push('/notes')
     }
   },
   computed: {
-    isValid () {
-      return this.$store.state.service.id
+    isValid (): boolean {
+      return !!this.serviceTypeId
+    },
+    isInsurance () {
+      return this.$store.getters.insurance
     }
   }
 })

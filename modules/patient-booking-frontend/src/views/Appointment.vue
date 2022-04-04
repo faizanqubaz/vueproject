@@ -12,10 +12,11 @@
           We bring the urgent care directly to you. It’s as easy as using Amazon
         </p>
       </div>
+      <div id="map" hidden />
       <br />
       <div class="pt-0">
         <wz-select
-          v-model="locationAddress"
+          v-model="location.address"
           :items="searchResults"
           itemText="description"
           icon="map-pin"
@@ -30,7 +31,7 @@
           <wz-input
             icon="home"
             label="Apartment #"
-            v-model="$store.state.location.apartment"
+            v-model="location.apartment"
             type="text"
             :error="false"
             errorMessage=""
@@ -40,14 +41,14 @@
           <div class="">
             <wz-checkbox
               label="I have health insurance"
-              v-model="$store.state.payment.insurance"
+              v-model="payment.insurance"
               class="mb-2"
             />
           </div>
           <div class="">
             <wz-checkbox
               label="Uninsured or will pay out of pocket"
-              v-model="$store.state.payment.outOfPocket"
+              v-model="payment.card"
               class="mb-2"
             />
           </div>
@@ -56,7 +57,7 @@
           <wz-button color="primary"
             block
             :disabled="!isValid"
-            @click="isServiceAvailable"
+            @click="proceed"
             >
             <p class="text-white">Proceed</p>
           </wz-button>
@@ -85,17 +86,29 @@ import { forEach } from 'lodash'
 export default Vue.extend({
   data () {
     return {
-      addressRules: [(location) => !!location || 'Address is required'],
       autocomplete: null,
-      valid: false,
-      errorNotification: false,
       snackbar: {
         open: false,
         message: ''
       },
+      location: {
+        address: '',
+        apartment: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        longitude: '',
+        latitude: '',
+        cityId: 0,
+        timeZone: ''
+      },
+      payment: {
+        insurance: false,
+        card: false
+      },
       searchResults: [],
-      locationAddress: '',
-      map: null
+      addressRules: [(location) => !!location || 'Address is required'],
+      fromBack: false
     }
   },
   metaInfo () {
@@ -105,19 +118,21 @@ export default Vue.extend({
           src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw&libraries=places',
           async: true,
           defer: true,
-          callback: () => this.MapsInit()
+          callback: () => this.initMap()
         }
       ]
     }
   },
+  beforeMount () {
+    this.location.address = this.$store.getters.locationAddress
+    this.fromBack = !!this.$store.getters.locationAddress
+    this.location.apartment = this.$store.getters.locationApartment
+    this.location.zipCode = this.$store.getters.locationZipCode
+    this.payment = this.$store.getters.payment
+  },
   methods: {
-    MapsInit () {
+    initMap () {
       this.autocomplete = new window.google.maps.places.AutocompleteService({
-        bounds: new window.google.maps.LatLngBounds(
-          new window.google.maps.LatLng(37.09024, -95.712891)
-        )
-      })
-      this.map = new window.google.maps.Map({
         bounds: new window.google.maps.LatLngBounds(
           new window.google.maps.LatLng(37.09024, -95.712891)
         )
@@ -129,56 +144,76 @@ export default Vue.extend({
       }
       this.searchResults = predictions
     },
-    async isServiceAvailable () {
+    async proceed () {
       try {
-        const bookingApiClient = new BookingApiClient()
-        const response = await bookingApiClient.getService(this.$store.state.location.zipCode)
-        if (response.result.serviceGroups.length > 0) {
-          this.$store.state.services = response.result.serviceGroups
-          this.$store.state.location.cityId = response.result.id
-          this.$store.state.location.timeZone = response.result.timeZone
+        if (this.location.zipCode === this.$store.getters.locationZipCode) {
+          const location = { ...this.location, street: this.location.address.split(',')[0] }
+          this.$store.commit('setLocation', location)
+          this.$store.commit('setPayment', this.payment)
           this.$router.push('/services')
         } else {
-          this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
-          this.snackbar.open = true
-          this.$store.state.location.address = ''
-          this.$store.state.location.zipCode = ''
-          this.$store.state.payment.insurance = false
-          this.$store.state.payment.outOfPocket = false
-          this.$store.state.location.cityId = 0
-          this.$store.state.location.timeZone = ''
+          const bookingApiClient = new BookingApiClient()
+          const response = await bookingApiClient.getService(this.location.zipCode)
+          if (response.result.serviceGroups.length > 0) {
+            this.$store.commit('setServiceList', response.result.serviceGroups)
+            const location = {
+              ...this.location,
+              street: this.location.address.split(',')[0],
+              cityId: response.result.id,
+              timeZone: response.result.timeZone
+            }
+            this.$store.commit('setLocation', location)
+            this.$store.commit('setPayment', this.payment)
+            this.$router.push('/services')
+          } else {
+            this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
+            this.snackbar.open = true
+            this.location = {
+              address: '',
+              apartment: '',
+              city: '',
+              state: '',
+              zipCode: '',
+              longitude: '',
+              latitude: '',
+              cityId: 0,
+              timeZone: ''
+            }
+            this.payment.insurance = false
+            this.payment.card = false
+          }
         }
       } catch (error) {
-        this.snackbar.message = 'Sorry, something went wrong, please try again.'
+        this.snackbar.message = 'Technical Issue. Please try again'
         this.snackbar.open = true
       }
     }
   },
   computed: {
     isValid () {
-      return this.$store.state.location.address &&
-      this.$store.state.location.zipCode &&
-      (this.$store.state.payment.insurance || this.$store.state.payment.outOfPocket)
+      return this.location.address && this.location.zipCode && (this.payment.insurance || this.payment.card)
     }
   },
   watch: {
-    '$store.state.payment.insurance' (newValue) {
+    'payment.insurance' (newValue) {
       if (newValue) {
-        this.$store.state.payment.outOfPocket = false
+        this.payment.card = false
       }
     },
-    '$store.state.payment.outOfPocket' (newValue) {
+    'payment.card' (newValue) {
       if (newValue) {
-        this.$store.state.payment.insurance = false
+        this.payment.insurance = false
       }
     },
-    locationAddress (newValue) {
+    'location.address' (newValue) {
+      if (this.fromBack) {
+        this.fromBack = false
+        return
+      }
+
       if (newValue) {
         this.autocomplete.getPlacePredictions(
-          {
-            input: this.locationAddress,
-            componentRestrictions: { country: 'us' }
-          },
+          { input: this.location.address, componentRestrictions: { country: 'us' } },
           this.displaySuggestions
         )
       }
@@ -187,23 +222,23 @@ export default Vue.extend({
           placeId: newValue.place_id,
           fields: ['address_components', 'formatted_address', 'geometry']
         }
-        const service = new window.google.maps.places.PlacesService(this.map)
+        const service = new window.google.maps.places.PlacesService(document.getElementById('map'))
         service.getDetails(request, (place, status) => {
           if (status === window.google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
-            this.$store.state.location.address = place.formatted_address === undefined ? '' : place.formatted_address
-            if (this.$store.state.location.address) {
-              this.$store.state.location.latitude = place.geometry.location.lat()
-              this.$store.state.location.longitude = place.geometry.location.lng()
+            this.location.address = place.formatted_address === undefined ? '' : place.formatted_address
+            if (this.location.address) {
+              this.location.latitude = place.geometry.location.lat()
+              this.location.longitude = place.geometry.location.lng()
             }
             forEach(place.address_components,
               /* eslint-disable camelcase */
               (component) => {
                 if (component.types.includes('postal_code')) {
-                  this.$store.state.location.zipCode = component.long_name
+                  this.location.zipCode = component.long_name
                 } else if (component.types.includes('neighborhood')) {
-                  this.$store.state.location.city = component.long_name
+                  this.location.city = component.long_name
                 } else if (component.types.includes('administrative_area_level_1')) {
-                  this.$store.state.location.state = component.long_name
+                  this.location.state = component.long_name
                 }
               }
             )

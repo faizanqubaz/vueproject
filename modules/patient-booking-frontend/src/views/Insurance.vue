@@ -11,17 +11,17 @@
         </p>
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 pt-8">
-        <wz-upload v-model="$store.state.insuranceInfo.front">
+        <wz-upload v-model="insuranceInfo.front">
           <h4>Add image</h4>
           <p class="font-normal text-gray-700 antialiased">Front of card</p>
         </wz-upload>
-        <wz-upload v-model="$store.state.insuranceInfo.back">
+        <wz-upload v-model="insuranceInfo.back">
           <h4>Add image</h4>
           <p class="font-normal text-gray-700 antialiased">Back of card</p>
         </wz-upload>
       </div>
       <div class="pt-8">
-        <wz-button color="primary" block :disabled="!isValid" @click="nextPage">
+        <wz-button color="primary" block :disabled="!isValid" @click="proceed">
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
@@ -37,16 +37,22 @@
 <script lang="ts">
 import Vue from 'vue'
 export default Vue.extend({
+  data () {
+    return {
+      insuranceInfo: {
+        front: null,
+        back: null
+      }
+    }
+  },
   computed: {
-    isValid () {
-      return this.$store.state.insuranceInfo.front && this.$store.state.insuranceInfo.back
+    isValid (): boolean {
+      return !!this.insuranceInfo.front && !!this.insuranceInfo.back
     }
   },
   methods: {
-    nextPage () {
-      if (this.isValid) {
-        this.$router.push('/review-appointment')
-      }
+    proceed () {
+      this.$router.push('/review-appointment')
     }
   }
 })

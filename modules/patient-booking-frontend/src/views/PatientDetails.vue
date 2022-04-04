@@ -17,7 +17,7 @@
         <wz-input
           icon="user"
           label="First Name"
-          v-model="$store.state.patient.firstName"
+          v-model="firstName"
           type="text"
           :error="false"
           required
@@ -27,7 +27,7 @@
         <wz-input
           icon="user"
           label="Last Name"
-          v-model="$store.state.patient.lastName"
+          v-model="lastName"
           type="text"
           :error="false"
           required
@@ -37,14 +37,14 @@
         <wz-input
           icon="phone"
           label="Phone Number"
-          v-model="$store.state.patient.phoneNumber"
+          v-model="phoneNumber"
           type="tel"
           :rules="phoneRules"
           :error="false"
           errorMessage=""
         />
         <wz-select
-          v-model="$store.state.patient.gender"
+          v-model="gender"
           :items="genders"
           icon="users"
           label="Gender"
@@ -55,7 +55,7 @@
         <wz-input
           icon="calendar"
           label="Date of Birth"
-          v-model="$store.state.patient.dob"
+          v-model="dob"
           type="date"
           :error="false"
           required
@@ -64,7 +64,7 @@
         <wz-input
           icon="email"
           label="Email"
-          v-model="$store.state.patient.email"
+          v-model="email"
           type="email"
           :error="false"
           :rules="emailRules"
@@ -77,7 +77,7 @@
           block
           color="primary"
           :disabled="!valid"
-          @click="nextPage"
+          @click="proceed"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -104,11 +104,16 @@ import email from 'email-validator'
 export default Vue.extend({
   data () {
     return {
-      genderResults: [],
+      genders: ['Male', 'Female', 'Other'],
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      gender: '',
+      dob: '',
+      email: '',
       firstNameRules: [(firstName: string) => !!firstName || 'First name is required'],
       lastNameRules: [(lastName: string) => !!lastName || 'Last name is required'],
       genderRules: [(gender:boolean) => !!gender || 'Gender is required'],
-      genders: ['Male', 'Female', 'Other'],
       valid: false,
       phoneRules: [
         (phoneNumber: string) => !!phoneNumber || 'Phone number is required',
@@ -121,14 +126,28 @@ export default Vue.extend({
       ]
     }
   },
+  beforeMount () {
+    this.firstName = this.$store.getters.firstName
+    this.lastName = this.$store.getters.lastName
+    this.phoneNumber = this.$store.getters.phoneNumber
+    this.gender = this.$store.getters.gender
+    this.dob = this.$store.getters.dob
+    this.email = this.$store.getters.email
+    this.valid = !!this.firstName && !!this.lastName && !!this.phoneNumber && !!this.gender &&
+      !!this.dob && !!this.email
+  },
   methods: {
-    gender () {
-      this.genderResults = this.$store.state.patient.gender
-    },
-    nextPage () {
-      if (this.valid && this.$store.state.payment.insurance) {
+    proceed () {
+      this.$store.commit('setFirstName', this.firstName)
+      this.$store.commit('setLastName', this.lastName)
+      this.$store.commit('setPhoneNumber', this.phoneNumber)
+      this.$store.commit('setGender', this.gender)
+      this.$store.commit('setDob', this.dob)
+      this.$store.commit('setEmail', this.email)
+
+      if (this.$store.getters.insurance) {
         this.$router.push('/insurance')
-      } else if (this.valid) {
+      } else {
         this.$router.push('/review-appointment')
       }
     }

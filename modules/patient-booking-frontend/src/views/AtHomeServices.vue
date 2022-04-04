@@ -14,7 +14,7 @@
         <wz-checkbox-card
           v-for="symptom in symptoms"
           :key="symptom.id"
-          v-model="$store.state.appointment.notes"
+          v-model="notes"
           :itemKey="symptom.name"
           align="center"
         >
@@ -31,7 +31,7 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="nextPage"
+          @click="proceed"
         >
           <p class="text-white">Proceed</p>
         </wz-button>
@@ -47,9 +47,11 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { get, find } from 'lodash'
 export default Vue.extend({
   data () {
     return {
+      notes: '',
       symptoms: [
         {
           id: 1,
@@ -104,21 +106,33 @@ export default Vue.extend({
       ]
     }
   },
-  methods: {
-    nextPage () {
-      if (this.isValid) {
-        this.$store.state.service.id = 4
-        this.$store.state.service.name = 'At-home Care'
-        this.$store.state.service.description = 'We treat common health issues'
-        this.$store.state.service.price = 100
-        this.$store.state.service.image = require('@/assets/at-home-care.png')
-        this.$router.push('/notes')
+  beforeMount () {
+    const serviceType = get(find(this.$store.getters.serviceList, { id: this.$store.getters.serviceId }), 'services')
+    if (serviceType.id !== this.$store.getters.serviceTypeId) {
+      const type = {
+        id: serviceType.id,
+        name: serviceType.name,
+        description: serviceType.description,
+        price: serviceType.price,
+        image: require('@/assets/at-home-care.png'),
+        notes: ''
       }
+      this.$store.commit('setServiceType', type)
     }
+
+    this.notes = this.$store.getters.serviceTypeNotes
   },
   computed: {
-    isValid () {
-      return this.$store.state.appointment.notes
+    isValid (): boolean {
+      return !!this.notes
+    }
+  },
+  methods: {
+    proceed () {
+      if (this.notes !== this.$store.getters.serviceTypeNotes) {
+        this.$store.commit('setServiceTypeNotes', this.notes)
+      }
+      this.$router.push('/notes')
     }
   }
 })

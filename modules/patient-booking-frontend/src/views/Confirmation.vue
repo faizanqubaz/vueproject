@@ -21,27 +21,27 @@
         <wz-input
           icon="user"
           label="First Name"
-          v-model="$store.state.patient.firstName"
+          v-model="$store.getters.firstName"
           type="text"
           :error="false"
           errorMessage="" />
         <wz-input
           icon="user"
           label="Last Name"
-          v-model="$store.state.patient.lastName"
+          v-model="$store.getters.lastName"
           type="text"
           :error="false"
           errorMessage="" />
         <wz-input
           icon="email"
           label="Email"
-          v-model="$store.state.patient.email"
+          v-model="$store.getters.email"
           type="text"
           :error="false"
           errorMessage="" />
         <wz-input icon=""
           label="Password"
-          v-model="$store.state.patient.password"
+          v-model="password"
           type="password"
           :error="false"
           errorMessage=""
@@ -50,7 +50,7 @@
       <div class="pt-4">
         <wz-checkbox
           label="By creating account I accept Terms of Use"
-          v-model="$store.state.patient.consent"
+          v-model="consent"
           class="mb-2 rounded-full"
         />
       </div>
@@ -59,7 +59,7 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="isValid ? submit() : ''"
+          @click="create"
         >
           <p class="text-white">Create Account</p>
         </wz-button>
@@ -74,20 +74,18 @@ export default Vue.extend({
   data () {
     return {
       checked: true,
-      valid: false
+      valid: false,
+      password: '',
+      consent: false
     }
   },
   computed: {
-    isValid () {
-      return this.$store.state.patient.firstName &&
-        this.$store.state.patient.lastName &&
-        this.$store.state.patient.email &&
-        this.$store.state.patient.password &&
-        this.$store.state.patient.consent
+    isValid (): boolean {
+      return !!this.password && this.consent
     }
   },
   methods: {
-    submit () {
+    create () {
       console.log('Need to be implemented')
     }
   }

@@ -18,8 +18,8 @@
               <label for="lastname" class="font-extralight text-sm">Last Name</label>
             </div>
             <div class="grid grid-cols-2">
-              <p>{{ $store.state.patient.firstName }}</p>
-              <p>{{ $store.state.patient.lastName }}</p>
+              <p>{{ $store.getters.firstName }}</p>
+              <p>{{ $store.getters.lastName }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -28,7 +28,7 @@
               <label for="phonenumber" class="font-extralight text-sm">Phone</label>
             </div>
             <div>
-              <p>{{ $store.state.patient.phoneNumber }}</p>
+              <p>{{ $store.getters.phoneNumber }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -39,9 +39,9 @@
             </div>
             <div class="grid grid-cols-2">
               <p>
-                {{ $store.state.patient.gender }}
+                {{ $store.getters.gender }}
               </p>
-              <p>{{ new Date($store.state.patient.dob.split("-")).toLocaleDateString() }}</p>
+              <p>{{ printDate($store.getters.dob) }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -50,7 +50,7 @@
               <label for="address" class="font-extralight text-sm">Address</label>
             </div>
             <div>
-              <p>{{ $store.state.location.address }}</p>
+              <p>{{ $store.getters.locationAddress }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -59,7 +59,7 @@
               <label for="apartment" class="font-extralight text-sm">Apartment #</label>
             </div>
             <div class="grid grid-cols-2">
-              <p>{{ $store.state.location.apartment }}</p>
+              <p>{{ $store.getters.locationApartment }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -70,9 +70,9 @@
             </div>
             <div class="grid grid-cols-2">
               <p>
-                {{  new Date($store.state.appointment.date.split("-")).toDateString() }}
+                {{ printDate($store.getters.date) }}
               </p>
-              <p>{{ formatTimeSlot($store.state.appointment.startTime) }} - {{ formatTimeSlot($store.state.appointment.endTime) }}</p>
+              <p>{{ formatTimeSlot($store.getters.startTime) }} - {{ formatTimeSlot($store.getters.endTime) }}</p>
             </div>
             <hr class="w-80"/>
           </div>
@@ -84,16 +84,16 @@
             </div>
             <div class="py-5 flex-1 mx-4">
               <div class="mx-4 flex flex-col items-center justify-center">
-                <img :src="$store.state.service.image" class="mb-4 h-12" :alt="image" />
-                <p class="text-fontPrimary mb-2">{{ $store.state.service.name }}</p>
-                <p class="font-normal text-fontSecondary mb-2">{{$store.state.service.description }}</p>
-                <p class="font-normal text-primary"> {{ $store.state.payment.outOfPocket ? '$ ' + $store.state.service.price : '' }}</p>
+                <img :src="$store.getters.serviceTypeImage" class="mb-4 h-12" :alt="image" />
+                <p class="text-fontPrimary mb-2">{{ $store.getters.serviceTypeName }}</p>
+                <p class="font-normal text-fontSecondary mb-2">{{$store.getters.serviceTypeDescription }}</p>
+                <p class="font-normal text-primary"> {{ isInsurance ? '' : '$ ' + $store.getters.serviceTypePrice }}</p>
               </div>
             </div>
           </div>
           <div class="pt-5 flex justify-between">
-            <p class="text-gray-500"> {{ $store.state.payment.outOfPocket ? 'Total:' : '' }} </p>
-            <p class="font-normal text-primary"> {{ $store.state.payment.outOfPocket ? '$ ' + $store.state.service.price : '' }}</p>
+            <p class="text-gray-500"> {{ isInsurance ? '' : 'Total: ' }} </p>
+            <p class="font-normal text-primary"> {{ isInsurance ? '' : '$ ' + $store.getters.serviceTypePrice }}</p>
           </div>
         </div>
       </div>
@@ -127,6 +127,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import BookingApiClient from '../api/BookingApiClient'
+import moment from 'moment'
 export default Vue.extend({
   data () {
     return {
@@ -140,35 +141,35 @@ export default Vue.extend({
     async createAppointment () {
       const appointment = {
         patient: {
-          firstName: this.$store.state.patient.firstName,
+          firstName: this.$store.getters.firstName,
           middleName: '',
-          lastName: this.$store.state.patient.lastName,
-          dob: this.$store.state.patient.dob,
-          gender: this.$store.state.patient.gender.toLowerCase(),
-          phone: '+1' + this.$store.state.patient.phoneNumber,
-          email: this.$store.state.patient.email,
+          lastName: this.$store.getters.lastName,
+          dob: this.$store.getters.dob,
+          gender: this.$store.getters.gender.toLowerCase(),
+          phone: '+1' + this.$store.getters.phoneNumber,
+          email: this.$store.getters.email,
           address: {
-            street: this.$store.state.location.address,
-            apartment: this.$store.state.location.apartment,
-            city: this.$store.state.location.city,
-            state: this.$store.state.location.state,
-            zipCode: this.$store.state.location.zipCode,
-            longitude: this.$store.state.location.longitude,
-            latitude: this.$store.state.location.latitude,
+            street: this.$store.getters.locationStreet,
+            apartment: this.$store.getters.locationApartment,
+            city: this.$store.getters.locationCity,
+            state: this.$store.getters.locationState,
+            zipCode: this.$store.getters.locationZipCode,
+            longitude: this.$store.getters.locationLongitude,
+            latitude: this.$store.getters.locationLatitude,
             primary: true
           }
         },
         visit: {
-          date: new Date(this.$store.state.appointment.date).toISOString(),
-          scheduledStartTime: this.$store.state.appointment.startTime,
-          scheduledEndTime: this.$store.state.appointment.endTime,
-          serviceId: this.$store.state.service.id
+          date: this.$store.getters.date,
+          scheduledStartTime: this.$store.getters.startTime,
+          scheduledEndTime: this.$store.getters.endTime,
+          serviceId: this.$store.getters.serviceId
         },
-        note: this.$store.state.appointment.notes
+        note: this.$store.getters.notes
       }
       try {
         const bookingApiClient = new BookingApiClient()
-        const response = await bookingApiClient.createAppointment(appointment)
+        await bookingApiClient.createAppointment(appointment)
         this.$router.push('/confirmation')
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong, please try again.'
@@ -181,6 +182,14 @@ export default Vue.extend({
       const suffix = hour < 12 ? ' AM' : ' PM'
       hour = hour > 12 ? hour - 12 : hour
       return ((hour < 10 ? '0' : '') + hour + suffix)
+    },
+    printDate (date: string): string {
+      return moment(date).format('MMMM DD YYYY')
+    }
+  },
+  computed: {
+    isInsurance (): boolean {
+      return this.$store.getters.insurance
     }
   }
 })

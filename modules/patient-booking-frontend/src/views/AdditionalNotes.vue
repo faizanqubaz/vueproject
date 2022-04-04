@@ -14,14 +14,14 @@
         <wz-textarea
           icon="home"
           label="Additional Notes"
-          v-model="$store.state.appointment.notes"
+          v-model="notes"
           :error="false"
           errorMessage=""
           class=""
           />
           <br>
         <div class="pt-0">
-          <wz-button color="primary" block @click="$router.push('/timeslots')">
+          <wz-button color="primary" block @click="proceed">
             <p class="text-white">Proceed</p>
           </wz-button>
         </div>
@@ -38,5 +38,22 @@
 <script lang="ts">
 import Vue from 'vue'
 export default Vue.extend({
+  data () {
+    return {
+      notes: ''
+    }
+  },
+  beforeMount () {
+    this.notes = this.$store.getters.notes
+  },
+  methods: {
+    proceed () {
+      if (this.notes !== this.$store.getters.notes) {
+        this.$store.commit('setNotes', this.notes)
+      }
+
+      this.$router.push('/timeslots')
+    }
+  }
 })
 </script>
