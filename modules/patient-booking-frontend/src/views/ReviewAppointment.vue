@@ -160,7 +160,7 @@ export default Vue.extend({
           }
         },
         visit: {
-          date: this.$store.getters.date,
+          date: moment(this.$store.getters.date).startOf('day').toISOString(),
           scheduledStartTime: this.$store.getters.startTime,
           scheduledEndTime: this.$store.getters.endTime,
           serviceId: this.$store.getters.serviceId

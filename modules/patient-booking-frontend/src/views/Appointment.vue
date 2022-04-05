@@ -184,7 +184,7 @@ export default Vue.extend({
           }
         }
       } catch (error) {
-        this.snackbar.message = 'Technical Issue. Please try again'
+        this.snackbar.message = 'Sorry, something went wrong. Please try again'
         this.snackbar.open = true
       }
     }

@@ -90,7 +90,7 @@ export default Vue.extend({
       dateAndTime: {
         startTime: '',
         endTime: '',
-        date: '',
+        date: new Date(),
         id: 0
       },
       timeSlots: [] as SlotType[],
@@ -100,7 +100,7 @@ export default Vue.extend({
   beforeMount () {
     this.dateAndTime = cloneDeep(this.$store.getters.dateAndTime)
     if (!this.dateAndTime.date) {
-      this.dateAndTime.date = moment().toString()
+      this.dateAndTime.date = new Date()
     } else {
       this.fromBack = true
       this.timeSlots = this.$store.getters.timeSlots
