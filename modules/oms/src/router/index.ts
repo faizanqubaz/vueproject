@@ -20,6 +20,12 @@ const routes: Array<RouteConfig> = [
         component: () => import("@/views/dashboard/resources/Cities.vue"),
         // beforeEnter: authGuard
       },
+      {
+        name: "Services",
+        path: "resources/services",
+        component: () => import("@/views/dashboard/resources/Services.vue"),
+        // beforeEnter: authGuard
+      },
     ],
   },
   {
