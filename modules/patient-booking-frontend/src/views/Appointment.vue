@@ -47,7 +47,7 @@
           </div>
           <div class="">
             <wz-checkbox
-              label="Uninsured or will pay out of pocket"
+              label="I'll pay out of pocket"
               v-model="payment.card"
               class="mb-2"
             />
