@@ -11,7 +11,7 @@
       tabindex="0"
       ref="containerSelect"
       @mousedown="openDropdown()"
-      @keydown="openDropdown()"
+      @keydown="keyDown($event)"
     >
       <div
         class="flex-none pr-sm pl-md py-sm"
@@ -56,14 +56,15 @@
             v-for="opt in items"
             :key="opt.id"
             class="py-3 border-b border-stroke cursor-pointer hover:text-primary last:border-none"
-            :class="
+            :class="[
               filter && inputVal === (itemText ? opt[itemText] : opt)
-                ? 'bg-lightGray text-blue'
+                ? 'bg-lightGray text-primary'
+                : '',
+              preSelect.item == (itemText ? opt[itemText] : opt)
+                ? 'text-primary'
                 : ''
-            "
-            @mousedown="
-             mouseDown(opt)
-            "
+            ]"
+            @mousedown="mouseDown(opt)"
           >
             <div class="px-md text-sm">
               {{ itemText ? opt[itemText] : opt }}
@@ -80,9 +81,12 @@
             v-for="opt in dataFilter"
             :key="opt.id"
             class="py-3 border-b border-stroke cursor-pointer hover:text-primary last:border-none"
-            @mousedown="
-              mouseDown()
+            :class="
+              preSelect.item == (itemText ? opt[itemText] : opt)
+                ? 'text-primary'
+                : ''
             "
+            @mousedown="mouseDown(opt)"
           >
             <div class="px-md text-sm">
               {{ itemText ? opt[itemText] : opt }}
@@ -178,17 +182,35 @@ export default {
       open: false,
       dataFilter: null,
       stopEvent: false,
+      preSelect: {
+        iteration: null,
+        filterIteration: null,
+        item: null
+      },
+      focusOut: false
     }
   },
 
   watch: {
     inputVal(e) {
       if (this.filter) {
-        if (e) {
+        if (e && this.items && this.items.length > 0) {
           this.dataFilter = this.items.filter((res) => {
             return this.itemText
-              ? res[this.itemText].toLowerCase().includes(e)
-              : res.toLowerCase().includes(e)
+              ? res[this.itemText]
+                  .toLowerCase()
+                  .includes(
+                    typeof e === 'object'
+                      ? e[this.itemText].toLowerCase()
+                      : e.toLowerCase()
+                  )
+              : res
+                  .toLowerCase()
+                  .includes(
+                    typeof e === 'object'
+                      ? e[this.itemText].toLowerCase()
+                      : e.toLowerCase()
+                  )
             // return res.includes(e);
           })
         } else {
@@ -225,16 +247,25 @@ export default {
         }
       }
     },
-    blur() {
+    blur(preSelect) {
       if (this.stopEvent === 'icon') {
         this.stopEvent = false
         this.$refs.refInput.focus()
         return
       }
 
+      if (!this.inputVal) {
+        this.inputVal = preSelect
+        return
+      }
 
       let checker = this.items.filter((res) => {
-        return this.inputVal === res
+        return (
+          (this.itemText ? res[this.itemText] : res) ===
+          (typeof this.inputVal === 'object'
+            ? this.inputVal[this.itemText]
+            : this.inputVal)
+        )
       })
       if (checker.length > 0 && typeof checker[0] === 'object') {
         this.inputVal = checker[0][this.itemText]
@@ -257,15 +288,109 @@ export default {
     closeDropdown() {
       this.open = false
       this.focus = false
+      this.preSelect.item = null
+      this.preSelect.iteration = null
+      this.preSelect.filterIteration = null
     },
     openDropdown(data) {
-      this.stopEvent = false
-      if (data === 'icon' && focus) {
-        this.stopEvent = 'icon'
+      if (data === 'icon') {
+        return
       }
+      this.stopEvent = false
+
       this.$refs.refInput.focus()
       this.focus = true
+
       this.open = true
+    },
+    keyDown(e) {
+      if (this.items && this.items.length > 0) {
+        if (!this.open) {
+          this.$refs.refInput.focus()
+          this.focus = true
+          this.open = true
+        }
+        if (e.keyCode === 40) {
+          if (this.open && !this.dataFilter) {
+            if (this.preSelect.iteration === null) {
+              this.preSelect.item = this.itemText
+                ? this.items[0][this.itemText]
+                : this.items[0]
+              this.preSelect.iteration = 0
+              return
+            }
+            this.preSelect.iteration =
+              this.preSelect.iteration < this.items.length - 1
+                ? this.preSelect.iteration + 1
+                : 0
+            this.preSelect.item = this.itemText
+              ? this.items[this.preSelect.iteration][this.itemText]
+              : this.items[this.preSelect.iteration]
+          }
+          if (this.open && this.dataFilter && this.dataFilter.length > 0) {
+            if (this.preSelect.filterIteration === null) {
+              this.preSelect.item = this.itemText
+                ? this.dataFilter[0][this.itemText]
+                : this.dataFilter[0]
+              this.preSelect.filterIteration = 0
+              return
+            }
+            this.preSelect.filterIteration =
+              this.preSelect.filterIteration < this.dataFilter.length - 1
+                ? this.preSelect.filterIteration + 1
+                : 0
+            this.preSelect.item = this.itemText
+              ? this.dataFilter[this.preSelect.filterIteration][this.itemText]
+              : this.dataFilter[this.preSelect.filterIteration]
+          }
+        }
+        if (e.keyCode === 38) {
+          if (this.open && !this.dataFilter) {
+            if (this.preSelect.iteration === null) {
+              this.preSelect.item = this.itemText
+                ? this.items[this.items.length - 1][this.itemText]
+                : this.items[this.items.length - 1]
+              this.preSelect.iteration = this.items.length - 1
+              return
+            }
+            this.preSelect.iteration =
+              this.preSelect.iteration > 0
+                ? this.preSelect.iteration - 1
+                : this.items.length - 1
+            this.preSelect.item = this.itemText
+              ? this.items[this.preSelect.iteration][this.itemText]
+              : this.items[this.preSelect.iteration]
+          }
+          if (this.open && this.dataFilter && this.dataFilter.length > 0) {
+            if (this.preSelect.filterIteration === null) {
+              this.preSelect.item = this.itemText
+                ? this.dataFilter[this.dataFilter.length - 1][this.itemText]
+                : this.dataFilter[this.dataFilter.length - 1]
+              this.preSelect.filterIteration = this.dataFilter.length - 1
+              return
+            }
+            this.preSelect.filterIteration =
+              this.preSelect.filterIteration > 0
+                ? this.preSelect.filterIteration - 1
+                : this.dataFilter.length - 1
+            this.preSelect.item = this.itemText
+              ? this.dataFilter[this.preSelect.filterIteration][this.itemText]
+              : this.dataFilter[this.preSelect.filterIteration]
+          }
+        }
+        if (e.keyCode === 13) {
+          let checker = this.items.filter((res) => {
+            return (
+              (this.itemText ? res[this.itemText] : res) === this.preSelect.item
+            )
+          })
+
+          this.mouseDown(checker[0])
+          setTimeout(() => {
+            this.$refs.refInput.blur()
+          }, 0)
+        }
+      }
     }
   }
 }

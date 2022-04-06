@@ -16,7 +16,20 @@ export default Vue.extend({
       name: null,
       gender: null,
       address: null,
-      items: ['Male', 'Female', 'Others'],
+      items: [
+        {
+          id: 1,
+          name: 'Male'
+        },
+        {
+          id: 2,
+          name: 'Female'
+        },
+        {
+          id: 3,
+          name: 'Others'
+        }
+      ],
       tnc: [],
       rad: 'Terms and conditions',
       times: null,
@@ -34,9 +47,11 @@ export default Vue.extend({
 </script>
 
 <template>
-  <div id="app" class="bg-gray-800">
+  <div id="app" class="bg-lightGray">
     <div class="max-w-screen-md mx-auto py-10">
-      <!-- <wz-loader borderStyle="dashed" size="24" /> -->
+      <!-- <wz-loader borderStyle
+      
+      '="dashed" size="24" /> -->
       <div class="grid grid-cols-2 gap-4 my-4">
         <wz-service-card color="gray-300" v-model="service" itemKey="satu">
           <template>
@@ -97,6 +112,7 @@ export default Vue.extend({
         <wz-select
           v-model="gender"
           :items="items"
+          itemText="name"
           label="Gender"
           icon="users"
           required
@@ -133,7 +149,7 @@ export default Vue.extend({
           block
         >
           <div class="flex items-center justify-center">
-            <wz-loader color="white" />
+            <!-- <wz-loader color="white" /> -->
             <div class="text-white">Proceed</div>
           </div>
         </wz-button>
