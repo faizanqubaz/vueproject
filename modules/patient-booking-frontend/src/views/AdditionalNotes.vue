@@ -51,7 +51,6 @@ export default Vue.extend({
       if (this.notes !== this.$store.getters.notes) {
         this.$store.commit('setNotes', this.notes)
       }
-
       this.$router.push('/timeslots')
     }
   }

@@ -145,9 +145,9 @@ export default Vue.extend({
       this.$store.commit('setDob', this.dob)
       this.$store.commit('setEmail', this.email)
 
-      if (this.$store.getters.insurance) {
+      if (this.$store.getters.insurance && this.valid) {
         this.$router.push('/insurance')
-      } else {
+      } else if (this.valid) {
         this.$router.push('/review-appointment')
       }
     }

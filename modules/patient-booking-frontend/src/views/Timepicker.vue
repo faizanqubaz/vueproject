@@ -141,7 +141,9 @@ export default Vue.extend({
     proceed () {
       this.$store.commit('setDateAndTime', this.dateAndTime)
       this.$store.commit('setTimeSlots', this.timeSlots)
-      this.$router.push('/details')
+      if (this.isValid) {
+        this.$router.push('/details')
+      }
     },
     isAvailable (fetchDate: string, startTime: string) {
       const startMoment = moment(`${fetchDate} ${startTime}`, 'YYYY-MM-DD ha').tz(this.timezone)

@@ -75,7 +75,9 @@ export default Vue.extend({
       }
 
       const url = this.paths[this.serviceId - 1]
-      this.$router.push(url)
+      if (this.isValid) {
+        this.$router.push(url)
+      }
     }
   },
   computed: {

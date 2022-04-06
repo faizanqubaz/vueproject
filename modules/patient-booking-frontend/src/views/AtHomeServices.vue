@@ -122,17 +122,19 @@ export default Vue.extend({
 
     this.notes = this.$store.getters.serviceTypeNotes
   },
-  computed: {
-    isValid (): boolean {
-      return !!this.notes
-    }
-  },
   methods: {
     proceed () {
       if (this.notes !== this.$store.getters.serviceTypeNotes) {
         this.$store.commit('setServiceTypeNotes', this.notes)
       }
-      this.$router.push('/notes')
+      if (this.isValid) {
+        this.$router.push('/notes')
+      }
+    }
+  },
+  computed: {
+    isValid (): boolean {
+      return !!this.notes
     }
   }
 })

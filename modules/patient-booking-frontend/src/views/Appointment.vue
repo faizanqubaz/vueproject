@@ -150,7 +150,9 @@ export default Vue.extend({
           const location = { ...this.location, street: this.location.address.split(',')[0] }
           this.$store.commit('setLocation', location)
           this.$store.commit('setPayment', this.payment)
-          this.$router.push('/services')
+          if (this.isValid) {
+            this.$router.push('/services')
+          }
         } else {
           const bookingApiClient = new BookingApiClient()
           const response = await bookingApiClient.getService(this.location.zipCode)
@@ -164,7 +166,9 @@ export default Vue.extend({
             }
             this.$store.commit('setLocation', location)
             this.$store.commit('setPayment', this.payment)
-            this.$router.push('/services')
+            if (this.isValid) {
+              this.$router.push('/services')
+            }
           } else {
             this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
             this.snackbar.open = true

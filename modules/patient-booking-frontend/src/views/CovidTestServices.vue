@@ -87,7 +87,9 @@ export default Vue.extend({
           this.$store.commit('setServiceType', type)
         }
       }
-      this.$router.push('/notes')
+      if (this.isValid) {
+        this.$router.push('/notes')
+      }
     }
   },
   computed: {

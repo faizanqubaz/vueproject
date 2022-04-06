@@ -84,6 +84,7 @@
             </div>
             <div class="py-5 flex-1 mx-4">
               <div class="mx-4 flex flex-col items-center justify-center">
+                <!-- TODO: console error coming from image. Passing from api will resolve this issue -->
                 <img :src="$store.getters.serviceTypeImage" class="mb-4 h-12" :alt="image" />
                 <p class="text-fontPrimary mb-2">{{ $store.getters.serviceTypeName }}</p>
                 <p class="font-normal text-fontSecondary mb-2">{{$store.getters.serviceTypeDescription }}</p>
@@ -176,7 +177,6 @@ export default Vue.extend({
         this.snackbar.open = true
       }
     },
-    // TODO: use MomentJS
     formatTimeSlot (time: string) {
       let hour = parseInt(time.slice(0, 2))
       const suffix = hour < 12 ? ' AM' : ' PM'
