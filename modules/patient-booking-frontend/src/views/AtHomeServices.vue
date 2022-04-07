@@ -108,7 +108,7 @@ export default Vue.extend({
   },
   beforeMount () {
     const serviceType = get(find(this.$store.getters.serviceList, { id: this.$store.getters.serviceId }), 'services')
-    //there is only one service under this group. That's why passing the index
+    // there is only one service under this group. That's why passing the index
     const serviceTypeIndex = 0
     if (serviceType[serviceTypeIndex].id !== this.$store.getters.serviceTypeId) {
       const type = {
