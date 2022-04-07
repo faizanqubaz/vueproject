@@ -99,7 +99,7 @@ export default Vue.extend({
         group: "/resources",
         children: [
           {
-            to: "",
+            to: "service-groups",
             title: "Service Groups",
           },
           {

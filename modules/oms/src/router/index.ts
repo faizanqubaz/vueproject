@@ -26,6 +26,13 @@ const routes: Array<RouteConfig> = [
         component: () => import("@/views/dashboard/resources/Services.vue"),
         // beforeEnter: authGuard
       },
+      {
+        name: "Service Groups",
+        path: "resources/service-groups",
+        component: () =>
+          import("@/views/dashboard/resources/ServiceGroups.vue"),
+        // beforeEnter: authGuard
+      },
     ],
   },
   {
