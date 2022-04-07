@@ -108,12 +108,14 @@ export default Vue.extend({
   },
   beforeMount () {
     const serviceType = get(find(this.$store.getters.serviceList, { id: this.$store.getters.serviceId }), 'services')
-    if (serviceType.id !== this.$store.getters.serviceTypeId) {
+    //there is only one service under this group. That's why passing the index
+    const serviceTypeIndex = 0
+    if (serviceType[serviceTypeIndex].id !== this.$store.getters.serviceTypeId) {
       const type = {
-        id: serviceType.id,
-        name: serviceType.name,
-        description: serviceType.description,
-        price: serviceType.price,
+        id: serviceType[serviceTypeIndex].id,
+        name: serviceType[serviceTypeIndex].name,
+        description: serviceType[serviceTypeIndex].description,
+        price: serviceType[serviceTypeIndex].price,
         image: require('@/assets/at-home-care.png'),
         notes: ''
       }
