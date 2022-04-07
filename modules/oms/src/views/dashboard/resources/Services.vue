@@ -302,7 +302,7 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get service list";
+        this.snackbar.message = "Failed to get services list";
         this.snackbar.active = true;
       } finally {
         this.isLoading = false;
@@ -318,7 +318,7 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get service group list";
+        this.snackbar.message = "Failed to get service groups list";
         this.snackbar.active = true;
       } finally {
         this.isLoading = false;

@@ -64,6 +64,24 @@ export interface ServiceGroupsResponse {
   }[];
 }
 
+export interface ServiceZipCode {
+  id: number;
+  zipCode: string;
+  city: City;
+  service: Service;
+}
+
+export interface ServiceZipCodesResponse {
+  message: string;
+  result: {
+    data: ServiceZipCode[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
+
 export default class OMSApi extends HttpClient {
   constructor() {
     super("https://oms-api-dev.welz.com/api/v1/");
@@ -221,6 +239,22 @@ export default class OMSApi extends HttpClient {
     const url = "service-groups";
     try {
       const response: AxiosResponse<ServiceGroupsResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async getServiceZipCodes(): Promise<ServiceZipCodesResponse> {
+    const url = "service-zip-codes";
+    try {
+      const response: AxiosResponse<ServiceZipCodesResponse> =
         await this.instance.get(url);
       const { status } = response;
       if (status === 200) {

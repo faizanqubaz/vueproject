@@ -3,9 +3,9 @@
     <v-card>
       <v-data-table
         :headers="headers"
-        :items="serviceGroupList"
+        :items="zipCodeList"
         :loading="isLoading"
-        loading-text="Loading Service Groups..."
+        loading-text="Loading Service Zip Codes..."
         item-key="_id"
         class="elevation-1 pa-3"
         mobile-breakpoint="0"
@@ -17,10 +17,24 @@
           <v-row align="center">
             <v-col sm="6" md="2" lg="2" xl="1">
               <v-btn block color="primary" dark v-bind="attrs" v-on="on">
-                Add Service Group
+                Add Service Zip Code
               </v-btn>
             </v-col>
           </v-row>
+        </template>
+
+        <template v-slot:[`item.city`]="props">
+          <v-icon :color="statusColor[props.item.city.active]">
+            mdi-circle-medium</v-icon
+          >
+          {{ props.item.city.name }}
+        </template>
+
+        <template v-slot:[`item.service`]="props">
+          <v-icon :color="statusColor[props.item.city.active]">
+            mdi-circle-medium</v-icon
+          >
+          {{ props.item.service.name }}
         </template>
 
         <template v-slot:[`item.actions`]>
@@ -50,31 +64,37 @@ export default Vue.extend({
     return {
       headers: [
         { text: "Id", value: "id" },
-        { text: "Name", value: "name" },
+        { text: "Zip Code", value: "zipCode" },
+        { text: "City Name", value: "city" },
+        { text: "Service Name", value: "service" },
         { text: "Actions", value: "actions", align: "center", width: "240px" },
       ],
-      serviceGroupList: [],
+      zipCodeList: [],
       isLoading: false,
       snackbar: {
         message: null,
         active: false,
       },
+      statusColor: {
+        true: "success",
+        false: "error",
+      },
     };
   },
   created() {
-    this.getServiceGroups();
+    this.getServiceZipCodes();
   },
   methods: {
-    async getServiceGroups() {
+    async getServiceZipCodes() {
       try {
         this.isLoading = true;
         const api = new OMSApi();
-        const res = await api.getServiceGroups();
+        const res = await api.getServiceZipCodes();
         if (res.result.data.length > 0) {
-          this.serviceGroupList = res.result.data;
+          this.zipCodeList = res.result.data;
         }
       } catch (error) {
-        this.snackbar.message = "Failed to get service groups list";
+        this.snackbar.message = "Failed to get service zip codes list";
         this.snackbar.active = true;
       } finally {
         this.isLoading = false;

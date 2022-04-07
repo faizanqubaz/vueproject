@@ -382,7 +382,7 @@ export default Vue.extend({
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to add cities";
+        this.snackbar.message = "Failed to add city";
         this.snackbar.active = true;
       }
     },
@@ -413,7 +413,7 @@ export default Vue.extend({
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to update cities";
+        this.snackbar.message = "Failed to update city";
         this.snackbar.active = true;
       }
     },
@@ -436,7 +436,7 @@ export default Vue.extend({
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to delete cities";
+        this.snackbar.message = "Failed to delete city";
         this.snackbar.active = true;
       }
       // this.$set(this.deleteDialog, props.id, true);

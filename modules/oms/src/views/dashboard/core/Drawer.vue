@@ -135,7 +135,7 @@ export default Vue.extend({
             title: "Addresses",
           },
           {
-            to: "",
+            to: "service-zip-codes",
             title: "Service Zip Codes",
           },
           {

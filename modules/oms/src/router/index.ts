@@ -33,6 +33,13 @@ const routes: Array<RouteConfig> = [
           import("@/views/dashboard/resources/ServiceGroups.vue"),
         // beforeEnter: authGuard
       },
+      {
+        name: "Service Zip Codes",
+        path: "resources/service-zip-codes",
+        component: () =>
+          import("@/views/dashboard/resources/ServiceZipCodes.vue"),
+        // beforeEnter: authGuard
+      },
     ],
   },
   {
