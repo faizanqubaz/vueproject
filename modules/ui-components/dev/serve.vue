@@ -35,7 +35,7 @@ export default Vue.extend({
       times: null,
       valid: false,
       service: null,
-      date: new Date()
+      date: null
     }
   },
   watch: {
@@ -74,12 +74,12 @@ export default Vue.extend({
           </template>
         </wz-service-card>
       </div>
-      <div class="">
+      <!-- <div class="">
         <wz-upload v-model="service">
           <h4>Add image</h4>
           <p class="font-normal text-gray-700 antialiased">Front of card</p>
         </wz-upload>
-      </div>
+      </div> -->
       <!-- <div class="">
         <wz-input
           v-model="name"
@@ -97,10 +97,20 @@ export default Vue.extend({
           required
         />
       </div> -->
-      <!-- <div class="">
-        <wz-date-picker v-model="date"> </wz-date-picker>
-      </div> -->
+
       <wz-form v-model="valid" ref="forms">
+        <div class="">
+          <wz-date-picker
+            v-model="date"
+            :inputForm="true"
+            label="Date of birth"
+            placeholder="mm/dd/yyyy"
+            required
+          >
+          </wz-date-picker>
+          <!-- <wz-date-picker v-model="date" :minDate="new Date()">
+          </wz-date-picker> -->
+        </div>
         <wz-input
           v-model="name"
           label="Name"
@@ -141,13 +151,7 @@ export default Vue.extend({
         <wz-checkbox label="Agreement" v-model="tnc" value="Agreement" />
         <wz-checkbox label="Other thing" v-model="tnc" value="Other thing" /> -->
 
-        <wz-button
-          type="button"
-          :disabled="!valid"
-          color="primary"
-          @click="valid ? submit() : ''"
-          block
-        >
+        <wz-button type="button" color="primary" :disabled="!valid" block>
           <div class="flex items-center justify-center">
             <!-- <wz-loader color="white" /> -->
             <div class="text-white">Proceed</div>

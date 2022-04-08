@@ -179,7 +179,7 @@ const Patient = {
     lastName: '',
     phoneNumber: '',
     gender: '',
-    dob: '',
+    dob: null,
     email: ''
   }),
   mutations: {

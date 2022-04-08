@@ -52,7 +52,16 @@
           required
           :rules="genderRules"
         />
-        <wz-input
+
+        <wz-date-picker
+          v-model="dob"
+          :inputForm="true"
+          label="Date of Birth"
+          placeholder="mm/dd/yyyy"
+          required
+        >
+        </wz-date-picker>
+        <!-- <wz-input
           icon="calendar"
           label="Date of Birth"
           v-model="dob"
@@ -60,7 +69,7 @@
           :error="false"
           required
           errorMessage=""
-        />
+        /> -->
         <wz-input
           icon="email"
           label="Email"
@@ -109,7 +118,7 @@ export default Vue.extend({
       lastName: '',
       phoneNumber: '',
       gender: '',
-      dob: '',
+      dob: null,
       email: '',
       firstNameRules: [(firstName: string) => !!firstName || 'First name is required'],
       lastNameRules: [(lastName: string) => !!lastName || 'Last name is required'],
