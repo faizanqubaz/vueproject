@@ -1,5 +1,7 @@
 import HttpClient from "./HttpClient";
 import { AxiosResponse } from "axios";
+import qs from "query-string";
+import { pickBy, identity } from "lodash";
 export interface City {
   id: number;
   name: string;
@@ -62,6 +64,97 @@ export interface ServiceGroupsResponse {
     totalPages: number;
     totalRecords: number;
   }[];
+}
+export interface Provider {
+  id: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  dob: string;
+  gender: string;
+  phone: string;
+  email: string;
+  authId: string;
+}
+export interface ProvidersResponse {
+  message: string;
+  result: {
+    data: Provider[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
+export interface Patient {
+  id: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  dob: string;
+  gender: string;
+  phone: string;
+  email: string;
+  authId: string;
+}
+
+export interface PatientsResponse {
+  message: string;
+  result: {
+    data: Patient[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
+export interface Address {
+  id: number;
+  street: string;
+  apartment: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  longitude: number;
+  latitude: number;
+  primary: boolean;
+}
+export interface Note {
+  id: number;
+  memo: string;
+}
+export interface Visit {
+  id: number;
+  date: string;
+  startTime: string;
+  scheduledStartTime: string;
+  scheduledEndTime: string;
+  checkInTime: string;
+  checkOutTime: string;
+  service: Service;
+  patient: Patient;
+  address: Address;
+  provider: Provider;
+  providerNote: Note;
+  patientNote: Note;
+}
+export interface VisitsResponse {
+  message: string;
+  result: {
+    data: Visit[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
+export interface VisitParams {
+  page?: number;
+  limit?: number;
+  service?: number;
+  patient?: number;
+  provider?: number;
+  date?: string;
 }
 
 export interface ServiceZipCode {
@@ -255,6 +348,60 @@ export default class OMSApi extends HttpClient {
     const url = "service-zip-codes";
     try {
       const response: AxiosResponse<ServiceZipCodesResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getVisits(params: VisitParams): Promise<VisitsResponse> {
+    const urlParams = qs.stringify(pickBy(params, identity));
+    const url = `visits?${urlParams}`;
+    try {
+      const response: AxiosResponse<VisitsResponse> = await this.instance.get(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getPatients(): Promise<PatientsResponse> {
+    const url = "patients";
+    try {
+      const response: AxiosResponse<PatientsResponse> = await this.instance.get(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getProviders(): Promise<ProvidersResponse> {
+    const url = "providers";
+    try {
+      const response: AxiosResponse<ProvidersResponse> =
         await this.instance.get(url);
       const { status } = response;
       if (status === 200) {

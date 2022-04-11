@@ -1,422 +1,367 @@
 <template>
-  <v-container id="dashboard" fluid>
+  <v-container fluid>
     <v-card>
       <v-data-table
         :headers="headers"
-        :items="patientAppointments"
-        :options.sync="options"
-        :server-items-length="totalPatientAppointments"
-        :loading="loading"
-        loading-text="Loading appointments..."
-        :items-per-page="itemsPerPage"
-        :footer-props="{
-          'items-per-page-options': [50, 100, 200, 500, 1000, 2000]
-        }"
+        :items="visitList"
+        :loading="isLoading"
+        loading-text="Loading Visits..."
         item-key="_id"
         class="elevation-1 pa-3"
         mobile-breakpoint="0"
-        disable-sort
-        
+        :options.sync="options"
+        :server-items-length="visitListParams.totalRecords"
+        :footer-props="{
+          'items-per-page-options': [50, 100, 200, 500, 1000, 2000],
+        }"
       >
         <template v-slot:top>
-          <v-row align="center">
+          <v-row align="center" class="mb-2">
             <v-col sm="6" md="2" lg="2" xl="1">
-              <v-dialog
-                v-model="addDialog"
-                max-width="600px"
-                @input="dialogToggle"
+              <v-btn block color="primary" dark> Add Visit </v-btn>
+            </v-col>
+
+            <v-col sm="6" md="3">
+              <v-menu
+                v-model="menu"
+                :close-on-content-click="false"
+                :nudge-width="200"
+                offset-x
               >
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    block
-                    color="primary"
-                    dark
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    Add New
+                  <v-btn v-bind="attrs" v-on="on">
+                    <v-icon>mdi-filter-variant</v-icon>
+                    Filters
                   </v-btn>
                 </template>
 
                 <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Add New Patient</span>
-                  </v-card-title>
-
+                  <v-card-title> Filter Options </v-card-title>
                   <v-card-text>
-                    <v-form ref="form" v-model="valid" lazy-validation>
-                      <v-container>
-                        <v-row>
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-text-field
-                              v-model="editedItem.firstName"
-                              label="First Name"
-                              :rules="nameRules"
-                              required
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-text-field
-                              v-model="editedItem.lastName"
-                              :rules="nameRules"
-                              label="Last Name"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="12" md="12">
-                            <v-text-field
-                              id="autoComplete"
-                              v-model="editedItem.address1"
-                              placeholder="Patient Address"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-text-field
-                              v-model="editedItem.address2"
-                              label="Apt #"
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-text-field
-                              v-model="editedItem.dob"
-                              placeholder="mm/dd/yyyy"
-                              label="Date of Birth"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-select
-                              v-model="editedItem.sex"
-                              label="Gender"
-                              :items="genders"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-text-field
-                              v-model="editedItem.cellPhone"
-                              label="Phone"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-select
-                              v-model="editedItem.appointmentTime"
-                              label="Appointment Time"
-                              :items="timeSlots"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-menu
-                              ref="editedItem.appointmentDatePicker"
-                              v-model="editedItem.appointmentDatePicker"
-                              :close-on-content-click="false"
-                              transition="scale-transition"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="editedItem.appointmentDate"
-                                  label="Appointment Date"
-                                  v-bind="attrs"
-                                  readonly
-                                  v-on="on"
-                                />
-                              </template>
-                              <v-date-picker
-                                v-model="editedItem.datePickerDate"
-                                no-title
-                                @change="setFormattedDate(editedItem)"
-                                @input="
-                                  editedItem.appointmentDatePicker = false
-                                "
-                              />
-                            </v-menu>
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-select
-                              v-model="editedItem.appointmentType"
-                              label="Appointment Type"
-                              :items="appointmentTypes"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-select
-                              v-model="editedItem.appointmentStatus"
-                              label="Appointment Status"
-                              :items="appStatusOptoins"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-text-field
-                              v-model="editedItem.processor"
-                              label="Agent"
-                            />
-                          </v-col>
-
-                          <v-col cols="12" sm="6" lg="6" md="4">
-                            <v-select
-                              v-model="editedItem.provider"
-                              label="Provider"
-                              :items="medicalAssistants"
-                              item-text="name"
-                              item-value="user_id"
-                              clearable
-                            ></v-select>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-form>
+                    <v-autocomplete
+                      v-model="listParams.service"
+                      :items="serviceList"
+                      label="Service"
+                      item-text="name"
+                      item-value="id"
+                      clearable
+                      dense
+                    />
+                    <v-autocomplete
+                      v-model="listParams.patient"
+                      :items="patientList"
+                      label="Patient"
+                      item-text="email"
+                      item-value="id"
+                      clearable
+                      dense
+                    />
+                    <v-autocomplete
+                      v-model="listParams.provider"
+                      :items="providerList"
+                      label="Provider"
+                      item-text="email"
+                      item-value="id"
+                      clearable
+                      dense
+                    />
                   </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn color="blue darken-1" text @click="closeAddDialog">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="addNewPatientAppointment"
-                      :disabled="!valid"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
                 </v-card>
-              </v-dialog>
-            </v-col>
-
-            <v-col cols="12" sm="12" md="6" lg="4" class="">
-              <v-text-field
-                v-model="searchText"
-                prepend-icon="mdi-magnify"
-                label="Search"
-                clearable
-              ></v-text-field>
+              </v-menu>
             </v-col>
           </v-row>
         </template>
 
-        
+        <template v-slot:[`item.date`]="props">
+          <span style="white-space: nowrap">
+            {{ formatDate(props.item.date) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.scheduledStartTime`]="props">
+          <span style="white-space: nowrap">
+            {{ formatTimeCustom(props.item.scheduledStartTime) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.scheduledEndTime`]="props">
+          <span style="white-space: nowrap">
+            {{ formatTimeCustom(props.item.scheduledEndTime) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.startTime`]="props">
+          <span style="white-space: nowrap">
+            {{ formatTime(props.item.startTime) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.checkInTime`]="props">
+          <span style="white-space: nowrap">
+            {{ formatTime(props.item.checkInTime) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.checkOutTime`]="props">
+          <span style="white-space: nowrap">
+            {{ formatTime(props.item.checkOutTime) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.patient`]="props">
+          <span style="white-space: nowrap">
+            {{ props.item.patient.firstName }}
+            {{ props.item.patient.lastName }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.service`]="props">
+          <span style="white-space: nowrap">
+            <v-icon :color="statusColor[props.item.service.active]">
+              mdi-circle-medium
+            </v-icon>
+            {{ props.item.service.name }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.provider`]="props">
+          <span style="white-space: nowrap">
+            {{ props.item.provider && props.item.provider.firstName }}
+            {{ props.item.provider && props.item.provider.lastName }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.address`]="props">
+          <v-dialog v-model="addressDialog[props.item.id]" max-width="400px">
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Address Detail</span>
+              </v-card-title>
+              <v-card-text>
+                <div>
+                  <v-list>
+                    <template v-for="(val, key, index) in addressDialog">
+                      <span v-if="index === 0" :key="index" />
+                      <v-list-item v-else :key="key">
+                        <v-list-item-content>
+                          <v-list-item-title
+                            v-html="key"
+                            class="text-capitalize"
+                          />
+                          <v-list-item-subtitle v-html="val" />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-list>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <v-btn
+            color="primary"
+            text
+            depressed
+            @click.stop="setAddressDialog(props.item.address)"
+          >
+            {{ props.item.address.city }},
+            {{ props.item.address.state }}
+          </v-btn>
+        </template>
+
+        <template v-slot:[`item.actions`]>
+          <v-btn depressed class="mr-2" color="secondary"> Update </v-btn>
+          <v-btn depressed color="error"> Delete </v-btn>
+        </template>
       </v-data-table>
     </v-card>
+
+    <v-snackbar outlined color="success" top v-model="snackbar.active">
+      {{ snackbar.message }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="red" text v-bind="attrs" @click="snackbar.active = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
-<script >
-import moment from "moment";
+<script>
 import Vue from "vue";
+import OMSApi from "@/api/OMSApi";
+import moment from "moment";
 
 export default Vue.extend({
   data() {
     return {
-      valid: false,
-      itemsPerPage: 100,
-      patientAppointments: [],
-      totalPatientAppointments: 0,
-      options: {},
-      loading: true,
-      addDialog: false,
-      searchText: "",
-      nameRules: [],
-      medicalAssistants: [],
-      appointmentTypes: [
-        {
-          text: "Rapid",
-          value: "rapid"
-        },
-        {
-          text: "PCR",
-          value: "pcr"
-        },
-        {
-          text: "Rapid & PCR",
-          value: "rapid&pcr"
-        },
-        {
-          text: "Urgent Care",
-          value: "urgentcare"
-        }
-      ],
-      genders: ["Male", "Female"],
-      timeSlots: [
-        "8am - 10am",
-        "10am - 12pm",
-        "12pm - 2pm",
-        "2pm - 4pm",
-        "4pm - 6pm",
-        "6pm - 8pm",
-        "9am - 11am",
-        "11am - 1pm",
-        "1pm - 3pm",
-        "3pm - 5pm"
-        ],
-      appStatusOptoins: [
-        {
-          text: "Scheduled",
-          value: "scheduled",
-          color: ""
-        },
-        {
-          text: "Confirmed",
-          value: "confirmed",
-          color: "#ff9800"
-        },
-        {
-          text: "Completed",
-          value: "completed",
-          color: "#4caf50"
-        },
-        {
-          text: "Cancelled",
-          value: "cancelled",
-          color: "#f44336"
-        },
-        {
-          text: "Rescheduled",
-          value: "rescheduled",
-          color: "#5cbbf6"
-        }
-      ],
-      editedItem: {
-        createdAt: moment()
-          .format("MM/DD/YYYY")
-          .toString(),
-        firstName: "",
-        lastName: "",
-        appointmentStatus: "scheduled",
-        cellPhone: "",
-        address1: "",
-        address2: "",
-        latitude: "",
-        longitude: "",
-        dob: "",
-        sex: "Male",
-        appointmentType: "rapid",
-        appointmentDate: moment()
-          .format("MM/DD/YYYY")
-          .toString(),
-        datePickerDate: new Date().toISOString(),
-        appointmentTime: "3pm - 5pm",
-        processor: "",
-        provider: "",
-        datePicker: false
-      },
       headers: [
+        { text: "Id", value: "id" },
+        { text: "Date", value: "date" },
         {
-          text: "Id",
-          value: "id"
+          text: "Scheduled Start Time",
+          value: "scheduledStartTime",
+          sortable: false,
         },
         {
-          text: "Added",
-          value: "createdAt"
+          text: "Scheduled End Time",
+          value: "scheduledEndTime",
+          sortable: false,
         },
-        {
-          text: "First Name",
-          value: "firstName",
-          width: 100
-        },
-        {
-          text: "Last Name",
-          value: "lastName",
-          width: 100
-        },
-        {
-          text: "Gender",
-          value: "sex"
-        },
-        {
-          text: "DOB",
-          value: "dob"
-        },
-        {
-          text: "Phone",
-          value: "cellPhone"
-        },
-        {
-          text: "Address",
-          value: "address1",
-          width: 180
-        },
-        {
-          text: "Apt #",
-          value: "address2"
-        },
-        {
-          text: "Appt Date",
-          value: "appointmentDate",
-          width: 100
-        },
-        {
-          text: "Appt Window",
-          value: "appointmentTime",
-          width: 120
-        },
-        {
-          text: "Test Type",
-          value: "appointmentType",
-          width: 100
-        },
-        {
-          text: "Appt Status",
-          value: "appointmentStatus",
-          width: 120
-        },
-        {
-          text: "Agent",
-          value: "processor",
-          width: 120
-        },
-        {
-          text: "Provider",
-          value: "provider",
-          width: 120
-        },
-        {
-          text: "Notes",
-          value: "notes",
-          width: 180
-        }
-      ]
+        { text: "Start Time", value: "startTime", sortable: false },
+        { text: "Check In Time", value: "checkInTime", sortable: false },
+        { text: "Check Out Time", value: "checkOutTime", sortable: false },
+        { text: "Service", value: "service" },
+        { text: "Patient", value: "patient" },
+        { text: "Address", value: "address", sortable: false },
+        { text: "Provider", value: "provider" },
+        { text: "Actions", value: "actions", align: "center", width: "240px" },
+      ],
+      options: {},
+      listParams: {
+        date: null,
+        service: null,
+        provider: null,
+        patient: null,
+      },
+      visitList: [],
+      visitListParams: {
+        currentPage: null,
+        limit: null,
+        totalPages: null,
+        totalRecords: null,
+      },
+      serviceList: [],
+      patientList: [],
+      providerList: [],
+      isLoading: false,
+      addressDialog: {},
+      statusColor: {
+        true: "success",
+        false: "error",
+      },
+      snackbar: {
+        message: null,
+        active: false,
+      },
     };
   },
+  async created() {
+    this.getServices();
+    this.getPatients();
+    this.getProviders();
+  },
   methods: {
-    setFormattedDate(changedItem) {
-      changedItem.appointmentDate = this.changeDateFormat(
-        changedItem.datePickerDate,
-        "YYYY-MM-DD",
-        "MM/DD/YYYY"
-      );
-    },
-    async addNewPatientAppointment() {
-      this.closeAddDialog();
-    },
-    closeAddDialog() {
-      this.addDialog = false;
-    },
-    changeDateFormat(date, fromFormat= "YYYY-MM-DD", toFormat= "MM/DD/YYYY") {
-      return moment(date, fromFormat)
-        .format(toFormat)
-        .toString();
-    },
-
-    dialogToggle(dialogState) {
-      if (dialogState) {
-        this.$nextTick(() => {
-          this.attachAddressAutoComplete();
-        });
+    async getVisits() {
+      const { page, itemsPerPage } = this.options;
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const params = {
+          page: page || 1,
+          limit: itemsPerPage || 50,
+          service: this.listParams.service,
+          provider: this.listParams.provider,
+          patient: this.listParams.patient,
+          date: this.listParams.date,
+        };
+        const res = await api.getVisits(params);
+        if (res.result.data.length > 0) {
+          this.visitList = res.result.data;
+          this.visitListParams = res.result;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get visits list";
+        this.snackbar.active = true;
+      } finally {
+        this.isLoading = false;
       }
-    }
+    },
+    async getServices() {
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const res = await api.getServices();
+        if (res.result.data.length > 0) {
+          this.serviceList = res.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get services list";
+        this.snackbar.active = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getPatients() {
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const res = await api.getPatients();
+        if (res.result.data.length > 0) {
+          this.patientList = res.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get patients list";
+        this.snackbar.active = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getProviders() {
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const res = await api.getProviders();
+        if (res.result.data.length > 0) {
+          this.providerList = res.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get providers list";
+        this.snackbar.active = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    setAddressDialog(props) {
+      this.addressDialog = {
+        street: props.street || "&#8212;",
+        apartment: props.apartment || "&#8212;",
+        city: props.city || "&#8212;",
+        state: props.state || "&#8212;",
+        zipCode: props.zipCode || "&#8212;",
+        longitude: props.longitude || "&#8212;",
+        latitude: props.latitude || "&#8212;",
+        primary: props.primary ? "Yes" : "No",
+      };
+      this.$set(this.addressDialog, props.id, true);
+    },
+    formatDate(date) {
+      return date ? moment(date).format("L") : "";
+    },
+    formatTime(date) {
+      return date ? moment(date).format("hh:mm A") : "";
+    },
+    formatTimeCustom(time) {
+      return time ? moment(time, "HH:mm:ss").format("hh:mm A") : "";
+    },
+  },
+
+  watch: {
+    options: {
+      handler() {
+        this.getVisits();
+      },
+      deep: true,
+    },
+    listParams: {
+      handler() {
+        this.getVisits();
+      },
+      deep: true,
+    },
   },
 });
 </script>
-
-<style scoped lang="scss">
-
-</style>

@@ -115,10 +115,6 @@ export default Vue.extend({
             title: "Patients",
           },
           {
-            to: "",
-            title: "Visits",
-          },
-          {
             to: "services",
             title: "Services",
           },
