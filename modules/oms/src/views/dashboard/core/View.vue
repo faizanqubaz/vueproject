@@ -1,5 +1,8 @@
 <template>
-  <v-main  id="pages" :class="$vuetify.theme.dark ? undefined : 'grey lighten-3'">
+  <v-main
+    id="pages"
+    :class="$vuetify.theme.dark ? undefined : 'grey lighten-3'"
+  >
     <router-view />
 
     <dashboard-core-footer />
@@ -10,9 +13,9 @@
 import Vue from "vue";
 
 export default Vue.extend({
-    name: 'DashboardCoreView',
-    components: {
-      DashboardCoreFooter: () => import('./Footer'),
-    },
-  })
+  name: "DashboardCoreView",
+  components: {
+    DashboardCoreFooter: () => import("./Footer"),
+  },
+});
 </script>

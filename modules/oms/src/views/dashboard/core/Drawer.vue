@@ -79,22 +79,15 @@ export default Vue.extend({
         title: "Dashboard",
         to: "/",
       },
-      // {
-      //   icon: "mdi-calendar",
-      //   title: "Schedule",
-      //   to: "/schedule/cities",
-      //   role: "admin"
-      // },
-      // {
-      //   icon: "mdi-account-group",
-      //   title: "Providers",
-      //   to: "/schedule/providers",
-      //   role: "admin"
-      // },
+      {
+        icon: "mdi-calendar-multiple",
+        title: "Visits",
+        to: "visits",
+      },
     ],
     resources: [
       {
-        icon: "mdi-view-dashboard",
+        icon: "mdi-layers",
         title: "Resources",
         group: "/resources",
         children: [

@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import Vue from "vue";
 export default Vue.extend({
   name: "DashboardIndex",
   data() {
@@ -22,7 +22,7 @@ export default Vue.extend({
     // DashboardCoreSettings: () => import("./components/core/Settings"),
     DashboardCoreView: () => import("./core/View"),
   },
-})
+});
 </script>
 
 <style></style>
