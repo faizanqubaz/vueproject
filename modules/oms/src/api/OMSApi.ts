@@ -86,6 +86,15 @@ export interface ProvidersResponse {
     totalRecords: number;
   }[];
 }
+export interface ProviderPayload {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  dob: string;
+  gender: string;
+  phone: string;
+  email: string;
+}
 export interface Patient {
   id: number;
   firstName: string;
@@ -97,7 +106,6 @@ export interface Patient {
   email: string;
   authId: string;
 }
-
 export interface PatientsResponse {
   message: string;
   result: {
@@ -236,11 +244,85 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
+  
   async deleteCities(id: number): Promise<CitiesResponse> {
     const url = "cities/" + id.toString();
 
     try {
       const response: AxiosResponse<CitiesResponse> =
+        await this.instance.delete(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getProviders(): Promise<ProvidersResponse> {
+    const url = "providers";
+    try {
+      const response: AxiosResponse<ProvidersResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async postProviders(param: ProviderPayload): Promise<ProvidersResponse> {
+    const url = "providers";
+    try {
+      const response: AxiosResponse<ProvidersResponse> = await this.instance.post(
+        url,
+        param
+      );
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async updateProviders(id: number, param: ProviderPayload): Promise<ProvidersResponse> {
+    const url = "providers/" + id.toString();
+
+    try {
+      const response: AxiosResponse<ProvidersResponse> = await this.instance.put(
+        url,
+        param
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async deleteProviders(id: number): Promise<ProvidersResponse> {
+    const url = "providers/" + id.toString();
+    try {
+      const response: AxiosResponse<ProvidersResponse> =
         await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
@@ -386,23 +468,6 @@ export default class OMSApi extends HttpClient {
       const response: AxiosResponse<PatientsResponse> = await this.instance.get(
         url
       );
-      const { status } = response;
-      if (status === 200) {
-        const { data } = response;
-        return data;
-      } else {
-        return Promise.reject(new Error());
-      }
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
-
-  async getProviders(): Promise<ProvidersResponse> {
-    const url = "providers";
-    try {
-      const response: AxiosResponse<ProvidersResponse> =
-        await this.instance.get(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;

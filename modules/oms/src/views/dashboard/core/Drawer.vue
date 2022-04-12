@@ -103,7 +103,7 @@ export default Vue.extend({
             title: "Service Groups",
           },
           {
-            to: "",
+            to: "providers",
             title: "Providers",
           },
           {
