@@ -20,12 +20,177 @@
         <template v-slot:top>
           <v-row align="center" class="mb-2">
             <v-col sm="6" md="2" lg="2" xl="1">
-              <v-btn block color="primary" dark> Add Visit </v-btn>
+              <v-dialog v-model="addDialog" max-width="600px">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn block color="primary" dark v-bind="attrs" v-on="on">
+                    Add Visit
+                  </v-btn>
+                </template>
+
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">Add Visit</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-form
+                      ref="addForm"
+                      v-model="isAddFormValid"
+                      lazy-validation
+                    >
+                      <v-container>
+                        <v-row>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-menu
+                              v-model="addPickerDate"
+                              :close-on-content-click="false"
+                              max-width="290"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  :value="addFormValues.date"
+                                  clearable
+                                  label="Date"
+                                  readonly
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  @click:clear="date = null"
+                                ></v-text-field>
+                              </template>
+                              <v-date-picker
+                                v-model="addFormValues.date"
+                                @input="addPickerDate = false"
+                              ></v-date-picker>
+                            </v-menu>
+                          </v-col>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-menu
+                              ref="pickerTime1"
+                              v-model="addPickerScheduledStartTime"
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              :return-value.sync="
+                                addFormValues.scheduledStartTime
+                              "
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="290px"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  :value="addFormValues.scheduledStartTime"
+                                  label="Scheduled Start Time"
+                                  readonly
+                                  v-bind="attrs"
+                                  v-on="on"
+                                />
+                              </template>
+                              <v-time-picker
+                                v-if="addPickerScheduledStartTime"
+                                v-model="addFormValues.scheduledStartTime"
+                                full-width
+                                format="ampm"
+                                @click:minute="
+                                  $refs.pickerTime1.save(
+                                    addFormValues.scheduledStartTime
+                                  )
+                                "
+                              />
+                            </v-menu>
+                          </v-col>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-menu
+                              ref="pickerTime2"
+                              v-model="addPickerScheduledEndTime"
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              :return-value.sync="
+                                addFormValues.scheduledEndTime
+                              "
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="290px"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  :value="addFormValues.scheduledEndTime"
+                                  label="Scheduled End Time"
+                                  readonly
+                                  v-bind="attrs"
+                                  v-on="on"
+                                />
+                              </template>
+                              <v-time-picker
+                                v-if="addPickerScheduledEndTime"
+                                v-model="addFormValues.scheduledEndTime"
+                                full-width
+                                format="ampm"
+                                @click:minute="
+                                  $refs.pickerTime2.save(
+                                    addFormValues.scheduledEndTime
+                                  )
+                                "
+                              />
+                            </v-menu>
+                          </v-col>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-autocomplete
+                              v-model="addFormValues.serviceId"
+                              :items="serviceList"
+                              label="Service"
+                              item-text="name"
+                              item-value="id"
+                            >
+                            </v-autocomplete>
+                          </v-col>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-autocomplete
+                              v-model="addFormValues.patientId"
+                              :items="patientList"
+                              label="Patient"
+                              :item-text="getPatientItemText"
+                              item-value="id"
+                            >
+                            </v-autocomplete>
+                          </v-col>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-autocomplete
+                              v-model="addFormValues.addressId"
+                              :items="addressList"
+                              label="Address"
+                              item-text="street"
+                              item-value="id"
+                            >
+                            </v-autocomplete>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-form>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="blue darken-1" text @click="closeAddDialog">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      :disabled="!isAddFormValid"
+                      @click="submitVisitAdd"
+                    >
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </v-col>
 
             <v-col sm="6" md="3">
               <v-menu
-                v-model="menu"
+                v-model="menuFilter"
                 :close-on-content-click="false"
                 :nudge-width="200"
                 offset-x
@@ -80,19 +245,14 @@
           </span>
         </template>
 
-        <template v-slot:[`item.scheduledStartTime`]="props">
+        <template v-slot:[`item.scheduledTime`]="props">
           <span style="white-space: nowrap">
-            {{ formatTimeCustom(props.item.scheduledStartTime) }}
-          </span>
-        </template>
-
-        <template v-slot:[`item.scheduledEndTime`]="props">
-          <span style="white-space: nowrap">
+            {{ formatTimeCustom(props.item.scheduledStartTime) }} -
             {{ formatTimeCustom(props.item.scheduledEndTime) }}
           </span>
         </template>
 
-        <template v-slot:[`item.startTime`]="props">
+        <!-- <template v-slot:[`item.startTime`]="props">
           <span style="white-space: nowrap">
             {{ formatTime(props.item.startTime) }}
           </span>
@@ -108,13 +268,18 @@
           <span style="white-space: nowrap">
             {{ formatTime(props.item.checkOutTime) }}
           </span>
-        </template>
+        </template> -->
 
         <template v-slot:[`item.patient`]="props">
           <span style="white-space: nowrap">
             {{ props.item.patient.firstName }}
             {{ props.item.patient.lastName }}
           </span>
+        </template>
+        <template v-slot:[`item.status`]="props">
+          <v-chip small outlined :color="'primary'">{{
+            props.item.status
+          }}</v-chip>
         </template>
 
         <template v-slot:[`item.service`]="props">
@@ -165,15 +330,176 @@
             depressed
             @click.stop="setAddressDialog(props.item.address)"
           >
-            {{ props.item.address.city }},
+            {{ props.item.address.city
+            }}{{ props.item.address.city ? ", " : " " }}
             {{ props.item.address.state }}
           </v-btn>
         </template>
 
-        <template v-slot:[`item.actions`]>
-          <v-btn depressed class="mr-2" color="secondary"> Update </v-btn>
-          <v-btn depressed color="error"> Delete </v-btn>
-        </template>
+        <!-- <template v-slot:[`item.actions`]="props">
+          <v-dialog v-model="updateFormValues[props.item.id]" max-width="600px">
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Update Service</span>
+              </v-card-title>
+              <v-card-text>
+                <v-form
+                  ref="updateForm"
+                  v-model="isUpdateFormValid"
+                  lazy-validation
+                >
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" sm="12" md="12">
+                        <v-menu
+                          v-model="updatePickerDate"
+                          :close-on-content-click="false"
+                          max-width="290"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              :value="updateFormValues.date"
+                              clearable
+                              label="Date"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                              @click:clear="date = null"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="updateFormValues.date"
+                            @input="updatePickerDate = false"
+                          ></v-date-picker>
+                        </v-menu>
+                      </v-col>
+                      <v-col cols="12" sm="12" md="12">
+                        <v-menu
+                          ref="pickerTime1"
+                          v-model="updatePickerScheduledStartTime"
+                          :close-on-content-click="false"
+                          :nudge-right="40"
+                          :return-value.sync="
+                            updateFormValues.scheduledStartTime
+                          "
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="290px"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              :value="updateFormValues.scheduledStartTime"
+                              label="Scheduled Start Time"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                            />
+                          </template>
+                          <v-time-picker
+                            v-if="updatePickerScheduledStartTime"
+                            v-model="updateFormValues.scheduledStartTime"
+                            full-width
+                            format="ampm"
+                            @click:minute="
+                              $refs.pickerTime1.save(
+                                updateFormValues.scheduledStartTime
+                              )
+                            "
+                          />
+                        </v-menu>
+                      </v-col>
+                      <v-col cols="12" sm="12" md="12">
+                        <v-menu
+                          ref="pickerTime2"
+                          v-model="updatePickerScheduledEndTime"
+                          :close-on-content-click="false"
+                          :nudge-right="40"
+                          :return-value.sync="updateFormValues.scheduledEndTime"
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="290px"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              :value="updateFormValues.scheduledEndTime"
+                              label="Scheduled End Time"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                            />
+                          </template>
+                          <v-time-picker
+                            v-if="updatePickerScheduledEndTime"
+                            v-model="updateFormValues.scheduledEndTime"
+                            full-width
+                            format="ampm"
+                            @click:minute="
+                              $refs.pickerTime2.save(
+                                updateFormValues.scheduledEndTime
+                              )
+                            "
+                          />
+                        </v-menu>
+                      </v-col>
+                      <v-col cols="12" sm="12" md="12">
+                        <v-autocomplete
+                          v-model="updateFormValues.serviceId"
+                          :items="serviceList"
+                          label="Service"
+                          item-text="name"
+                          item-value="id"
+                        >
+                        </v-autocomplete>
+                      </v-col>
+                      <v-col cols="12" sm="12" md="12">
+                        <v-autocomplete
+                          v-model="updateFormValues.patientId"
+                          :items="patientList"
+                          label="Patient"
+                          item-text="email"
+                          item-value="id"
+                        >
+                        </v-autocomplete>
+                      </v-col>
+                      <v-col cols="12" sm="12" md="12">
+                        <v-autocomplete
+                          v-model="updateFormValues.addressId"
+                          :items="addressList"
+                          label="Address"
+                          item-text="street"
+                          item-value="id"
+                        >
+                        </v-autocomplete>
+                      </v-col>
+                      <v-col cols="12">
+                        <v-btn
+                          depressed
+                          color="primary"
+                          :disabled="!isUpdateFormValid"
+                          :loading="isSubmitting"
+                          block
+                          >Update
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-form>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <v-btn
+            depressed
+            class="mr-2"
+            color="secondary"
+            @click.stop="setUpdateData(props.item)"
+          >
+            Update
+          </v-btn>
+
+          <v-btn depressed color="warning"> Cancel </v-btn>
+        </template> -->
       </v-data-table>
     </v-card>
 
@@ -199,24 +525,21 @@ export default Vue.extend({
       headers: [
         { text: "Date", value: "date" },
         {
-          text: "Scheduled Start Time",
-          value: "scheduledStartTime",
+          text: "Scheduled Time",
+          value: "scheduledTime",
           sortable: false,
         },
-        {
-          text: "Scheduled End Time",
-          value: "scheduledEndTime",
-          sortable: false,
-        },
-        { text: "Start Time", value: "startTime", sortable: false },
-        { text: "Check In Time", value: "checkInTime", sortable: false },
-        { text: "Check Out Time", value: "checkOutTime", sortable: false },
+        // { text: "Start Time", value: "startTime", sortable: false },
+        // { text: "Check In Time", value: "checkInTime", sortable: false },
+        // { text: "Check Out Time", value: "checkOutTime", sortable: false },
         { text: "Service", value: "service" },
         { text: "Patient", value: "patient" },
         { text: "Address", value: "address", sortable: false },
         { text: "Provider", value: "provider" },
-        { text: "Actions", value: "actions", align: "center", width: "240px" },
+        { text: "Status", value: "status" },
+        // { text: "Actions", value: "actions", align: "center", width: "240px" },
       ],
+      menuFilter: false,
       options: {},
       listParams: {
         date: null,
@@ -234,8 +557,22 @@ export default Vue.extend({
       serviceList: [],
       patientList: [],
       providerList: [],
-      isLoading: false,
+      addressList: [],
       addressDialog: {},
+      addDialog: false,
+      addFormValues: {},
+      isAddFormValid: false,
+      updateFormValues: {},
+      updateId: null,
+      isUpdateFormValid: false,
+      addPickerDate: false,
+      addPickerScheduledStartTime: false,
+      addPickerScheduledEndTime: false,
+      updatePickerDate: false,
+      updatePickerScheduledStartTime: false,
+      updatePickerScheduledEndTime: false,
+      isLoading: false,
+      isSubmitting: false,
       statusColor: {
         true: "success",
         false: "error",
@@ -250,6 +587,7 @@ export default Vue.extend({
     this.getServices();
     this.getPatients();
     this.getProviders();
+    this.getAddresses();
   },
   methods: {
     async getVisits() {
@@ -268,6 +606,7 @@ export default Vue.extend({
         const res = await api.getVisits(params);
         if (res.result.data.length > 0) {
           this.visitList = res.result.data;
+          console.log(this.visitList);
           this.visitListParams = res.result;
         }
       } catch (error) {
@@ -310,6 +649,9 @@ export default Vue.extend({
         this.isLoading = false;
       }
     },
+    getPatientItemText(item) {
+      return `${item.firstName} ${item.lastName}`;
+    },
     async getProviders() {
       try {
         this.isLoading = true;
@@ -326,6 +668,60 @@ export default Vue.extend({
         this.isLoading = false;
       }
     },
+    async getAddresses() {
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const res = await api.getAddresses();
+        if (res.result.data.length > 0) {
+          this.addressList = res.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get addresses list";
+        this.snackbar.active = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async submitVisitAdd() {
+      try {
+        this.isSubmitting = true;
+        const api = new OMSApi();
+        const res = await api.postVisit(this.addFormValues);
+        if (res) {
+          this.getVisits();
+          this.closeAddDialog();
+          this.snackbar.message = res.message;
+          this.snackbar.active = true;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to add visit";
+        this.snackbar.active = true;
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+    async submitVisitUpdate() {
+      try {
+        this.isSubmitting = true;
+        const api = new OMSApi();
+        const res = await api.updateVisit(this.updateId, this.updateFormValues);
+        if (res) {
+          this.getVisits();
+          this.snackbar.message = res.message;
+          this.snackbar.active = true;
+          this.$set(this.updateFormValues, this.updateId, false);
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to update visit";
+        this.snackbar.active = true;
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
     setAddressDialog(props) {
       this.addressDialog = {
         street: props.street || "&#8212;",
@@ -339,6 +735,19 @@ export default Vue.extend({
       };
       this.$set(this.addressDialog, props.id, true);
     },
+    closeAddDialog() {
+      this.addDialog = false;
+    },
+    setUpdateData(props) {
+      this.updateFormValues.date = moment(props.date).format("YYYY-MM-DD");
+      this.updateFormValues.scheduledStartTime = props.scheduledStartTime;
+      this.updateFormValues.scheduledEndTime = props.scheduledEndTime;
+      this.updateFormValues.serviceId = props.service && props.service.id;
+      this.updateFormValues.patientId = props.patient && props.patient.id;
+      this.updateFormValues.addressId = props.address && props.address.id;
+      this.updateId = props.id;
+      this.$set(this.updateFormValues, props.id, true);
+    },
     formatDate(date) {
       return date ? moment(date).format("L") : "";
     },
@@ -349,7 +758,6 @@ export default Vue.extend({
       return time ? moment(time, "HH:mm:ss").format("hh:mm A") : "";
     },
   },
-
   watch: {
     options: {
       handler() {
