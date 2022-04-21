@@ -116,6 +116,7 @@ export interface PatientsResponse {
     totalRecords: number;
   }[];
 }
+
 export interface Address {
   id: number;
   street: string;
@@ -201,6 +202,48 @@ export interface ServiceZipCodesResponse {
     totalRecords: number;
   }[];
 }
+export interface ServiceParams {
+  page?: number;
+  limit?: number;
+}
+export interface ServiceZipCodePayload {
+  zipCode: string;
+  serviceId: number;
+  cityId: number;
+}
+export interface ServiceTimeSlot {
+  id: number;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  enabled: boolean;
+  capacity: number;
+  startDate: string;
+  endDate: string;
+  city: City;
+  service: Service;
+}
+export interface ServiceTimeSlotsResponse {
+  message: string;
+  result: {
+    data: ServiceTimeSlot[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
+export interface ServiceTimeSlotPayload {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  enabled: boolean;
+  capacity: number;
+  startDate: string;
+  endDate: string;
+  cityId: number;
+  serviceId: number;
+}
 
 export default class OMSApi extends HttpClient {
   constructor() {
@@ -224,8 +267,25 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
+  async getCityById(id: number): Promise<CitiesResponse> {
+    const url = `cities/${id}`;
+    try {
+      const response: AxiosResponse<CitiesResponse> = await this.instance.get(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 
-  async postCities(param: CityPayload): Promise<CitiesResponse> {
+  async createCity(param: CityPayload): Promise<CitiesResponse> {
     const url = "cities";
     try {
       const response: AxiosResponse<CitiesResponse> = await this.instance.post(
@@ -244,7 +304,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async updateCities(id: number, param: CityPayload): Promise<CitiesResponse> {
+  async updateCity(id: number, param: CityPayload): Promise<CitiesResponse> {
     const url = "cities/" + id.toString();
 
     try {
@@ -264,7 +324,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async deleteCities(id: number): Promise<CitiesResponse> {
+  async deleteCity(id: number): Promise<CitiesResponse> {
     const url = "cities/" + id.toString();
 
     try {
@@ -299,7 +359,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async postProviders(param: ProviderPayload): Promise<ProvidersResponse> {
+  async createProvider(param: ProviderPayload): Promise<ProvidersResponse> {
     const url = "providers";
     try {
       const response: AxiosResponse<ProvidersResponse> =
@@ -337,7 +397,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async deleteProviders(id: number): Promise<ProvidersResponse> {
+  async deleteProvider(id: number): Promise<ProvidersResponse> {
     const url = "providers/" + id.toString();
     try {
       const response: AxiosResponse<ProvidersResponse> =
@@ -389,7 +449,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async postServices(param: ServicePayload): Promise<ServicesResponse> {
+  async createService(param: ServicePayload): Promise<ServicesResponse> {
     const url = "services";
     try {
       const response: AxiosResponse<ServicesResponse> =
@@ -405,7 +465,7 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
-  async updateServices(
+  async updateService(
     id: number,
     param: ServicePayload
   ): Promise<ServicesResponse> {
@@ -427,7 +487,7 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
-  async deleteServices(id: number): Promise<ServicesResponse> {
+  async deleteService(id: number): Promise<ServicesResponse> {
     const url = "services/" + id.toString();
 
     try {
@@ -461,11 +521,70 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
-  async getServiceZipCodes(): Promise<ServiceZipCodesResponse> {
-    const url = "service-zip-codes";
+
+  async getServiceZipCodes(
+    params: ServiceParams
+  ): Promise<ServiceZipCodesResponse> {
+    const urlParams = qs.stringify(pickBy(params, identity));
+    const url = `service-zip-codes?${urlParams}`;
     try {
       const response: AxiosResponse<ServiceZipCodesResponse> =
         await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async createServiceZipCode(
+    payload: ServiceZipCodePayload
+  ): Promise<ServiceZipCodesResponse> {
+    const url = "service-zip-codes";
+    try {
+      const response: AxiosResponse<ServiceZipCodesResponse> =
+        await this.instance.post(url, payload);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async updateServiceZipCode(
+    id: number,
+    payload: ServiceZipCodePayload
+  ): Promise<ServiceZipCodesResponse> {
+    const url = "service-zip-codes/" + id.toString();
+
+    try {
+      const response: AxiosResponse<ServiceZipCodesResponse> =
+        await this.instance.put(url, payload);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async deleteServiceZipCode(id: number): Promise<ServiceZipCodesResponse> {
+    const url = "service-zip-codes/" + id.toString();
+
+    try {
+      const response: AxiosResponse<ServiceZipCodesResponse> =
+        await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -560,6 +679,81 @@ export default class OMSApi extends HttpClient {
     try {
       const response: AxiosResponse<AddressesResponse> =
         await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getServiceTimeSlots(
+    params: ServiceParams
+  ): Promise<ServiceTimeSlotsResponse> {
+    const urlParams = qs.stringify(pickBy(params, identity));
+    const url = `service-time-slots?${urlParams}`;
+    try {
+      const response: AxiosResponse<ServiceTimeSlotsResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async createServiceTimeSlot(
+    payload: ServiceTimeSlotPayload
+  ): Promise<ServiceTimeSlotsResponse> {
+    const url = "service-time-slots";
+    try {
+      const response: AxiosResponse<ServiceTimeSlotsResponse> =
+        await this.instance.post(url, payload);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async updateServiceTimeSlot(
+    id: number,
+    payload: ServiceTimeSlotPayload
+  ): Promise<ServiceTimeSlotsResponse> {
+    const url = "service-time-slots/" + id.toString();
+
+    try {
+      const response: AxiosResponse<ServiceTimeSlotsResponse> =
+        await this.instance.put(url, payload);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async deleteServiceTimeSlot(id: number): Promise<ServiceTimeSlotsResponse> {
+    const url = "service-time-slots/" + id.toString();
+
+    try {
+      const response: AxiosResponse<ServiceTimeSlotsResponse> =
+        await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;

@@ -61,7 +61,7 @@
                           <v-col cols="12" sm="12" md="12">
                             <v-autocomplete
                               v-model="editedItem.gender"
-                              :items="gender"
+                              :items="genderList"
                               label="Gender"
                             ></v-autocomplete>
                           </v-col>
@@ -108,18 +108,18 @@
                 label="Search"
                 clearable
               ></v-text-field>
-            </v-col> 
+            </v-col>
           </v-row>
         </template>
         <template v-slot:[`item.actions`]="props">
           <v-dialog v-model="updateDialog[props.item.id]" max-width="600px">
             <v-card>
-              <v-tabs 
+              <v-tabs
                 v-model="activeTab"
                 fixed-tabs
                 background-color="indigo"
                 dark
-              > 
+              >
                 <v-tab>Details</v-tab>
                 <v-tab>Addresses</v-tab>
                 <v-tab>Services</v-tab>
@@ -131,118 +131,118 @@
                     </v-card-title>
                     <v-card-text>
                       <v-form
-                          ref="updateForm"
-                          v-model="updateFormValid"
-                          lazy-validation
-                        >
-                          <v-row>
-                            <v-col cols="12">
-                              <v-text-field
-                                v-model="updateDialog.firstName"
-                                placeholder="First Name"
-                                label="First Name"
-                                required
-                              />
-                            </v-col>
-                            <v-col cols="12">
-                              <v-text-field
-                                v-model="updateDialog.middleName"
-                                placeholder="Middle Name"
-                                label="Middle Name"
-                                required
-                              />
-                            </v-col>
-                            <v-col cols="12">
-                              <v-text-field
-                                v-model="updateDialog.lastName"
-                                placeholder="Last Name"
-                                label="Last Name"
-                                required
-                              />
-                            </v-col>
-                            <v-col cols="12">
-                              <v-text-field
-                                v-model="updateDialog.dob"
-                                placeholder="Date of Birth"
-                                label="Date of Birth"
-                                required
-                              />
-                            </v-col>
-                            <v-col cols="12">
-                              <v-autocomplete
-                                v-model="updateDialog.gender"
-                                :items="gender"
-                                label="Gender"
-                              ></v-autocomplete>
-                            </v-col>
-                            <v-col cols="12">
-                              <v-text-field
-                                v-model="updateDialog.phone"
-                                placeholder="Phone Number"
-                                label="Phone Number"
-                                required
-                              />
-                            </v-col>
-                            <v-col cols="12">
-                              <v-text-field
-                                v-model="updateDialog.email"
-                                placeholder="Email Address"
-                                label="Email Address"
-                                required
-                              />
-                            </v-col>
-                            <v-col cols="12">
-                              <v-btn
-                                depressed
-                                color="primary"
-                                @click="updateProviders"
-                                :disabled="!updateFormValid"
-                                :loading="saveLoading"
-                                block
-                                >Update</v-btn
-                              >
-                            </v-col>
-                          </v-row>
-                        </v-form>
-                      </v-card-text>
-                    </v-tab-item>
-                   <!-- Tab item 2 -->
-                    <v-tab-item>
-                      <v-card-title>
-                        <span class="text-h5">Provider Addresses</span>
-                      </v-card-title>
-                      <v-data-table
-                        :headers="addressHeaders"
-                        :footer-props="{
-                          'items-per-page-options': [10, 25, 50, 100],
-                        }"
-                        :items="updateDialog.addresses"
-                        :loading="loading"
-                        loading-text="Loading Providers Addresses..."
-                        item-key="_id"
-                        class="elevation-1 pa-3"
-                        mobile-breakpoint="0"
-                      ></v-data-table>
-                    </v-tab-item>
-                   <!-- Tab item 3 -->
-                    <v-tab-item>
-                      <v-card-title>
-                        <span class="text-h5">Provider Services</span>
-                      </v-card-title>
+                        ref="updateForm"
+                        v-model="updateFormValid"
+                        lazy-validation
+                      >
+                        <v-row>
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="updateDialog.firstName"
+                              placeholder="First Name"
+                              label="First Name"
+                              required
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="updateDialog.middleName"
+                              placeholder="Middle Name"
+                              label="Middle Name"
+                              required
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="updateDialog.lastName"
+                              placeholder="Last Name"
+                              label="Last Name"
+                              required
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="updateDialog.dob"
+                              placeholder="Date of Birth"
+                              label="Date of Birth"
+                              required
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <v-autocomplete
+                              v-model="updateDialog.gender"
+                              :items="gender"
+                              label="Gender"
+                            ></v-autocomplete>
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="updateDialog.phone"
+                              placeholder="Phone Number"
+                              label="Phone Number"
+                              required
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="updateDialog.email"
+                              placeholder="Email Address"
+                              label="Email Address"
+                              required
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <v-btn
+                              depressed
+                              color="primary"
+                              @click="updateProviders"
+                              :disabled="!updateFormValid"
+                              :loading="saveLoading"
+                              block
+                              >Update</v-btn
+                            >
+                          </v-col>
+                        </v-row>
+                      </v-form>
+                    </v-card-text>
+                  </v-tab-item>
+                  <!-- Tab item 2 -->
+                  <v-tab-item>
+                    <v-card-title>
+                      <span class="text-h5">Provider Addresses</span>
+                    </v-card-title>
+                    <v-data-table
+                      :headers="addressHeaders"
+                      :footer-props="{
+                        'items-per-page-options': [10, 25, 50, 100],
+                      }"
+                      :items="updateDialog.addresses"
+                      :loading="loading"
+                      loading-text="Loading Providers Addresses..."
+                      item-key="_id"
+                      class="elevation-1 pa-3"
+                      mobile-breakpoint="0"
+                    ></v-data-table>
+                  </v-tab-item>
+                  <!-- Tab item 3 -->
+                  <v-tab-item>
+                    <v-card-title>
+                      <span class="text-h5">Provider Services</span>
+                    </v-card-title>
 
-                      <v-data-table
-                        :headers="serviceHeaders"
-                        :footer-props="{
-                          'items-per-page-options': [10, 25, 50, 100],
-                        }"
-                        :items="updateDialog.services"
-                        :loading="loading"
-                        loading-text="Loading Providers Services..."
-                        item-key="_id"
-                        class="elevation-1 pa-3"
-                        mobile-breakpoint="0"
-                      ></v-data-table>
-                    </v-tab-item>
+                    <v-data-table
+                      :headers="serviceHeaders"
+                      :footer-props="{
+                        'items-per-page-options': [10, 25, 50, 100],
+                      }"
+                      :items="updateDialog.services"
+                      :loading="loading"
+                      loading-text="Loading Providers Services..."
+                      item-key="_id"
+                      class="elevation-1 pa-3"
+                      mobile-breakpoint="0"
+                    ></v-data-table>
+                  </v-tab-item>
                 </v-tabs-items>
               </v-tabs>
             </v-card>
@@ -255,7 +255,7 @@
           >
             Update
           </v-btn>
-           <v-dialog v-model="deleteDialog[props.item.id]" max-width="400px">
+          <v-dialog v-model="deleteDialog[props.item.id]" max-width="400px">
             <v-card>
               <v-card-text>
                 <div class="text-h5 text-center py-4">
@@ -288,11 +288,7 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <v-btn
-            depressed
-            @click.stop="setDelete(props.item)"
-            color="error"
-          >
+          <v-btn depressed @click.stop="setDelete(props.item)" color="error">
             Delete
           </v-btn>
         </template>
@@ -310,7 +306,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import Vue from "vue";
 import OMSApi from "../../../api/OMSApi";
 
 export default Vue.extend({
@@ -383,30 +379,27 @@ export default Vue.extend({
         active: false,
       },
       activeTab: null,
-       providerList: [],
-       loading: true,
-       saveLoading: false,
-       addDialog: false,
-       valid: false,
-       editedItem: {
-         firstName: null,
-         middleName: null,
-         lastName: null,
-         dob: null,
-         gender: null,
-         phone: null,
-         email: null,
+      providerList: [],
+      loading: true,
+      saveLoading: false,
+      addDialog: false,
+      valid: false,
+      editedItem: {
+        firstName: null,
+        middleName: null,
+        lastName: null,
+        dob: null,
+        gender: null,
+        phone: null,
+        email: null,
       },
-      gender: [
-        "male",
-        "female"
-        ],
+      genderList: ["male", "female"],
       searchText: null,
       updateDialog: {},
       deleteDialog: {},
       updateId: null,
-      updateFormValid: false
-    }
+      updateFormValid: false,
+    };
   },
   async created() {
     this.loading = true;
@@ -437,7 +430,7 @@ export default Vue.extend({
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        const response = await api.postProviders(this.editedItem);
+        const response = await api.createProvider(this.editedItem);
         if (response) {
           this.getProviders();
           this.snackbar.message = response.message;
@@ -460,7 +453,9 @@ export default Vue.extend({
       this.updateDialog.phone = props.phone;
       this.updateDialog.email = props.email;
       this.updateDialog.addresses = props.addresses;
-      this.updateDialog.services = await this.getProviderServices(/*props.id*/1)
+      this.updateDialog.services = await this.getProviderServices(
+        /*props.id*/ 1
+      );
       this.updateId = props.id;
       this.$set(this.updateDialog, props.id, true);
     },
@@ -468,7 +463,7 @@ export default Vue.extend({
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        const response = await api.updateProviders(this.updateId, {
+        const response = await api.updateProvider(this.updateId, {
           firstName: this.updateDialog.firstName,
           middleName: this.updateDialog.middleName,
           lastName: this.updateDialog.lastName,
@@ -502,9 +497,9 @@ export default Vue.extend({
             services.push({
               id: item.service.id,
               city: item.city.name,
-              service: item.service.name
-            })
-          })
+              service: item.service.name,
+            });
+          });
           this.loading = false;
           return services;
         }
@@ -513,7 +508,7 @@ export default Vue.extend({
         this.loading = false;
       }
     },
-    
+
     setDelete(props) {
       this.deleteDialog.firstName = props.firstName;
       this.deleteDialog.id = props.id;
@@ -543,6 +538,6 @@ export default Vue.extend({
         this.$refs.addForm.reset();
       }
     },
-  }
-})
+  },
+});
 </script>

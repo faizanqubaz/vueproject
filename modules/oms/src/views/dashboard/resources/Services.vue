@@ -328,7 +328,7 @@ export default Vue.extend({
       try {
         this.isSubmitting = true;
         const api = new OMSApi();
-        const res = await api.postServices(this.addFormValues);
+        const res = await api.createServices(this.addFormValues);
         if (res) {
           this.getServices();
           this.closeAddDialog();
@@ -347,7 +347,7 @@ export default Vue.extend({
       try {
         this.isSubmitting = true;
         const api = new OMSApi();
-        const res = await api.updateServices(this.updateId, {
+        const res = await api.updateService(this.updateId, {
           name: this.updateFormValues.name,
           description: this.updateFormValues.description,
           price: this.updateFormValues.price.toString(),

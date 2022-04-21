@@ -29,7 +29,22 @@ const routes: Array<RouteConfig> = [
       {
         name: "Cities",
         path: "resources/cities",
-        component: () => import("@/views/dashboard/resources/Cities.vue"),
+        component: () =>
+          import("@/views/dashboard/resources/Cities/Cities.vue"),
+        // beforeEnter: authGuard
+      },
+      {
+        name: "Add City",
+        path: "resources/cities/add",
+        component: () =>
+          import("@/views/dashboard/resources/Cities/CityForm.vue"),
+        // beforeEnter: authGuard
+      },
+      {
+        name: "City Detail",
+        path: "resources/cities/:cityId",
+        component: () =>
+          import("@/views/dashboard/resources/Cities/CityForm.vue"),
         // beforeEnter: authGuard
       },
       {

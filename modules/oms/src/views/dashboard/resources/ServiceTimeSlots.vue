@@ -3,14 +3,14 @@
     <v-card>
       <v-data-table
         :headers="headers"
-        :items="zipCodeList"
+        :items="timeSlotList"
         :loading="isLoading"
-        loading-text="Loading Service Zip Codes..."
+        loading-text="Loading Service Time Slots..."
         item-key="_id"
         class="elevation-1 pa-3"
         mobile-breakpoint="0"
         :options.sync="options"
-        :server-items-length="zipCodeListParams.totalRecords"
+        :server-items-length="timeSlotListParams.totalRecords"
         :footer-props="{
           'items-per-page-options': [10, 25, 50, 100],
         }"
@@ -25,18 +25,48 @@
           </v-row>
         </template>
 
+        <template v-slot:[`item.time`]="props">
+          <span style="white-space: nowrap">
+            {{ formatTimeCustom(props.item.startTime) }} -
+            {{ formatTimeCustom(props.item.endTime) }}
+          </span>
+        </template>
+
+        <template v-slot:[`item.date`]="props">
+          <span style="white-space: nowrap">
+            {{ formatDate(props.item.startDate) }} -
+            {{ formatDate(props.item.endDate) }}
+          </span>
+        </template>
+
         <template v-slot:[`item.city`]="props">
           <v-icon :color="statusColor[props.item.city.active]">
-            mdi-circle-medium</v-icon
-          >
+            mdi-circle-medium
+          </v-icon>
           {{ props.item.city.name }}
         </template>
 
         <template v-slot:[`item.service`]="props">
           <v-icon :color="statusColor[props.item.service.active]">
-            mdi-circle-medium</v-icon
-          >
+            mdi-circle-medium
+          </v-icon>
           {{ props.item.service.name }}
+        </template>
+
+        <template v-slot:[`item.enabled`]="props">
+          <v-chip
+            small
+            outlined
+            :color="props.item.enabled ? 'primary' : 'error'"
+            style="
+              margin: auto;
+              width: 64px;
+              display: flex;
+              justify-content: center;
+            "
+          >
+            {{ props.item.enabled === true ? "Yes" : "No" }}</v-chip
+          >
         </template>
 
         <template v-slot:[`item.actions`]="props">
@@ -63,7 +93,7 @@
       <v-card>
         <v-card-title>
           <span class="text-h5">
-            {{ formId ? "Update Service Zip Code" : "Add Service Zip Code" }}
+            {{ formId ? "Update Service Time Slot" : "Add Service Time Slot" }}
           </span>
         </v-card-title>
         <v-card-text>
@@ -71,9 +101,82 @@
             <v-container>
               <v-row>
                 <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="formValues.dayOfWeek"
+                    :items="dayOfWeekList"
+                    label="Day Of Week"
+                    item-text="label"
+                    item-value="value"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="formValues.startTime"
+                    :items="hourOfDayList"
+                    label="Start Time"
+                    item-text="label"
+                    item-value="value"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="formValues.endTime"
+                    :items="hourOfDayList"
+                    label="End Time"
+                    item-text="label"
+                    item-value="value"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-menu
+                    v-model="pickerStartDate"
+                    :close-on-content-click="false"
+                    max-width="290"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :value="formValues.startDate"
+                        clearable
+                        label="Start Date"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        @click:clear="startDate = null"
+                      />
+                    </template>
+                    <v-date-picker
+                      v-model="formValues.startDate"
+                      @input="pickerStartDate = startDate"
+                    />
+                  </v-menu>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-menu
+                    v-model="pickerEndDate"
+                    :close-on-content-click="false"
+                    max-width="290"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :value="formValues.endDate"
+                        clearable
+                        label="End Date"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        @click:clear="endDate = null"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="formValues.endDate"
+                      @input="pickerEndDate = endDate"
+                    />
+                  </v-menu>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
                   <v-text-field
-                    v-model="formValues.zipCode"
-                    label="Zip Code"
+                    v-model="formValues.capacity"
+                    label="Capacity"
                     required
                   />
                 </v-col>
@@ -96,6 +199,16 @@
                     item-value="id"
                     disabled
                   />
+                </v-col>
+
+                <v-col cols="12">
+                  <v-radio-group v-model="formValues.enabled" row>
+                    <template #label>
+                      <p class="text-h6 mb-0 text-gray">Enabled</p>
+                    </template>
+                    <v-radio :label="`Yes`" :value="true" />
+                    <v-radio :label="`No`" :value="false" />
+                  </v-radio-group>
                 </v-col>
               </v-row>
             </v-container>
@@ -123,8 +236,7 @@
         <v-card-text>
           <div class="text-h5 text-center py-4">
             Are you sure you want to delete
-            <strong>{{ deleteValues.zipCode }}</strong>
-            ?
+            <strong>this time slot</strong>?
           </div>
 
           <v-row>
@@ -159,15 +271,20 @@
 
 <script>
 import Vue from "vue";
+import moment from "moment";
 import OMSApi from "@/api/OMSApi";
+import { OptDaysOfWeek, OptHoursOfDay } from "@/utils";
 
 export default Vue.extend({
   data() {
     return {
       headers: [
-        { text: "Zip Code", value: "zipCode" },
-        { text: "Service Name", value: "service" },
-        { text: "City Name", value: "city" },
+        { text: "Time", value: "time", sortable: false },
+        { text: "Date", value: "date", sortable: false },
+        { text: "Capacity", value: "capacity", sortable: false },
+        { text: "Service Name", value: "service", sortable: false },
+        { text: "City Name", value: "city", sortable: false },
+        { text: "Enabled", value: "enabled", sortable: false, align: "center" },
         {
           text: "Actions",
           value: "actions",
@@ -177,8 +294,8 @@ export default Vue.extend({
         },
       ],
       options: {},
-      zipCodeList: [],
-      zipCodeListParams: {
+      timeSlotList: [],
+      timeSlotListParams: {
         currentPage: null,
         limit: null,
         totalPages: null,
@@ -186,13 +303,18 @@ export default Vue.extend({
       },
       serviceList: [],
       cityList: [],
+      dayOfWeekList: OptDaysOfWeek,
+      hourOfDayList: OptHoursOfDay,
       formDialog: false,
       formValues: {},
+      updateFormValues: {},
       formId: null,
       deleteDialog: false,
       deleteValues: {},
       deleteId: null,
       isFormValid: false,
+      pickerStartDate: false,
+      pickerEndDate: false,
       isLoading: false,
       isSubmitting: false,
       statusColor: {
@@ -208,7 +330,7 @@ export default Vue.extend({
     this.isLoading = false;
   },
   methods: {
-    async getServiceZipCodes() {
+    async getServiceTimeSlots() {
       const { page, itemsPerPage } = this.options;
       try {
         this.isLoading = true;
@@ -218,14 +340,14 @@ export default Vue.extend({
           limit: itemsPerPage || 10,
           city: this.$route.params.cityId,
         };
-        const res = await api.getServiceZipCodes(params);
-        if (res.result.data.length > 0) {
-          this.zipCodeList = res.result.data;
-          this.zipCodeListParams = res.result;
+        const response = await api.getServiceTimeSlots(params);
+        if (response.result.data.length > 0) {
+          this.timeSlotList = response.result.data;
+          this.timeSlotListParams = response.result;
         }
       } catch (error) {
         this.$root.snackbar.show({
-          message: "Failed to get service zip codes list",
+          message: "Failed to get service time slots list",
           type: "error",
         });
         console.error(error);
@@ -237,9 +359,9 @@ export default Vue.extend({
       try {
         this.isLoading = true;
         const api = new OMSApi();
-        const res = await api.getServices();
-        if (res.result.data.length > 0) {
-          this.serviceList = res.result.data;
+        const response = await api.getServices();
+        if (response.result.data.length > 0) {
+          this.serviceList = response.result.data;
         }
       } catch (error) {
         console.error(error);
@@ -274,22 +396,21 @@ export default Vue.extend({
         this.isSubmitting = true;
         const api = new OMSApi();
         const payload = {
-          zipCode: this.formValues.zipCode,
-          serviceId: this.formValues.serviceId,
-          cityId: this.formValues.cityId,
+          ...this.formValues,
+          capacity: parseInt(this.formValues.capacity),
         };
-        const res = await api.createServiceZipCode(payload);
-        if (res) {
-          this.getServiceZipCodes();
-          this.closeFormDialog();
+        const response = await api.createServiceTimeSlot(payload);
+        if (response) {
           this.$root.snackbar.show({
-            message: res.message,
+            message: response.message,
             type: "success",
           });
+          this.getServiceTimeSlots();
+          this.closeFormDialog();
         }
       } catch (error) {
         this.$root.snackbar.show({
-          message: "Failed to add zip code",
+          message: "Failed to add service time slot",
           type: "error",
         });
         console.error(error);
@@ -302,43 +423,29 @@ export default Vue.extend({
         this.isSubmitting = true;
         const api = new OMSApi();
         const payload = {
-          zipCode: this.formValues.zipCode,
+          dayOfWeek: this.formValues.dayOfWeek,
+          startTime: this.formValues.startTime,
+          endTime: this.formValues.endTime,
+          capacity: parseInt(this.formValues.capacity),
+          enabled: this.formValues.enabled,
+          startDate:
+            this.formValues.startDate &&
+            this.formatDate(this.formValues.startDate),
+          endDate:
+            this.formValues.endDate && this.formatDate(this.formValues.endDate),
         };
-        const res = await api.updateServiceZipCode(this.formId, payload);
-        if (res) {
-          this.getServiceZipCodes();
+        const response = await api.updateServiceTimeSlot(this.formId, payload);
+        if (response) {
+          this.getServiceTimeSlots();
           this.closeFormDialog();
           this.$root.snackbar.show({
-            message: res.message,
+            message: response.message,
             type: "success",
           });
         }
       } catch (error) {
         this.$root.snackbar.show({
-          message: "Failed to update zip code",
-          type: "error",
-        });
-        console.error(error);
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
-    async submitDelete() {
-      try {
-        this.isSubmitting = true;
-        const api = new OMSApi();
-        const res = await api.deleteServiceZipCode(this.deleteId);
-        if (res) {
-          this.getServiceZipCodes();
-          this.closeDeleteDialog();
-          this.$root.snackbar.show({
-            message: res.message,
-            type: "success",
-          });
-        }
-      } catch (error) {
-        this.$root.snackbar.show({
-          message: "Failed to delete zip code",
+          message: "Failed to update time slot",
           type: "error",
         });
         console.error(error);
@@ -356,7 +463,15 @@ export default Vue.extend({
     openFormDialog(props) {
       this.formDialog = true;
       if (props.id) {
-        this.formValues.zipCode = props.zipCode;
+        this.formValues.dayOfWeek = props.dayOfWeek;
+        this.formValues.startTime = props.startTime;
+        this.formValues.endTime = props.endTime;
+        this.formValues.capacity = props.capacity;
+        this.formValues.enabled = props.enabled;
+        this.formValues.startDate =
+          props.startDate && this.formatDate(props.startDate);
+        this.formValues.endDate =
+          props.endDate && this.formatDate(props.endDate);
         this.formValues.serviceId = props.service.id;
         this.formValues.cityId = props.city.id;
         this.formId = props.id;
@@ -364,13 +479,41 @@ export default Vue.extend({
         this.formValues.cityId = parseInt(this.$route.params.cityId);
       }
     },
+    async submitDelete() {
+      try {
+        this.isSubmitting = true;
+        const api = new OMSApi();
+        const res = await api.deleteServiceTimeSlot(this.deleteId);
+        if (res) {
+          this.getServiceTimeSlots();
+          this.closeDeleteDialog();
+          this.$root.snackbar.show({
+            message: res.message,
+            type: "success",
+          });
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to delete time slot",
+          type: "error",
+        });
+        console.error(error);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
     closeFormDialog() {
       this.formDialog = false;
+    },
+    formatDate(date) {
+      return date ? moment(date).format("YYYY-MM-DD") : "";
+    },
+    formatTimeCustom(time) {
+      return time ? moment(time, "HH:mm:ss").format("hh:mm A") : "";
     },
     openDeleteDialog(props) {
       this.deleteDialog = true;
       this.deleteId = props.id;
-      this.deleteValues.zipCode = props.zipCode;
     },
     closeDeleteDialog() {
       this.deleteDialog = false;
@@ -379,14 +522,13 @@ export default Vue.extend({
   watch: {
     options: {
       handler() {
-        this.getServiceZipCodes();
+        this.getServiceTimeSlots();
       },
       deep: true,
     },
     formDialog(newVal) {
       if (!newVal) {
         this.$refs.formDialog.reset();
-        this.formId = null;
       }
     },
   },

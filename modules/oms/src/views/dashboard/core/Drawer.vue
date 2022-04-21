@@ -124,14 +124,6 @@ export default Vue.extend({
             title: "Addresses",
           },
           {
-            to: "service-zip-codes",
-            title: "Service Zip Codes",
-          },
-          {
-            to: "",
-            title: "Service Time Slots",
-          },
-          {
             to: "",
             title: "Rendered Services",
           },
