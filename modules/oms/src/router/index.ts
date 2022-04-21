@@ -23,7 +23,14 @@ const routes: Array<RouteConfig> = [
       {
         name: "Providers",
         path: "resources/providers",
-        component: () => import("@/views/dashboard/resources/Providers.vue"),
+        component: () => import("@/views/dashboard/resources/providers/Providers.vue"),
+        // beforeEnter: authGuard
+      },
+      {
+        name: "Provider Details",
+        path: "resources/providers/:providerId/details",
+        component: () => import("@/views/dashboard/resources/providers/ProviderDetails.vue"),
+        props: true,
         // beforeEnter: authGuard
       },
       {

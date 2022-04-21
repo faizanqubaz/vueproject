@@ -51,6 +51,20 @@ export interface ServicePayload {
   active: boolean;
   groupId: number;
 }
+export interface ProviderServicePayload {
+  providerId: number;
+  serviceId: number;
+  cityId: number;
+}
+export interface ProviderServicesResponse {
+  message: string;
+  result: {
+    city: { id: number };
+    service: { id: number };
+    provider: { id: number };
+    id: number;
+  };
+}
 export interface ServiceGroup {
   id: number;
   name: string;
@@ -127,6 +141,36 @@ export interface Address {
   longitude: number;
   latitude: number;
   primary: boolean;
+}
+export interface AddressCreatePayload {
+  street: string;
+  apartment: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  longitude: number;
+  latitude: number;
+  primary: boolean;
+  guardianId: number;
+  patientId: number;
+  providerId: number;
+}
+export interface AddressCreateResponse {
+  message: string;
+  result: {
+    patient: { id: number };
+    guardian: { id: number };
+    provider: { id: number };
+    street: string;
+    apartment: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    longitude: number;
+    latitude: number;
+    primary: boolean;
+    id: number;
+  }
 }
 
 export interface AddressesResponse {
@@ -245,6 +289,16 @@ export interface ServiceTimeSlotPayload {
   serviceId: number;
 }
 
+export interface DeleteResponse {
+  message: string;
+  result: null;
+}
+
+export interface GeneralResponse {
+  message: string;
+  result: any;
+}
+
 export default class OMSApi extends HttpClient {
   constructor() {
     super("https://oms-api-dev.welz.com/api/v1/");
@@ -253,9 +307,7 @@ export default class OMSApi extends HttpClient {
   async getCities(): Promise<CitiesResponse> {
     const url = "cities";
     try {
-      const response: AxiosResponse<CitiesResponse> = await this.instance.get(
-        url
-      );
+      const response: AxiosResponse<CitiesResponse> = await this.instance.get(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -376,10 +428,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async updateProviders(
-    id: number,
-    param: ProviderPayload
-  ): Promise<ProvidersResponse> {
+  async updateProvider(id: number, param: ProviderPayload): Promise<ProvidersResponse> {
     const url = "providers/" + id.toString();
 
     try {
@@ -414,11 +463,108 @@ export default class OMSApi extends HttpClient {
     }
   }
 
+
   async getProviderServices(providerId: number): Promise<ProvidersResponse> {
     const url = `providers/${providerId}/services`;
     try {
       const response: AxiosResponse<ProvidersResponse> =
         await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async createAddress(address: AddressCreatePayload): Promise<AddressCreateResponse> {
+    const url = "addresses";
+    try {
+      const response: AxiosResponse<AddressCreateResponse> = await this.instance.post(url, address);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async updateAddress(id: number, address: Address): Promise<GeneralResponse> {
+    const url = `addresses/${id}`;
+    try {
+      const response: AxiosResponse<GeneralResponse> = await this.instance.put(url, address);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async deleteAddress(id: number): Promise<GeneralResponse> {
+    const url = `addresses/${id}`;
+    try {
+      const response: AxiosResponse<GeneralResponse> = await this.instance.delete(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async createProviderService(service: ProviderServicePayload): Promise<ProviderServicesResponse> {
+    const url = "provider-services";
+    try {
+      const response: AxiosResponse<ProviderServicesResponse> = await this.instance.post(url, service);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async updateProviderService(id: number, service: ProviderServicePayload): Promise<GeneralResponse> {
+    const url = `provider-services/${id}`;
+    try {
+      const response: AxiosResponse<GeneralResponse> = await this.instance.put(url, service);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async deleteProviderService(serviceId: number): Promise<DeleteResponse> {
+    const url = `provider-services/${serviceId}`;
+    try {
+      const response: AxiosResponse<DeleteResponse> = await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
