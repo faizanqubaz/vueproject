@@ -51,13 +51,44 @@
                               required
                             />
                           </v-col>
+
+
                           <v-col cols="12" sm="12" md="12">
+                            <v-menu
+                              v-model="addPickerDate"
+                              :close-on-content-click="false"
+                              max-width="290"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  :value="editedItem.dob"
+                                  clearable
+                                  label="Date of Birth"
+                                  readonly
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  @click:clear="date = null"
+                                ></v-text-field>
+                              </template>
+                              <v-date-picker
+                                v-model="editedItem.dob"
+                                @input="addPickerDate = false"
+                              ></v-date-picker>
+                            </v-menu>
+                          </v-col>
+
+
+                          <!-- <v-col cols="12" sm="12" md="12">
                             <v-text-field
                               v-model="editedItem.dob"
                               label="Date of Birth"
                               required
                             />
-                          </v-col>
+                          </v-col> -->
+
+
+
+
                           <v-col cols="12" sm="12" md="12">
                             <v-autocomplete
                               v-model="editedItem.gender"
@@ -69,6 +100,7 @@
                             <v-text-field
                               v-model="editedItem.phone"
                               label="Phone Number"
+                              :rules="phoneRules"
                               required
                             />
                           </v-col>
@@ -76,6 +108,7 @@
                             <v-text-field
                               v-model="editedItem.email"
                               label="Email Address"
+                              :rules="emailRules"
                               required
                             />
                           </v-col>
@@ -308,6 +341,8 @@
 <script>
 import Vue from "vue";
 import OMSApi from "../../../api/OMSApi";
+import phone from 'phone'
+import email from 'email-validator'
 
 export default Vue.extend({
   data() {
@@ -393,6 +428,19 @@ export default Vue.extend({
         phone: null,
         email: null,
       },
+      gender: [
+        "male",
+        "female"
+        ],
+      phoneRules: [
+        (phoneNumber) => !!phoneNumber || 'Phone number is required',
+        (phoneNumber) =>
+          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
+      ],
+      emailRules: [
+        (emailAddress) => !!emailAddress || 'Email is required',
+        (emailAddress) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid'
+      ],
       genderList: ["male", "female"],
       searchText: null,
       updateDialog: {},
