@@ -212,6 +212,10 @@ export interface VisitsResponse {
     totalRecords: number;
   }[];
 }
+export interface VisitDetailsResponse {
+  message: string;
+  result: Visit;
+}
 export interface VisitParams {
   page?: number;
   limit?: number;
@@ -227,6 +231,7 @@ export interface VisitPayload {
   serviceId: number;
   patientId: number;
   addressId: number;
+  status: string;
 }
 
 export interface ServiceZipCode {
@@ -319,6 +324,7 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
+  
   async getCityById(id: number): Promise<CitiesResponse> {
     const url = `cities/${id}`;
     try {
@@ -801,7 +807,22 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
-
+  async getVisitDetails(id: number): Promise<VisitDetailsResponse> {
+    const url = `visits/${id}`;
+    try {
+      const response: AxiosResponse<VisitDetailsResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
   async getPatients(): Promise<PatientsResponse> {
     const url = "patients";
     try {

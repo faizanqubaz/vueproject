@@ -2,12 +2,13 @@
   <v-container fluid>
     <v-card>
       <v-data-table
+        @click:row="handleRow"
         :headers="headers"
         :items="visitList"
         :loading="isLoading"
         loading-text="Loading Visits..."
         item-key="_id"
-        class="elevation-1 pa-3"
+        class="elevation-1 pa-3 row-pointer"
         mobile-breakpoint="0"
         fixed-header
         height="70vh"
@@ -20,172 +21,9 @@
         <template v-slot:top>
           <v-row align="center" class="mb-2">
             <v-col sm="6" md="2" lg="2" xl="1">
-              <v-dialog v-model="addDialog" max-width="600px">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn block color="primary" dark v-bind="attrs" v-on="on">
-                    Add Visit
-                  </v-btn>
-                </template>
-
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Add Visit</span>
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-form
-                      ref="addForm"
-                      v-model="isAddFormValid"
-                      lazy-validation
-                    >
-                      <v-container>
-                        <v-row>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-menu
-                              v-model="addPickerDate"
-                              :close-on-content-click="false"
-                              max-width="290"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  :value="addFormValues.date"
-                                  clearable
-                                  label="Date"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                  @click:clear="date = null"
-                                ></v-text-field>
-                              </template>
-                              <v-date-picker
-                                v-model="addFormValues.date"
-                                @input="addPickerDate = false"
-                              ></v-date-picker>
-                            </v-menu>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-menu
-                              ref="pickerTime1"
-                              v-model="addPickerScheduledStartTime"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              :return-value.sync="
-                                addFormValues.scheduledStartTime
-                              "
-                              transition="scale-transition"
-                              offset-y
-                              max-width="290px"
-                              min-width="290px"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  :value="addFormValues.scheduledStartTime"
-                                  label="Scheduled Start Time"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                />
-                              </template>
-                              <v-time-picker
-                                v-if="addPickerScheduledStartTime"
-                                v-model="addFormValues.scheduledStartTime"
-                                full-width
-                                format="ampm"
-                                @click:minute="
-                                  $refs.pickerTime1.save(
-                                    addFormValues.scheduledStartTime
-                                  )
-                                "
-                              />
-                            </v-menu>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-menu
-                              ref="pickerTime2"
-                              v-model="addPickerScheduledEndTime"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              :return-value.sync="
-                                addFormValues.scheduledEndTime
-                              "
-                              transition="scale-transition"
-                              offset-y
-                              max-width="290px"
-                              min-width="290px"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  :value="addFormValues.scheduledEndTime"
-                                  label="Scheduled End Time"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                />
-                              </template>
-                              <v-time-picker
-                                v-if="addPickerScheduledEndTime"
-                                v-model="addFormValues.scheduledEndTime"
-                                full-width
-                                format="ampm"
-                                @click:minute="
-                                  $refs.pickerTime2.save(
-                                    addFormValues.scheduledEndTime
-                                  )
-                                "
-                              />
-                            </v-menu>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-autocomplete
-                              v-model="addFormValues.serviceId"
-                              :items="serviceList"
-                              label="Service"
-                              item-text="name"
-                              item-value="id"
-                            >
-                            </v-autocomplete>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-autocomplete
-                              v-model="addFormValues.patientId"
-                              :items="patientList"
-                              label="Patient"
-                              :item-text="getPatientItemText"
-                              item-value="id"
-                            >
-                            </v-autocomplete>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-autocomplete
-                              v-model="addFormValues.addressId"
-                              :items="addressList"
-                              label="Address"
-                              item-text="street"
-                              item-value="id"
-                            >
-                            </v-autocomplete>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-form>
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn color="blue darken-1" text @click="closeAddDialog">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      :disabled="!isAddFormValid"
-                      @click="submitVisitAdd"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+              <v-btn block color="primary" @click="visitDialog = true" dark>
+                Add Visit
+              </v-btn>
             </v-col>
 
             <v-col sm="6" md="3">
@@ -239,6 +77,10 @@
           </v-row>
         </template>
 
+        <template v-slot:[`item.id`]="props">
+          {{ props.item.id }}
+        </template>
+
         <template v-slot:[`item.date`]="props">
           <span style="white-space: nowrap">
             {{ formatDate(props.item.date) }}
@@ -252,24 +94,6 @@
           </span>
         </template>
 
-        <!-- <template v-slot:[`item.startTime`]="props">
-          <span style="white-space: nowrap">
-            {{ formatTime(props.item.startTime) }}
-          </span>
-        </template>
-
-        <template v-slot:[`item.checkInTime`]="props">
-          <span style="white-space: nowrap">
-            {{ formatTime(props.item.checkInTime) }}
-          </span>
-        </template>
-
-        <template v-slot:[`item.checkOutTime`]="props">
-          <span style="white-space: nowrap">
-            {{ formatTime(props.item.checkOutTime) }}
-          </span>
-        </template> -->
-
         <template v-slot:[`item.patient`]="props">
           <span style="white-space: nowrap">
             {{ props.item.patient.firstName }}
@@ -277,9 +101,13 @@
           </span>
         </template>
         <template v-slot:[`item.status`]="props">
-          <v-chip small outlined :color="'primary'">{{
-            props.item.status
-          }}</v-chip>
+          <v-chip
+            small
+            outlined
+            class="text-center chipMiddle"
+            :color="colorStatus(props.item.status)"
+            >{{ props.item.status }}</v-chip
+          >
         </template>
 
         <template v-slot:[`item.service`]="props">
@@ -335,171 +163,6 @@
             {{ props.item.address.state }}
           </v-btn>
         </template>
-
-        <!-- <template v-slot:[`item.actions`]="props">
-          <v-dialog v-model="updateFormValues[props.item.id]" max-width="600px">
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">Update Service</span>
-              </v-card-title>
-              <v-card-text>
-                <v-form
-                  ref="updateForm"
-                  v-model="isUpdateFormValid"
-                  lazy-validation
-                >
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-menu
-                          v-model="updatePickerDate"
-                          :close-on-content-click="false"
-                          max-width="290"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :value="updateFormValues.date"
-                              clearable
-                              label="Date"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                              @click:clear="date = null"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="updateFormValues.date"
-                            @input="updatePickerDate = false"
-                          ></v-date-picker>
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-menu
-                          ref="pickerTime1"
-                          v-model="updatePickerScheduledStartTime"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          :return-value.sync="
-                            updateFormValues.scheduledStartTime
-                          "
-                          transition="scale-transition"
-                          offset-y
-                          max-width="290px"
-                          min-width="290px"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :value="updateFormValues.scheduledStartTime"
-                              label="Scheduled Start Time"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            />
-                          </template>
-                          <v-time-picker
-                            v-if="updatePickerScheduledStartTime"
-                            v-model="updateFormValues.scheduledStartTime"
-                            full-width
-                            format="ampm"
-                            @click:minute="
-                              $refs.pickerTime1.save(
-                                updateFormValues.scheduledStartTime
-                              )
-                            "
-                          />
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-menu
-                          ref="pickerTime2"
-                          v-model="updatePickerScheduledEndTime"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          :return-value.sync="updateFormValues.scheduledEndTime"
-                          transition="scale-transition"
-                          offset-y
-                          max-width="290px"
-                          min-width="290px"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :value="updateFormValues.scheduledEndTime"
-                              label="Scheduled End Time"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            />
-                          </template>
-                          <v-time-picker
-                            v-if="updatePickerScheduledEndTime"
-                            v-model="updateFormValues.scheduledEndTime"
-                            full-width
-                            format="ampm"
-                            @click:minute="
-                              $refs.pickerTime2.save(
-                                updateFormValues.scheduledEndTime
-                              )
-                            "
-                          />
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-autocomplete
-                          v-model="updateFormValues.serviceId"
-                          :items="serviceList"
-                          label="Service"
-                          item-text="name"
-                          item-value="id"
-                        >
-                        </v-autocomplete>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-autocomplete
-                          v-model="updateFormValues.patientId"
-                          :items="patientList"
-                          label="Patient"
-                          item-text="email"
-                          item-value="id"
-                        >
-                        </v-autocomplete>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-autocomplete
-                          v-model="updateFormValues.addressId"
-                          :items="addressList"
-                          label="Address"
-                          item-text="street"
-                          item-value="id"
-                        >
-                        </v-autocomplete>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-btn
-                          depressed
-                          color="primary"
-                          :disabled="!isUpdateFormValid"
-                          :loading="isSubmitting"
-                          block
-                          >Update
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-form>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
-          <v-btn
-            depressed
-            class="mr-2"
-            color="secondary"
-            @click.stop="setUpdateData(props.item)"
-          >
-            Update
-          </v-btn>
-
-          <v-btn depressed color="warning"> Cancel </v-btn>
-        </template> -->
       </v-data-table>
     </v-card>
 
@@ -511,6 +174,154 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-dialog v-model="visitDialog" max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Add Visit</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-form ref="addForm" v-model="isAddFormValid" lazy-validation>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-menu
+                    v-model="addPickerDate"
+                    :close-on-content-click="false"
+                    max-width="290"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :value="addFormValues.date"
+                        clearable
+                        label="Date"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        @click:clear="date = null"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="addFormValues.date"
+                      @input="addPickerDate = false"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-menu
+                    ref="pickerTime1"
+                    v-model="addPickerScheduledStartTime"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="addFormValues.scheduledStartTime"
+                    transition="scale-transition"
+                    offset-y
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :value="addFormValues.scheduledStartTime"
+                        label="Scheduled Start Time"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      />
+                    </template>
+                    <v-time-picker
+                      v-if="addPickerScheduledStartTime"
+                      v-model="addFormValues.scheduledStartTime"
+                      full-width
+                      format="ampm"
+                      @click:minute="
+                        $refs.pickerTime1.save(addFormValues.scheduledStartTime)
+                      "
+                    />
+                  </v-menu>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-menu
+                    ref="pickerTime2"
+                    v-model="addPickerScheduledEndTime"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="addFormValues.scheduledEndTime"
+                    transition="scale-transition"
+                    offset-y
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :value="addFormValues.scheduledEndTime"
+                        label="Scheduled End Time"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      />
+                    </template>
+                    <v-time-picker
+                      v-if="addPickerScheduledEndTime"
+                      v-model="addFormValues.scheduledEndTime"
+                      full-width
+                      format="ampm"
+                      @click:minute="
+                        $refs.pickerTime2.save(addFormValues.scheduledEndTime)
+                      "
+                    />
+                  </v-menu>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="addFormValues.serviceId"
+                    :items="serviceList"
+                    label="Service"
+                    item-text="name"
+                    item-value="id"
+                  >
+                  </v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="addFormValues.patientId"
+                    :items="patientList"
+                    label="Patient"
+                    :item-text="getPatientItemText"
+                    item-value="id"
+                  >
+                  </v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="addFormValues.addressId"
+                    :items="addressList"
+                    label="Address"
+                    item-text="street"
+                    item-value="id"
+                  >
+                  </v-autocomplete>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="blue darken-1" text @click="closeAddDialog">
+            Cancel
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            :disabled="!isAddFormValid"
+            @click="submitVisitAdd"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -523,6 +334,7 @@ export default Vue.extend({
   data() {
     return {
       headers: [
+        { text: "ID", value: "id" },
         { text: "Date", value: "date" },
         {
           text: "Scheduled Time",
@@ -534,9 +346,9 @@ export default Vue.extend({
         // { text: "Check Out Time", value: "checkOutTime", sortable: false },
         { text: "Service", value: "service" },
         { text: "Patient", value: "patient" },
-        { text: "Address", value: "address", sortable: false },
-        { text: "Provider", value: "provider" },
         { text: "Status", value: "status" },
+        { text: "Provider", value: "provider" },
+        { text: "Address", value: "address", sortable: false },
         // { text: "Actions", value: "actions", align: "center", width: "240px" },
       ],
       menuFilter: false,
@@ -559,7 +371,7 @@ export default Vue.extend({
       providerList: [],
       addressList: [],
       addressDialog: {},
-      addDialog: false,
+      visitDialog: false,
       addFormValues: {},
       isAddFormValid: false,
       updateFormValues: {},
@@ -584,10 +396,10 @@ export default Vue.extend({
     };
   },
   async created() {
-    this.getServices();
-    this.getPatients();
-    this.getProviders();
-    this.getAddresses();
+    await this.getServices();
+    await this.getPatients();
+    await this.getProviders();
+    await this.getAddresses();
   },
   methods: {
     async getVisits() {
@@ -606,7 +418,6 @@ export default Vue.extend({
         const res = await api.getVisits(params);
         if (res.result.data.length > 0) {
           this.visitList = res.result.data;
-          console.log(this.visitList);
           this.visitListParams = res.result;
         }
       } catch (error) {
@@ -757,6 +568,32 @@ export default Vue.extend({
     formatTimeCustom(time) {
       return time ? moment(time, "HH:mm:ss").format("hh:mm A") : "";
     },
+    handleRow(value) {
+      this.$router.push("/visits/" + value.id);
+    },
+    colorStatus(val) {
+      let color;
+      switch (val) {
+        case "enroute":
+          color = "orange";
+          break;
+
+        case "completed":
+          color = "green";
+          break;
+        case "started":
+          color = "light-blue darken-4";
+          break;
+        case "canceled":
+          color = "error";
+          break;
+
+        default:
+          color = "primary";
+          break;
+      }
+      return color;
+    },
   },
   watch: {
     options: {
@@ -774,3 +611,14 @@ export default Vue.extend({
   },
 });
 </script>
+<style lang="css" scoped>
+.row-pointer >>> tbody tr :hover {
+  cursor: pointer;
+}
+.chipMiddle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

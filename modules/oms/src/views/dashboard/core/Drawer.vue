@@ -82,7 +82,7 @@ export default Vue.extend({
       {
         icon: "mdi-calendar-multiple",
         title: "Visits",
-        to: "visits",
+        to: "/visits",
       },
     ],
     resources: [
