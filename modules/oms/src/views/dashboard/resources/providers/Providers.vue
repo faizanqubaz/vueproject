@@ -7,6 +7,7 @@
           'items-per-page-options': [10, 25, 50, 100],
         }"
         :items="providerList"
+        :search="search"
         :loading="loading"
         loading-text="Loading Providers..."
         item-key="_id"
@@ -131,9 +132,11 @@
             </v-col>
             <v-col cols="12" sm="12" md="6" lg="4" class="">
               <v-text-field
-                v-model="searchText"
+                v-model="search"
                 prepend-icon="mdi-magnify"
                 label="Search"
+                single-line
+                hide-details
                 clearable
               ></v-text-field>
             </v-col> 
@@ -271,14 +274,12 @@ export default Vue.extend({
         (emailAddress) => !!emailAddress || 'Email is required',
         (emailAddress) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid'
       ],
-      searchText: null,
+      search: "",
       deletedProvider: {}
     }
   },
   async created() {
-    this.loading = true;
     await this.getProviders();
-    this.loading = false;
   },
   methods: {
     async getProviders() {

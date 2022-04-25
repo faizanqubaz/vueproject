@@ -3,6 +3,11 @@
     <v-card>
       <template>
         <v-card>
+          <v-overlay absolute :opacity="0.5" :value="loading">
+            <v-progress-circular indeterminate size="64">
+              Loading
+            </v-progress-circular>
+          </v-overlay>
           <v-tabs 
             v-model="activeTab"
           > 
