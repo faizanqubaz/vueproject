@@ -164,7 +164,7 @@ export default Vue.extend({
           date: moment(this.$store.getters.date).startOf('day').toISOString(),
           scheduledStartTime: this.$store.getters.startTime,
           scheduledEndTime: this.$store.getters.endTime,
-          serviceId: this.$store.getters.serviceId
+          serviceId: this.$store.getters.serviceTypeId
         },
         note: this.$store.getters.notes
       }
@@ -176,6 +176,7 @@ export default Vue.extend({
         this.snackbar.message = 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
       }
+      console.log(appointment)
     },
     formatTimeSlot (time: string) {
       let hour = parseInt(time.slice(0, 2))
