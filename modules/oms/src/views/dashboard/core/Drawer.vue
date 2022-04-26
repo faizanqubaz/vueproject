@@ -152,8 +152,8 @@ export default Vue.extend({
       return {
         avatar: true,
         group: "",
-        title: "Danu",
-        picture: "",
+        title: this.$auth.user && this.$auth.user.name,
+        picture: this.$auth.user && this.$auth.user.picture,
         children: [
           {
             href: "",
