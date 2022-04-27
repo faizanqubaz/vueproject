@@ -232,7 +232,7 @@
                   <v-col><span class="primary--text">Provider</span></v-col>
                 </v-row>
               </v-card-title>
-              <v-card-text>
+              <v-card-text v-if="visitDetails.provider">
                 <v-row>
                   <v-col cols="6">
                     <v-row>
@@ -284,6 +284,9 @@
                     </v-row>
                   </v-col>
                 </v-row>
+              </v-card-text>
+              <v-card-text v-else>
+                The visit is not assigned yet
               </v-card-text>
             </v-col>
           </v-row>
