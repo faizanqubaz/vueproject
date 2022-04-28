@@ -100,28 +100,12 @@ export default Vue.extend({
             title: "Providers",
           },
           {
-            to: "",
-            title: "Guardians",
-          },
-          {
-            to: "",
-            title: "Patients",
-          },
-          {
             to: "services",
             title: "Services",
           },
           {
             to: "cities",
             title: "Cities",
-          },
-          {
-            to: "",
-            title: "Notes",
-          },
-          {
-            to: "",
-            title: "Addresses",
           },
           {
             to: "",
