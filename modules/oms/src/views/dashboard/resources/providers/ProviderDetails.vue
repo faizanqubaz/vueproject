@@ -52,7 +52,8 @@
                         />
                       </v-col>
                       <v-col cols="12">
-                        <v-menu
+
+                        <!-- <v-menu
                           v-model="addDatePicker"
                           :close-on-content-click="false"
                           max-width="290"
@@ -72,7 +73,36 @@
                             v-model="provider.dob"
                             @input="addDatePicker = false"
                           />
-                        </v-menu>
+                        </v-menu> -->
+
+                        <v-flex>
+                              <v-menu
+                                ref="menu1"
+                                v-model="addDatePicker"
+                                :close-on-content-click="false"
+                                :nudge-right="40"
+                                lazy
+                                transition="scale-transition"
+                                offset-y
+                                full-width
+                                max-width="290px"
+                                min-width="290px"
+                              >
+                                <template v-slot:activator="{ on }">
+                                  <v-text-field
+                                    :value="provider.dob"
+                                    label="Date"
+                                    hint="MM/DD/YYYY format"
+                                    persistent-hint
+                                    @blur="date = parseDate(dateFormatted)"
+                                    v-on="on"
+                                  ></v-text-field>
+                                </template>
+                                <v-date-picker v-model="provider.dob" no-title @input="addDatePicker = false"></v-date-picker>
+                              </v-menu>
+                            </v-flex>
+
+
                       </v-col>
                       <v-col cols="12">
                         <v-autocomplete
@@ -87,6 +117,8 @@
                           v-model="provider.phone"
                           placeholder="Phone Number"
                           label="Phone Number"
+                          hint="xxx-xxx-xxxx"
+                          persistent-hint
                           required
                         />
                       </v-col>
@@ -148,6 +180,7 @@
                             <v-card-title>
                               <span class="text-h5">Add Address</span>
                             </v-card-title>
+                            
                             <v-card-text>
                               <v-form ref="addAddressForm" v-model="validAddedAddress" lazy-validation>
                                 <v-container>
@@ -346,6 +379,7 @@
                             <v-card-title>
                               <span class="text-h5">Add Service</span>
                             </v-card-title>
+                            
                             <v-card-text>
                               <v-form ref="addServiceForm" v-model="validAddedService" lazy-validation>
                                 <v-container>

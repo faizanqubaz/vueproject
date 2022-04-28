@@ -26,13 +26,38 @@
                     v-bind="attrs"
                     v-on="on"
                   >
-                    Add
+                    Add Provider
                   </v-btn>
                 </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Add Provider</span>
-                  </v-card-title>
+
+                <template>
+                  <v-stepper v-model="e1" class="pt-5">
+                    <!-- stepper header -->
+                    <v-stepper-header>
+                      <v-stepper-step
+                        :complete="e1 > 1"
+                        step="1"
+                      >
+                        Provider Details
+                      </v-stepper-step>
+
+                      <v-divider></v-divider>
+
+                      <v-stepper-step
+                        :complete="e1 > 2"
+                        step="2"
+                      >
+                        Address
+                      </v-stepper-step>
+                      <v-divider></v-divider>
+                      <v-stepper-step step="3">
+                        Services
+                      </v-stepper-step>
+                    </v-stepper-header>
+                <!-- stepper contents -->
+                <v-stepper-items>
+                <!-- ONE -->
+                <v-stepper-content step="1">
                   <v-card-text>
                     <v-form ref="addForm" v-model="valid" lazy-validation>
                       <v-container>
@@ -58,77 +83,177 @@
                             />
                           </v-col>
                           <v-col cols="12" sm="12" md="12">
-                            <v-menu
-                              v-model="addDatePicker"
-                              :close-on-content-click="false"
-                              max-width="290"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
+                            <v-flex>
+                              <v-menu
+                                ref="menu1"
+                                v-model="addDatePicker"
+                                :close-on-content-click="false"
+                                :nudge-right="40"
+                                lazy
+                                transition="scale-transition"
+                                offset-y
+                                full-width
+                                max-width="290px"
+                                min-width="290px"
+                              >
+                              <template v-slot:activator="{ on }">
                                 <v-text-field
                                   :value="newProvider.dob"
-                                  clearable
                                   label="Date of Birth"
-                                  readonly
-                                  v-bind="attrs"
+                                  hint="MM/DD/YYYY"
+                                  persistent-hint
+                                  @blur="date = parseDate(dateFormatted)"
                                   v-on="on"
-                                  @click:clear="date = null"
                                 ></v-text-field>
                               </template>
-                              <v-date-picker
-                                v-model="newProvider.dob"
-                                @input="addDatePicker = false"
-                              ></v-date-picker>
-                            </v-menu>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-autocomplete
-                              v-model="newProvider.gender"
-                              :items="genderList"
-                              label="Gender"
-                              required
-                            ></v-autocomplete>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-text-field
-                              v-model="newProvider.phone"
-                              label="Phone Number"
-                              :rules="phoneRules"
-                              required
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-text-field
-                              v-model="newProvider.email"
-                              label="Email Address"
-                              :rules="emailRules"
-                              required
-                            />
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-form>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="closeAddDialog"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="addProvider"
-                      :disabled="!valid"
-                      :loading="saveLoading"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
+                              <v-date-picker v-model="newProvider.dob" no-title @input="addDatePicker = false"></v-date-picker>
+                              </v-menu>
+                            </v-flex>
+                                  </v-col>
+                                  <v-col cols="12" sm="12" md="12">
+                                    <v-autocomplete
+                                      v-model="newProvider.gender"
+                                      :items="genderList"
+                                      label="Gender"
+                                      required
+                                    ></v-autocomplete>
+                                  </v-col>
+                                  <v-col cols="12" sm="12" md="12">
+                                    <v-text-field
+                                      v-model="newProvider.phone"
+                                      label="Phone Number"
+                                      :rules="phoneRules"
+                                      hint="xxx-xxx-xxxx"
+                                      persistent-hint
+                                      required
+                                    />
+                                  </v-col>
+                                  <v-col cols="12" sm="12" md="12">
+                                    <v-text-field
+                                      v-model="newProvider.email"
+                                      label="Email Address"
+                                      :rules="emailRules"
+                                      required
+                                    />
+                                  </v-col>
+                                </v-row>
+                              </v-container>
+                            </v-form>
+                          </v-card-text>
+                        <!-- Action to store provider  -->
+                        <v-card-actions>
+                        <v-btn
+                          color="primary"
+                          @click="addProvider"
+                          :disabled="!valid"
+                          :loading="saveLoading"
+                        >
+                          Continue
+                        </v-btn>
+                        <v-btn text @click="closeAddDialog">
+                          Cancel
+                        </v-btn>
+                        </v-card-actions>
+                      </v-stepper-content>
+                      <!-- TWO -->
+                      <v-stepper-content step="2">
+                            <v-card-text>
+                              <v-form ref="addAddressForm" v-model="validAddedAddress" lazy-validation>
+                                <v-container>
+                                  <v-row>
+                                    <v-col cols="12" sm="12" md="12">
+                                      <vuetify-google-autocomplete
+                                        ref="providerNewAddress"
+                                        id="providerNewMap"
+                                        classname="form-control"
+                                        placeholder="Address"
+                                        v-on:placechanged="getNewAddressData"
+                                        country="us"
+                                        required
+                                      />
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="12">
+                                      <v-text-field
+                                        v-model="newAddress.apartment"
+                                        placeholder="Apartment"
+                                      />
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="12">
+                                      <v-switch
+                                        v-model="newAddress.primary"
+                                        label="Primary"
+                                        color="success"  
+                                      />
+                                    </v-col>
+                                  </v-row>
+                                </v-container>
+                              </v-form>
+                            </v-card-text>
+                        <!-- action for adding address -->
+                        <v-card-actions>
+                          <v-btn
+                            color="primary"
+                            @click="addAddress"
+                            :disabled="!validAddedAddress"
+                            :loading="saveLoading"
+                          >
+                            Continue
+                          </v-btn>
+                          <v-btn text @click="closeAddDialog">
+                          Cancel
+                        </v-btn>
+                        </v-card-actions>
+                      </v-stepper-content>
+                      <!-- THREE -->
+                      <v-stepper-content step="3">
+                        <v-card-text>
+                              <v-form ref="addServiceForm" v-model="validAddedService" lazy-validation>
+                                <v-container>
+                                  <v-row>
+                                    <v-col cols="12" sm="12" md="12">
+                                      <v-autocomplete
+                                        v-model="newService.serviceId"
+                                        :items="serviceList"
+                                        label="Service"
+                                        item-text="name"
+                                        item-value="id"
+                                        clearable
+                                        dense
+                                      />
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="12">
+                                      <v-autocomplete
+                                        v-model="newService.cityId"
+                                        :items="cityList"
+                                        label="City"
+                                        item-text="name"
+                                        item-value="id"
+                                        clearable
+                                        dense
+                                      />
+                                    </v-col>
+                                  </v-row>
+                                </v-container>
+                              </v-form>
+                            </v-card-text>
+                      <!-- Action to add service -->
+                        <v-card-actions>
+                          <v-btn
+                            color="primary"
+                            @click="addService"
+                          >
+                            Submit
+                          </v-btn>
+                          <v-btn text @click="closeAddDialog">
+                          Cancel
+                        </v-btn>
+                        </v-card-actions>
+                      </v-stepper-content>
+                    </v-stepper-items>
+                  </v-stepper>
+                </template>              
               </v-dialog>
+              <!-- search button -->
             </v-col>
             <v-col cols="12" sm="12" md="6" lg="4" class="">
               <v-text-field
@@ -216,10 +341,18 @@ import Vue from 'vue'
 import OMSApi from "@/api/OMSApi";
 import phone from 'phone'
 import email from 'email-validator'
+import VuetifyGoogleAutocomplete from 'vuetify-google-autocomplete';
+
+Vue.use(VuetifyGoogleAutocomplete, {
+  apiKey: 'AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw',
+  version: 'weekly'
+});
 
 export default Vue.extend({
   data() {
     return {
+      e1: 1,
+      newProviderId: 0,
       headers: [
         {
           text: "Id",
@@ -246,6 +379,26 @@ export default Vue.extend({
         message: null,
         active: false,
       },
+      addAddressDialog: false,
+      validAddedAddress: false,
+      newAddress: {
+        street: "",
+        apartment: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        primary: false,
+        longitude: 0,
+        latitude: 0
+      },
+      addServiceDialog: false,
+      validAddedService: false,
+      newService: {
+        serviceId: null,
+        ciyId: null
+      },
+      serviceList: [],
+      cityList: [],
       providerList: [],
       loading: true,
       saveLoading: false,
@@ -280,8 +433,12 @@ export default Vue.extend({
   },
   async created() {
     await this.getProviders();
+    await this.getServices();
+    await this.getCities();
+    this.loading = false;
   },
   methods: {
+
     async getProviders() {
       this.loading = true;
       try {
@@ -302,13 +459,13 @@ export default Vue.extend({
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        const response = await api.createProvider(this.newProvider);
+        this.newProviderId = 0;
+        const phone = '+1' + this.newProvider.phone;
+        const response = await api.createProvider({...this.newProvider, phone});
         if (response) {
-          this.getProviders();
-          this.snackbar.message = response.message;
+          this.newProviderId = response.result.id;
           this.saveLoading = false;
-          this.closeAddDialog();
-          this.snackbar.active = true;
+          this.e1 = 2;
         }
       } catch (error) {
         this.saveLoading = false;
@@ -337,7 +494,7 @@ export default Vue.extend({
         const response = await api.deleteProvider(this.deletedProvider.id);
         if (response) {
           this.saveLoading = false;
-          this.getProviders();
+          await this.getProviders();
           this.snackbar.message = response.message;
           this.snackbar.active = true;
           this.$set(this.deletedProvider, this.deletedProvider.id, false);
@@ -348,13 +505,140 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
+
+   getNewAddressData(addressData, placeResultData) {
+      this.newAddress.street = addressData.name;
+      this.newAddress.city = placeResultData.formatted_address.split(',')[1];
+      this.newAddress.state = addressData.administrative_area_level_1;
+      this.newAddress.zipCode = addressData.postal_code;
+      this.newAddress.longitude = addressData.longitude;
+      this.newAddress.latitude = addressData.latitude;
+    },
+    async addAddress() {
+      this.saveLoading = true;
+      try {
+        const api = new OMSApi();
+        const address = {
+          ...this.newAddress,
+          guardianId: null,
+          patientId: null,
+          providerId: this.newProviderId
+        };
+        const response = await api.createAddress(address);
+        if (response) {
+          this.saveLoading = false;
+          this.e1 = 3;
+        }
+      } catch (error) {
+        this.saveLoading = false;
+        this.snackbar.message = "Failed to add address";
+        this.snackbar.active = true;
+      }
+    },
+
+    async getCities() {
+      try {
+        const api = new OMSApi();
+        const response = await api.getCities();
+        if (response.result.data.length > 0) {
+          this.cityList = response.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get city list";
+        this.snackbar.active = true;
+      }
+    },
+    async getProviderServices() {
+      try {
+        const api = new OMSApi();
+        const response = await api.getProviderServices(this.providerId);
+        let services = [];
+        if (response.result.length > 0) {
+          response.result.map((item) => {
+            services.push({
+              id: item.id,
+              cityId: item.city.id,
+              cityName: item.city.name,
+              serviceId: item.service.id,
+              serviceName: item.service.name
+            })
+          })
+          this.provider.services = services;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get provider services list";
+        this.snackbar.active = true;
+      }
+    },
+    async getServices() {
+      try {
+        const api = new OMSApi();
+        const response = await api.getServices();
+        if (response.result.data.length > 0) {
+          this.serviceList = response.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.snackbar.message = "Failed to get services list";
+        this.snackbar.active = true;
+      }
+    },
+    async addService() {
+      this.saveLoading = true;
+      try {
+        const api = new OMSApi();
+        const service = {
+          providerId: this.newProviderId,
+          serviceId: this.newService.serviceId,
+          cityId: this.newService.cityId
+        };
+        const response = await api.createProviderService(service);
+        if (response) {
+          this.saveLoading = false;
+          this.closeAddDialog();
+          this.snackbar.message = "Provider added successfully"
+          this.snackbar.active = true;
+          await this.getProviders();
+        }
+      } catch (error) {
+        this.saveLoading = false;
+        this.snackbar.message = "Failed to add Service";
+        this.snackbar.active = true;
+      }
+    },
+
   },
+  computed: {
+      currentTitle () {
+        switch (this.step) {
+          case 1: return 'Add Provider Details'
+          case 2: return 'Add Address'
+          default: return 'Add Services'
+        }
+      },
+    },
   watch: {
     addDialog(newVal) {
       if (!newVal) {
         this.$refs.addForm.reset();
       }
+    },
+     addServiceDialog(newVal) {
+      if (!newVal) {
+        this.$refs.addServiceForm.reset();
+      }
     }
   }
 })
 </script>
+
+<style scoped>
+.v-stepper__header {
+  box-shadow: none;
+}
+.v-stepper__content {
+  padding-top: 0px;
+}
+</style>
