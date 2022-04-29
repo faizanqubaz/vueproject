@@ -95,14 +95,14 @@
 import Vue from "vue";
 import momentTz from "moment-timezone";
 import OMSApi from "@/api/OMSApi";
-import { OptStates } from "@/utils";
+import { States } from "@/utils";
 
 export default Vue.extend({
   data() {
     return {
       formValues: {},
       activeTab: null,
-      stateList: OptStates,
+      stateList: States,
       timeZoneList: momentTz.tz.names().filter((tz) => {
         return tz.startsWith("US");
       }),

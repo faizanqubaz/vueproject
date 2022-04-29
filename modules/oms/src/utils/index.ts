@@ -2,7 +2,16 @@ export const formRules = {
   required: (value: string): string | boolean => !!value || "Required.",
 };
 
-export const OptDaysOfWeek = [
+export const VisitStatuses = [
+  { label: "Booked", value: "booked" },
+  { label: "Assigned", value: "assigned" },
+  { label: "Enroute", value: "enroute" },
+  { label: "Started", value: "started" },
+  { label: "Completed", value: "completed" },
+  { label: "Canceled", value: "canceled" },
+];
+
+export const DaysOfWeek = [
   { label: "Sunday", value: 0 },
   { label: "Monday", value: 1 },
   { label: "Tuesday", value: 2 },
@@ -12,7 +21,7 @@ export const OptDaysOfWeek = [
   { label: "Saturday", value: 6 },
 ];
 
-export const OptHoursOfDay = [
+export const HoursOfDay = [
   { label: "12:00 AM", value: "24:00:00" },
   { label: "01:00 AM", value: "01:00:00" },
   { label: "02:00 AM", value: "02:00:00" },
@@ -39,7 +48,7 @@ export const OptHoursOfDay = [
   { label: "11:00 PM", value: "23:00:00" },
 ];
 
-export const OptStates = [
+export const States = [
   { name: "Alabama", code: "AL" },
   { name: "Alaska", code: "AK" },
   { name: "Arizona", code: "AZ" },

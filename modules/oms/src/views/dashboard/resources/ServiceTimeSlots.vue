@@ -273,7 +273,7 @@
 import Vue from "vue";
 import moment from "moment";
 import OMSApi from "@/api/OMSApi";
-import { OptDaysOfWeek, OptHoursOfDay } from "@/utils";
+import { DaysOfWeek, HoursOfDay } from "@/utils";
 
 export default Vue.extend({
   data() {
@@ -303,8 +303,8 @@ export default Vue.extend({
       },
       serviceList: [],
       cityList: [],
-      dayOfWeekList: OptDaysOfWeek,
-      hourOfDayList: OptHoursOfDay,
+      dayOfWeekList: DaysOfWeek,
+      hourOfDayList: HoursOfDay,
       formDialog: false,
       formValues: {},
       updateFormValues: {},

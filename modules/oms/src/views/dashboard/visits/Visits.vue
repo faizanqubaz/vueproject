@@ -26,7 +26,7 @@
               </v-btn>
             </v-col>
 
-            <v-col sm="6" md="3">
+            <v-col sm="6" md="2">
               <v-menu
                 v-model="menuFilter"
                 :close-on-content-click="false"
@@ -35,28 +35,26 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on">
-                    <v-icon>mdi-filter-variant</v-icon>
+                    <v-progress-circular
+                      v-if="isLoadingFilter"
+                      indeterminate
+                      width="2"
+                      size="20"
+                      class="mr-2"
+                    />
+                    <v-icon v-else class="mr-2">mdi-filter-variant</v-icon>
                     Filters
                   </v-btn>
                 </template>
 
                 <v-card>
                   <v-card-title> Filter Options </v-card-title>
-                  <v-card-text>
+                  <v-card-text class="pb-0">
                     <v-autocomplete
                       v-model="listParams.service"
                       :items="serviceList"
                       label="Service"
                       item-text="name"
-                      item-value="id"
-                      clearable
-                      dense
-                    />
-                    <v-autocomplete
-                      v-model="listParams.patient"
-                      :items="patientList"
-                      label="Patient"
-                      item-text="email"
                       item-value="id"
                       clearable
                       dense
@@ -70,9 +68,51 @@
                       clearable
                       dense
                     />
+                    <v-autocomplete
+                      v-model="listParams.status"
+                      :items="statusList"
+                      label="Status"
+                      item-text="label"
+                      item-value="value"
+                      clearable
+                      dense
+                    />
                   </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn
+                      v-if="renderFilterBtn()"
+                      text
+                      width="72px"
+                      @click="clearFilters"
+                    >
+                      Clear
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      width="72px"
+                      @click="applyFilters"
+                    >
+                      Apply
+                    </v-btn>
+                  </v-card-actions>
                 </v-card>
               </v-menu>
+            </v-col>
+            <v-col sm="12" md="4" offset-md="4" lg="4">
+              <v-spacer />
+              <v-text-field
+                v-model="listParams.search"
+                prepend-icon="mdi-magnify"
+                label="Search"
+                placeholder="Search by Patient Name"
+                clearable
+                class="pa-0 ma-0"
+                hide-details
+                @keydown.enter.prevent="getVisits()"
+                @blur="getVisits()"
+              />
             </v-col>
           </v-row>
         </template>
@@ -104,10 +144,11 @@
           <v-chip
             small
             outlined
-            class="text-center chipMiddle"
+            class="text-center text-uppercase font-weight-medium chipMiddle"
             :color="colorStatus(props.item.status)"
-            >{{ props.item.status }}</v-chip
           >
+            {{ props.item.status }}
+          </v-chip>
         </template>
 
         <template v-slot:[`item.service`]="props">
@@ -127,41 +168,7 @@
         </template>
 
         <template v-slot:[`item.address`]="props">
-          <v-dialog v-model="addressDialog[props.item.id]" max-width="400px">
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">Address Detail</span>
-              </v-card-title>
-              <v-card-text>
-                <div>
-                  <v-list>
-                    <template v-for="(val, key, index) in addressDialog">
-                      <span v-if="index === 0" :key="index" />
-                      <v-list-item v-else :key="key">
-                        <v-list-item-content>
-                          <v-list-item-title
-                            v-html="key"
-                            class="text-capitalize"
-                          />
-                          <v-list-item-subtitle v-html="val" />
-                        </v-list-item-content>
-                      </v-list-item>
-                    </template>
-                  </v-list>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
-          <v-btn
-            color="primary"
-            text
-            depressed
-            @click.stop="setAddressDialog(props.item.address)"
-          >
-            {{ props.item.address.city
-            }}{{ props.item.address.city ? ", " : " " }}
-            {{ props.item.address.state }}
-          </v-btn>
+          {{ renderAddress(props.item) }}
         </template>
       </v-data-table>
     </v-card>
@@ -329,6 +336,7 @@
 import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
 import moment from "moment";
+import { VisitStatuses } from "@/utils";
 
 export default Vue.extend({
   data() {
@@ -341,23 +349,19 @@ export default Vue.extend({
           value: "scheduledTime",
           sortable: false,
         },
-        // { text: "Start Time", value: "startTime", sortable: false },
-        // { text: "Check In Time", value: "checkInTime", sortable: false },
-        // { text: "Check Out Time", value: "checkOutTime", sortable: false },
         { text: "Service", value: "service" },
         { text: "Patient", value: "patient" },
-        { text: "Status", value: "status" },
+        { text: "Status", value: "status", align: "center", sortable: false },
         { text: "Provider", value: "provider" },
         { text: "Address", value: "address", sortable: false },
-        // { text: "Actions", value: "actions", align: "center", width: "240px" },
       ],
       menuFilter: false,
       options: {},
       listParams: {
-        date: null,
         service: null,
         provider: null,
-        patient: null,
+        status: null,
+        search: null,
       },
       visitList: [],
       visitListParams: {
@@ -370,20 +374,15 @@ export default Vue.extend({
       patientList: [],
       providerList: [],
       addressList: [],
-      addressDialog: {},
+      statusList: VisitStatuses,
       visitDialog: false,
       addFormValues: {},
       isAddFormValid: false,
-      updateFormValues: {},
-      updateId: null,
-      isUpdateFormValid: false,
       addPickerDate: false,
       addPickerScheduledStartTime: false,
       addPickerScheduledEndTime: false,
-      updatePickerDate: false,
-      updatePickerScheduledStartTime: false,
-      updatePickerScheduledEndTime: false,
       isLoading: false,
+      isLoadingFilter: false,
       isSubmitting: false,
       statusColor: {
         true: "success",
@@ -412,11 +411,11 @@ export default Vue.extend({
           limit: itemsPerPage || 50,
           service: this.listParams.service,
           provider: this.listParams.provider,
-          patient: this.listParams.patient,
-          date: this.listParams.date,
+          status: this.listParams.status,
+          search: this.listParams.search,
         };
         const res = await api.getVisits(params);
-        if (res.result.data.length > 0) {
+        if (res.result) {
           this.visitList = res.result.data;
           this.visitListParams = res.result;
         }
@@ -430,10 +429,10 @@ export default Vue.extend({
     },
     async getServices() {
       try {
-        this.isLoading = true;
+        this.isLoadingFilter = true;
         const api = new OMSApi();
         const res = await api.getServices();
-        if (res.result.data.length > 0) {
+        if (res.result) {
           this.serviceList = res.result.data;
         }
       } catch (error) {
@@ -441,15 +440,15 @@ export default Vue.extend({
         this.snackbar.message = "Failed to get services list";
         this.snackbar.active = true;
       } finally {
-        this.isLoading = false;
+        this.isLoadingFilter = false;
       }
     },
     async getPatients() {
       try {
-        this.isLoading = true;
+        // this.isLoadingFilter = true;
         const api = new OMSApi();
         const res = await api.getPatients();
-        if (res.result.data.length > 0) {
+        if (res.result) {
           this.patientList = res.result.data;
         }
       } catch (error) {
@@ -457,7 +456,7 @@ export default Vue.extend({
         this.snackbar.message = "Failed to get patients list";
         this.snackbar.active = true;
       } finally {
-        this.isLoading = false;
+        this.isLoadingFilter = false;
       }
     },
     getPatientItemText(item) {
@@ -465,10 +464,10 @@ export default Vue.extend({
     },
     async getProviders() {
       try {
-        this.isLoading = true;
+        this.isLoadingFilter = true;
         const api = new OMSApi();
         const res = await api.getProviders();
-        if (res.result.data.length > 0) {
+        if (res.result) {
           this.providerList = res.result.data;
         }
       } catch (error) {
@@ -476,15 +475,15 @@ export default Vue.extend({
         this.snackbar.message = "Failed to get providers list";
         this.snackbar.active = true;
       } finally {
-        this.isLoading = false;
+        this.isLoadingFilter = false;
       }
     },
     async getAddresses() {
       try {
-        this.isLoading = true;
+        this.isLoadingFilter = true;
         const api = new OMSApi();
         const res = await api.getAddresses();
-        if (res.result.data.length > 0) {
+        if (res.result) {
           this.addressList = res.result.data;
         }
       } catch (error) {
@@ -492,7 +491,7 @@ export default Vue.extend({
         this.snackbar.message = "Failed to get addresses list";
         this.snackbar.active = true;
       } finally {
-        this.isLoading = false;
+        this.isLoadingFilter = false;
       }
     },
     async submitVisitAdd() {
@@ -514,56 +513,11 @@ export default Vue.extend({
         this.isSubmitting = false;
       }
     },
-    async submitVisitUpdate() {
-      try {
-        this.isSubmitting = true;
-        const api = new OMSApi();
-        const res = await api.updateVisit(this.updateId, this.updateFormValues);
-        if (res) {
-          this.getVisits();
-          this.snackbar.message = res.message;
-          this.snackbar.active = true;
-          this.$set(this.updateFormValues, this.updateId, false);
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbar.message = "Failed to update visit";
-        this.snackbar.active = true;
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
-    setAddressDialog(props) {
-      this.addressDialog = {
-        street: props.street || "&#8212;",
-        apartment: props.apartment || "&#8212;",
-        city: props.city || "&#8212;",
-        state: props.state || "&#8212;",
-        zipCode: props.zipCode || "&#8212;",
-        longitude: props.longitude || "&#8212;",
-        latitude: props.latitude || "&#8212;",
-        primary: props.primary ? "Yes" : "No",
-      };
-      this.$set(this.addressDialog, props.id, true);
-    },
     closeAddDialog() {
       this.addDialog = false;
     },
-    setUpdateData(props) {
-      this.updateFormValues.date = moment(props.date).format("YYYY-MM-DD");
-      this.updateFormValues.scheduledStartTime = props.scheduledStartTime;
-      this.updateFormValues.scheduledEndTime = props.scheduledEndTime;
-      this.updateFormValues.serviceId = props.service && props.service.id;
-      this.updateFormValues.patientId = props.patient && props.patient.id;
-      this.updateFormValues.addressId = props.address && props.address.id;
-      this.updateId = props.id;
-      this.$set(this.updateFormValues, props.id, true);
-    },
     formatDate(date) {
       return date ? moment(date).format("L") : "";
-    },
-    formatTime(date) {
-      return date ? moment(date).format("hh:mm A") : "";
     },
     formatTimeCustom(time) {
       return time ? moment(time, "HH:mm:ss").format("hh:mm A") : "";
@@ -577,7 +531,6 @@ export default Vue.extend({
         case "enroute":
           color = "orange";
           break;
-
         case "completed":
           color = "green";
           break;
@@ -594,15 +547,31 @@ export default Vue.extend({
       }
       return color;
     },
+    applyFilters() {
+      this.getVisits();
+      this.menuFilter = false;
+    },
+    clearFilters() {
+      this.listParams = {
+        service: null,
+        provider: null,
+        status: null,
+      };
+      this.getVisits();
+    },
+    renderAddress(item) {
+      return `${item.address.city}${item.address.city ? ", " : " "}
+          ${item.address.state}`;
+    },
+    renderFilterBtn() {
+      const isFilterActive = Object.keys(this.listParams).find(
+        (key) => this.listParams[key] !== null
+      );
+      return isFilterActive;
+    },
   },
   watch: {
     options: {
-      handler() {
-        this.getVisits();
-      },
-      deep: true,
-    },
-    listParams: {
       handler() {
         this.getVisits();
       },
