@@ -386,17 +386,6 @@
                                   <v-row>
                                     <v-col cols="12" sm="12" md="12">
                                       <v-autocomplete
-                                        v-model="newService.serviceId"
-                                        :items="serviceList"
-                                        label="Service"
-                                        item-text="name"
-                                        item-value="id"
-                                        clearable
-                                        dense
-                                      />
-                                    </v-col>
-                                    <v-col cols="12" sm="12" md="12">
-                                      <v-autocomplete
                                         v-model="newService.cityId"
                                         :items="cityList"
                                         label="City"
@@ -404,6 +393,15 @@
                                         item-value="id"
                                         clearable
                                         dense
+                                      />
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="12">
+                                       <v-checkbox
+                                        v-model="newService.serviceIds"
+                                        v-for="service in serviceList"
+                                        :key="service.id"
+                                        :label="service.name"
+                                        :value="service.id"
                                       />
                                     </v-col>
                                   </v-row>
@@ -658,7 +656,7 @@ export default Vue.extend({
       serviceList: [],
       cityList: [],
       newService: {
-        serviceId: null,
+        serviceIds: [],
         ciyId: null
       },
       validUpdatedService: false,
@@ -880,19 +878,19 @@ export default Vue.extend({
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        const service = {
-          providerId: this.providerId,
-          serviceId: this.newService.serviceId,
-          cityId: this.newService.cityId
-        };
-        const response = await api.createProviderService(service);
-        if (response) {
-          await this.getProviderServices();
-          this.snackbar.message = response.message;
-          this.saveLoading = false;
-          this.closeAddServiceDialog();
-          this.snackbar.active = true;
-        }
+        await Promise.all(this.newService.serviceIds.map(async (serviceId) => {
+          const service = {
+            providerId: this.providerId,
+            serviceId,
+            cityId: this.newService.cityId
+          };
+          await api.createProviderService(service);
+        }));
+        await this.getProviderServices();
+        this.snackbar.message = "Service added successfully";
+        this.saveLoading = false;
+        this.closeAddServiceDialog();
+        this.snackbar.active = true;
       } catch (error) {
         this.saveLoading = false;
         this.snackbar.message = "Failed to add Service";
