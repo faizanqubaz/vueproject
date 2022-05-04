@@ -81,31 +81,31 @@
                                 <v-col cols="12" sm="12" md="12">
                                   <v-flex>
                                     <v-menu
-                                      ref="menu1"
-                                      v-model="addDatePicker"
+                                      ref="datePicker"
+                                      v-model="datePicker"
                                       :close-on-content-click="false"
-                                      :nudge-right="40"
-                                      lazy
                                       transition="scale-transition"
                                       offset-y
-                                      full-width
-                                      max-width="290px"
-                                      min-width="290px"
+                                      min-width="auto"
                                     >
-                                      <template v-slot:activator="{ on }">
+                                      <template v-slot:activator="{ on, attrs }">
                                         <v-text-field
-                                          :value="newProvider.dob"
+                                          v-model="formattedDate"
                                           label="Date of Birth"
                                           hint="MM/DD/YYYY"
                                           persistent-hint
-                                          @blur="date = parseDate(dateFormatted)"
+                                          v-bind="attrs"
+                                          @blur="newProvider.dob = parseDate(formattedDate)"
                                           v-on="on"
                                         />
                                       </template>
                                       <v-date-picker
                                         v-model="newProvider.dob"
                                         no-title
-                                        @input="addDatePicker = false"
+                                        :active-picker.sync="activePicker"
+                                        :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                                        min="1920-01-01"
+                                        @change="save"
                                       />
                                     </v-menu>
                                   </v-flex>
@@ -123,8 +123,6 @@
                                     v-model="newProvider.phone"
                                     label="Phone Number"
                                     :rules="phoneRules"
-                                    hint="xxx-xxx-xxxx"
-                                    persistent-hint
                                     required
                                   />
                                 </v-col>
@@ -421,7 +419,9 @@ export default Vue.extend({
         "male",
         "female"
       ],
-      addDatePicker: false,
+      activePicker: null,
+      datePicker: false,
+      formattedDate: null,
       phoneRules: [
         (phoneNumber) => !!phoneNumber || 'Phone number is required',
         (phoneNumber) =>
@@ -435,7 +435,7 @@ export default Vue.extend({
       deletedProvider: {}
     }
   },
-  async created() {
+  async created () {
     this.loading = true;
     await this.getProviders();
     await this.getServices();
@@ -443,7 +443,7 @@ export default Vue.extend({
     this.loading = false;
   },
   methods: {
-    async getProviders() {
+    async getProviders () {
       this.loading = true;
       try {
         const api = new OMSApi();
@@ -456,7 +456,7 @@ export default Vue.extend({
         this.loading = false;
       }
     },
-    async getServices() {
+    async getServices () {
       try {
         const api = new OMSApi();
         const response = await api.getServices();
@@ -469,7 +469,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    async getCities() {
+    async getCities () {
       try {
         const api = new OMSApi();
         const response = await api.getCities();
@@ -482,7 +482,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    async closeAddDialog(isRefresh) {
+    async closeAddDialog (isRefresh) {
       this.addDialog = false;
       this.stepNumber = 1;
       if(isRefresh) {
@@ -491,7 +491,7 @@ export default Vue.extend({
         this.loading = false;
       }
     },
-    async addProvider() {
+    async addProvider () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -509,7 +509,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    getNewAddressData(addressData, placeResultData) {
+    getNewAddressData (addressData, placeResultData) {
       this.newAddress.street = addressData.name;
       this.newAddress.city = placeResultData.formatted_address.split(',')[1];
       this.newAddress.state = addressData.administrative_area_level_1;
@@ -517,7 +517,7 @@ export default Vue.extend({
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
     },
-    async addAddress() {
+    async addAddress () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -538,7 +538,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    async addService() {
+    async addService () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -569,12 +569,12 @@ export default Vue.extend({
         }
       });
     },
-    setDelete(props) {
+    setDelete (props) {
       this.deletedProvider.firstName = props.firstName;
       this.deletedProvider.id = props.id;
       this.$set(this.deletedProvider, props.id, true);
     },
-    async deleteProvider() {
+    async deleteProvider () {
       try {
         this.saveLoading = true;
         const api = new OMSApi();
@@ -593,10 +593,27 @@ export default Vue.extend({
         this.snackbar.message = "Failed to delete provider";
         this.snackbar.active = true;
       }
+    },
+    save (date) {
+      this.$refs.datePicker.save(date)
+    },
+    formatDate (date) {
+      if (!date) {
+        return null;
+      }
+      const [year, month, day] = date.split('-');
+      return `${month}/${day}/${year}`;
+    },
+    parseDate (date) {
+      if (!date) {
+        return null;
+      }
+      const [month, day, year] = date.split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
   },
   watch: {
-    addDialog(newVal) {
+    addDialog (newVal) {
       if (!newVal) {
         this.$refs.addForm.reset();
         this.$refs.addAddressForm.reset();
@@ -605,15 +622,21 @@ export default Vue.extend({
         this.$refs.addServiceForm.reset();
       }
     },
+    datePicker (newValue) {
+      newValue && setTimeout(() => (this.activePicker = 'YEAR'))
+    },
+    'newProvider.dob' (newValue) {
+      this.formattedDate = this.formatDate(this.newProvider.dob);
+    }
   }
 })
 </script>
 
 <style scoped>
-.v-stepper__header {
-  box-shadow: none;
-}
-.v-stepper__content {
-  padding-top: 0px;
-}
+  .v-stepper__header {
+    box-shadow: none;
+  }
+  .v-stepper__content {
+    padding-top: 0px;
+  }
 </style>

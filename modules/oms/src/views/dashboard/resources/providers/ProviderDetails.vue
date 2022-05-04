@@ -8,9 +8,7 @@
               Loading
             </v-progress-circular>
           </v-overlay>
-          <v-tabs 
-            v-model="activeTab"
-          > 
+          <v-tabs v-model="activeTab"> 
             <v-tab>Details</v-tab>
             <v-tab>Addresses</v-tab>
             <v-tab>Services</v-tab>
@@ -52,57 +50,36 @@
                         />
                       </v-col>
                       <v-col cols="12">
-
-                        <!-- <v-menu
-                          v-model="addDatePicker"
-                          :close-on-content-click="false"
-                          max-width="290"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :value="provider.dob"
-                              clearable
-                              label="Date of Birth"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                              @click:clear="date = null"
-                            />
-                          </template>
-                          <v-date-picker
-                            v-model="provider.dob"
-                            @input="addDatePicker = false"
-                          />
-                        </v-menu> -->
-
                         <v-flex>
-                              <v-menu
-                                ref="menu1"
-                                v-model="addDatePicker"
-                                :close-on-content-click="false"
-                                :nudge-right="40"
-                                lazy
-                                transition="scale-transition"
-                                offset-y
-                                full-width
-                                max-width="290px"
-                                min-width="290px"
-                              >
-                                <template v-slot:activator="{ on }">
-                                  <v-text-field
-                                    :value="provider.dob"
-                                    label="Date"
-                                    hint="MM/DD/YYYY format"
-                                    persistent-hint
-                                    @blur="date = parseDate(dateFormatted)"
-                                    v-on="on"
-                                  ></v-text-field>
-                                </template>
-                                <v-date-picker v-model="provider.dob" no-title @input="addDatePicker = false"></v-date-picker>
-                              </v-menu>
-                            </v-flex>
-
-
+                          <v-menu
+                            ref="datePicker"
+                            v-model="datePicker"
+                            :close-on-content-click="false"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="formattedDate"
+                                label="Date of Birth"
+                                hint="MM/DD/YYYY"
+                                persistent-hint
+                                v-bind="attrs"
+                                @blur="provider.dob = parseDate(formattedDate)"
+                                v-on="on"
+                              />
+                            </template>
+                            <v-date-picker
+                              v-model="provider.dob"
+                              no-title
+                              :active-picker.sync="activePicker"
+                              :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                              min="1920-01-01"
+                              @change="save"
+                            />
+                          </v-menu>
+                        </v-flex>
                       </v-col>
                       <v-col cols="12">
                         <v-autocomplete
@@ -117,8 +94,6 @@
                           v-model="provider.phone"
                           placeholder="Phone Number"
                           label="Phone Number"
-                          hint="xxx-xxx-xxxx"
-                          persistent-hint
                           required
                         />
                       </v-col>
@@ -180,7 +155,6 @@
                             <v-card-title>
                               <span class="text-h5">Add Address</span>
                             </v-card-title>
-                            
                             <v-card-text>
                               <v-form ref="addAddressForm" v-model="validAddedAddress" lazy-validation>
                                 <v-container>
@@ -207,7 +181,6 @@
                                         v-model="newAddress.primary"
                                         label="Primary"
                                         color="success"
-                                        
                                       />
                                     </v-col>
                                   </v-row>
@@ -379,7 +352,6 @@
                             <v-card-title>
                               <span class="text-h5">Add Service</span>
                             </v-card-title>
-                            
                             <v-card-text>
                               <v-form ref="addServiceForm" v-model="validAddedService" lazy-validation>
                                 <v-container>
@@ -632,7 +604,9 @@ export default Vue.extend({
       loading: true,
       saveLoading: false,
       providerId: this.$route.params.providerId,
-      addDatePicker: false,
+      activePicker: null,
+      datePicker: false,
+      formattedDate: null,
       validUpdatedProfile: false,
       addAddressDialog: false,
       validAddedAddress: false,
@@ -676,7 +650,7 @@ export default Vue.extend({
       provider: {}
     }
   },
-  async created() {
+  async created () {
     this.loading = true;
     this.provider = this.$route.params.provider;
     await this.getProviderServices();
@@ -685,7 +659,7 @@ export default Vue.extend({
     this.loading = false;
   },
   methods: {
-    async updateProvider() {
+    async updateProvider () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -711,7 +685,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    async getProviderServices() {
+    async getProviderServices () {
       try {
         const api = new OMSApi();
         const response = await api.getProviderServices(this.providerId);
@@ -734,7 +708,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    getNewAddressData(addressData, placeResultData) {
+    getNewAddressData (addressData, placeResultData) {
       this.newAddress.street = addressData.name;
       this.newAddress.city = placeResultData.formatted_address.split(',')[1];
       this.newAddress.state = addressData.administrative_area_level_1;
@@ -742,10 +716,10 @@ export default Vue.extend({
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
     },
-    closeAddAddressDialog() {
+    closeAddAddressDialog () {
       this.addAddressDialog = false;
     },
-    async addAddress() {
+    async addAddress () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -772,7 +746,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    setUpdateAddress(props) {
+    setUpdateAddress (props) {
       this.updateAddressId = props.id;
       this.updateAddressFull = `${ props.street }, ${ props.city }, ${ props.state } ${ props.zipCode }, USA`;
       this.updatedAddress.street = props.street;
@@ -785,7 +759,7 @@ export default Vue.extend({
       this.updatedAddress.primary = props.primary;
       this.$set(this.updatedAddress, props.id, true);
     },
-    getUpdateAddressData(addressData, placeResultData) {
+    getUpdateAddressData (addressData, placeResultData) {
       this.updatedAddress.street = addressData.name;
       this.updatedAddress.city = placeResultData.formatted_address.split(',')[1];
       this.updatedAddress.state = addressData.administrative_area_level_1;
@@ -793,7 +767,7 @@ export default Vue.extend({
       this.updatedAddress.longitude = addressData.longitude;
       this.updatedAddress.latitude = addressData.latitude;
     },
-    async updateAddress() {
+    async updateAddress () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -823,11 +797,11 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    setDeleteAddress(props) {
+    setDeleteAddress (props) {
       this.deletedAddress.id = props.id;
       this.$set(this.deletedAddress, props.id, true);
     },
-    async deleteAddress() {
+    async deleteAddress () {
       try {
         this.saveLoading = true;
         const api = new OMSApi();
@@ -845,10 +819,10 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    closeAddServiceDialog() {
+    closeAddServiceDialog () {
       this.addServiceDialog = false;
     },
-    async getServices() {
+    async getServices () {
       try {
         const api = new OMSApi();
         const response = await api.getServices();
@@ -861,7 +835,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    async getCities() {
+    async getCities () {
       try {
         const api = new OMSApi();
         const response = await api.getCities();
@@ -874,7 +848,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    async addService() {
+    async addService () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -897,13 +871,13 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    setUpdateService(props) {
+    setUpdateService (props) {
       this.updateServiceId = props.id;
       this.updatedService.serviceId = props.serviceId;
       this.updatedService.cityId = props.cityId;
       this.$set(this.updatedService, props.id, true);
     },
-    async updateService() {
+    async updateService () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -926,12 +900,12 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    setDeleteService(props) {
+    setDeleteService (props) {
       this.deletedService.id = props.id;
       this.deletedService.service = props.service;
       this.$set(this.deletedService, props.id, true);
     },
-    async deleteService() {
+    async deleteService () {
       try {
         this.saveLoading = true;
         const api = new OMSApi();
@@ -948,18 +922,41 @@ export default Vue.extend({
         this.snackbar.message = "Failed to delete Service";
         this.snackbar.active = true;
       }
+    },
+     save (date) {
+      this.$refs.datePicker.save(date)
+    },
+    formatDate (date) {
+      if (!date) {
+        return null;
+      }
+      const [year, month, day] = date.split('-');
+      return `${month}/${day}/${year}`;
+    },
+    parseDate (date) {
+      if (!date) {
+        return null;
+      }
+      const [month, day, year] = date.split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
   },
   watch: {
-    addAddressDialog(newVal) {
+    addAddressDialog (newVal) {
       if (!newVal) {
         this.$refs.addAddressForm.reset();
       }
     },
-    addServiceDialog(newVal) {
+    addServiceDialog (newVal) {
       if (!newVal) {
         this.$refs.addServiceForm.reset();
       }
+    },
+    datePicker (newValue) {
+      newValue && setTimeout(() => (this.activePicker = 'YEAR'))
+    },
+    'provider.dob' (newValue) {
+      this.formattedDate = this.formatDate(this.provider.dob);
     }
   }
 })
