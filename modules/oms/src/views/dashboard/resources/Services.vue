@@ -16,89 +16,19 @@
         <template v-slot:top>
           <v-row align="center">
             <v-col sm="6" md="2" lg="2" xl="1">
-              <v-dialog v-model="addDialog" max-width="600px">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn block color="primary" dark v-bind="attrs" v-on="on">
-                    Add Service
-                  </v-btn>
-                </template>
-
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Add Service</span>
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-form
-                      ref="addForm"
-                      v-model="isAddFormValid"
-                      lazy-validation
-                    >
-                      <v-container>
-                        <v-row>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-text-field
-                              v-model="addFormValues.name"
-                              label="Name"
-                              required
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-text-field
-                              v-model="addFormValues.description"
-                              label="Description"
-                              required
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-text-field
-                              v-model="addFormValues.price"
-                              label="Price"
-                              required
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-autocomplete
-                              v-model="addFormValues.groupId"
-                              :items="serviceGroupList"
-                              label="Service Group"
-                              item-text="name"
-                              item-value="id"
-                            >
-                            </v-autocomplete>
-                          </v-col>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-radio-group v-model="addFormValues.active" row>
-                              <template #label>
-                                <p class="text-h6 mb-0 text-gray">Active</p>
-                              </template>
-                              <v-radio :label="`Yes`" :value="true"></v-radio>
-                              <v-radio :label="`No`" :value="false"></v-radio>
-                            </v-radio-group>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-form>
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn color="blue darken-1" text @click="closeAddDialog">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      :disabled="!isAddFormValid"
-                      @click="submitServiceAdd"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+              <v-btn block color="primary" @click.stop="openFormDialog">
+                Add
+              </v-btn>
             </v-col>
           </v-row>
+        </template>
+
+        <template v-slot:[`item.price`]="props">
+          $ {{ props.item.price }}
+        </template>
+
+        <template v-slot:[`item.payment`]="props">
+          $ {{ props.item.payment }}
         </template>
 
         <template v-slot:[`item.active`]="props">
@@ -108,127 +38,23 @@
             :color="props.item.active ? 'primary' : 'error'"
             style="width: 64px; display: flex; justify-content: center"
           >
-            {{ props.item.active === true ? "Yes" : "No" }}</v-chip
-          >
+            {{ props.item.active === true ? "Yes" : "No" }}
+          </v-chip>
         </template>
 
         <template v-slot:[`item.actions`]="props">
-          <v-dialog v-model="updateFormValues[props.item.id]" max-width="600px">
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">Update Service</span>
-              </v-card-title>
-              <v-card-text>
-                <v-form
-                  ref="updateForm"
-                  v-model="isUpdateFormValid"
-                  lazy-validation
-                >
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-text-field
-                          v-model="updateFormValues.name"
-                          label="Name"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-text-field
-                          v-model="updateFormValues.description"
-                          label="Description"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-text-field
-                          v-model="updateFormValues.price"
-                          label="Price"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-autocomplete
-                          v-model="updateFormValues.groupId"
-                          :items="serviceGroupList"
-                          label="Service Group"
-                          item-text="name"
-                          item-value="id"
-                        >
-                        </v-autocomplete>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-radio-group v-model="updateFormValues.active" row>
-                          <template #label>
-                            <p class="text-h6 mb-0 text-gray">Active</p>
-                          </template>
-                          <v-radio :label="`Yes`" :value="true"></v-radio>
-                          <v-radio :label="`No`" :value="false"></v-radio>
-                        </v-radio-group>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-btn
-                          depressed
-                          color="primary"
-                          @click="submitServiceUpdate"
-                          :disabled="!isUpdateFormValid"
-                          :loading="isSubmitting"
-                          block
-                          >Update
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-form>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
           <v-btn
             depressed
             class="mr-2"
             color="secondary"
-            @click.stop="setUpdateData(props.item)"
+            @click.stop="openFormDialog(props.item)"
           >
             Update
           </v-btn>
-          <v-dialog v-model="deleteDialog[props.item.id]" max-width="400px">
-            <v-card>
-              <v-card-text>
-                <div class="text-h5 text-center py-4">
-                  Are you sure you want to delete
-                  <strong>{{ deleteDialog.name }}</strong
-                  >?
-                </div>
-
-                <v-row>
-                  <v-col cols="12" sm="6">
-                    <v-btn
-                      :loading="isSubmitting"
-                      depressed
-                      block
-                      color="error"
-                      @click="submitServiceDelete"
-                      >Delete</v-btn
-                    >
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-btn
-                      depressed
-                      block
-                      text
-                      color="blue-grey"
-                      @click="$set(deleteDialog, props.item.id, false)"
-                      >Cancel</v-btn
-                    >
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
           <v-btn
             depressed
-            @click.stop="setDeleteData(props.item)"
             color="error"
+            @click.stop="openDeleteDialog(props.item)"
           >
             Delete
           </v-btn>
@@ -236,20 +62,132 @@
       </v-data-table>
     </v-card>
 
-    <v-snackbar outlined color="success" top v-model="snackbar.active">
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn color="red" text v-bind="attrs" @click="snackbar.active = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+    <v-dialog v-model="formDialog" max-width="600px">
+      <v-card>
+        <v-form ref="formDialog" v-model="isFormValid" lazy-validation>
+          <v-card-title>
+            <span class="text-h5">
+              {{ formId ? "Update Service" : "Add Service" }}
+            </span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-text-field
+                    v-model="formValues.name"
+                    label="Name"
+                    required
+                    :rules="[...inputRules.required]"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-text-field
+                    v-model="formValues.description"
+                    label="Description"
+                    required
+                    :rules="[...inputRules.required]"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-text-field
+                    v-model="formValues.price"
+                    label="Patient Cost"
+                    type="number"
+                    required
+                    :rules="[...inputRules.required]"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-text-field
+                    v-model="formValues.payment"
+                    label="Provider Payment"
+                    type="number"
+                    require
+                    :rules="[...inputRules.required]"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    v-model="formValues.groupId"
+                    :items="serviceGroupList"
+                    label="Service Group"
+                    item-text="name"
+                    item-value="id"
+                    :rules="[...inputRules.required]"
+                  />
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-radio-group v-model="formValues.active" row>
+                    <template #label>
+                      <p class="text-h6 mb-0 text-gray">Active</p>
+                    </template>
+                    <v-radio :label="`Yes`" :value="true" />
+                    <v-radio :label="`No`" :value="false" />
+                  </v-radio-group>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="blue darken-1" text @click="closeFormDialog">
+              Cancel
+            </v-btn>
+            <v-btn
+              color="primary"
+              @click="handleSubmit"
+              :loading="isSubmitting"
+              large
+            >
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="deleteDialog" max-width="400px">
+      <v-card>
+        <v-card-text>
+          <div class="text-h5 text-center py-4">
+            Are you sure you want to delete
+            <strong>{{ deleteValues.name }}</strong>
+            ?
+          </div>
+          <v-row>
+            <v-col cols="12" sm="6">
+              <v-btn
+                :loading="isSubmitting"
+                depressed
+                block
+                color="error"
+                @click="submitServiceDelete"
+              >
+                Delete
+              </v-btn>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-btn
+                depressed
+                block
+                text
+                color="blue-grey"
+                @click="closeDeleteDialog"
+              >
+                Cancel
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
+import { FormRules } from "@/utils";
 
 export default Vue.extend({
   data() {
@@ -258,33 +196,24 @@ export default Vue.extend({
         { text: "Id", value: "id" },
         { text: "Name", value: "name" },
         { text: "Description", value: "description" },
-        { text: "Price", value: "price" },
+        { text: "Patient Cost", value: "price" },
+        { text: "Provider Payment", value: "payment" },
         { text: "Group", value: "group.name" },
         { text: "Active", value: "active" },
         { text: "Actions", value: "actions", align: "center", width: "240px" },
       ],
       serviceList: [],
       serviceGroupList: [],
-      addDialog: false,
-      addForm: false,
-      addFormValues: {
-        name: null,
-        description: null,
-        price: null,
-        groupId: null,
-        active: true,
-      },
-      updateFormValues: {},
-      updateId: null,
-      deleteDialog: {},
-      isAddFormValid: false,
-      isUpdateFormValid: false,
+      formDialog: false,
+      formValues: {},
+      formId: null,
+      deleteDialog: false,
+      deleteValues: {},
+      deleteId: null,
+      isFormValid: false,
+      inputRules: FormRules,
       isLoading: false,
       isSubmitting: false,
-      snackbar: {
-        message: null,
-        active: false,
-      },
     };
   },
   created() {
@@ -297,13 +226,15 @@ export default Vue.extend({
         this.isLoading = true;
         const api = new OMSApi();
         const res = await api.getServices();
-        if (res.result.data.length > 0) {
+        if (res.result.data) {
           this.serviceList = res.result.data;
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get services list";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get services list",
+          type: "error",
+        });
       } finally {
         this.isLoading = false;
       }
@@ -313,13 +244,15 @@ export default Vue.extend({
         this.isLoading = true;
         const api = new OMSApi();
         const res = await api.getServiceGroups();
-        if (res.result.data.length > 0) {
+        if (res.result.data) {
           this.serviceGroupList = res.result.data;
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get service groups list";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get service groups list",
+          type: "error",
+        });
       } finally {
         this.isLoading = false;
       }
@@ -328,17 +261,27 @@ export default Vue.extend({
       try {
         this.isSubmitting = true;
         const api = new OMSApi();
-        const res = await api.createServices(this.addFormValues);
+        const payload = {
+          ...this.formValues,
+          payment: this.formValues.payment
+            ? parseFloat(this.formValues.payment)
+            : undefined,
+        };
+        const res = await api.createService(payload);
         if (res) {
           this.getServices();
-          this.closeAddDialog();
-          this.snackbar.message = res.message;
-          this.snackbar.active = true;
+          this.closeFormDialog();
+          this.$root.snackbar.show({
+            message: res.message,
+            type: "success",
+          });
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to add service";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to add service",
+          type: "error",
+        });
       } finally {
         this.isSubmitting = false;
       }
@@ -347,25 +290,33 @@ export default Vue.extend({
       try {
         this.isSubmitting = true;
         const api = new OMSApi();
-        const res = await api.updateService(this.updateId, {
-          name: this.updateFormValues.name,
-          description: this.updateFormValues.description,
-          price: this.updateFormValues.price.toString(),
-          active: this.updateFormValues.active,
-          groupId: this.updateFormValues.groupId,
-          //   (this.updateFormValues.group && this.updateFormValues.group.id) ||
+        const payload = {
+          name: this.formValues.name,
+          description: this.formValues.description,
+          price: this.formValues.price ? this.formValues.price.toString() : "0",
+          payment: this.formValues.payment
+            ? parseFloat(this.formValues.payment)
+            : null,
+          active: this.formValues.active,
+          groupId: this.formValues.groupId,
+          //   (this.formValues.group && this.formValues.group.id) ||
           //   null,
-        });
+        };
+        const res = await api.updateService(this.formId, payload);
         if (res) {
           this.getServices();
-          this.snackbar.message = res.message;
-          this.snackbar.active = true;
-          this.$set(this.updateFormValues, this.updateId, false);
+          this.$root.snackbar.show({
+            message: res.message,
+            type: "success",
+          });
+          this.closeFormDialog();
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to update service";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to update service",
+          type: "error",
+        });
       } finally {
         this.isSubmitting = false;
       }
@@ -374,42 +325,67 @@ export default Vue.extend({
       try {
         this.isSubmitting = true;
         const api = new OMSApi();
-        const res = await api.deleteServices(this.deleteDialog.id);
+        const res = await api.deleteService(this.deleteId);
         if (res) {
           this.getServices();
-          this.snackbar.message = res.message;
-          this.snackbar.active = true;
-          this.$set(this.deleteDialog, this.deleteDialog.id, false);
+          this.closeDeleteDialog();
+          this.$root.snackbar.show({
+            message: res.message,
+            type: "success",
+          });
         }
       } catch (error) {
-        this.snackbar.message = "Failed to delete service";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to delete service",
+          type: "error",
+        });
+        console.error(error);
       } finally {
         this.isSubmitting = false;
       }
     },
-    closeAddDialog() {
-      this.addDialog = false;
+    async handleSubmit() {
+      await this.$refs.formDialog.validate();
+      if (this.isFormValid) {
+        if (this.formId) {
+          this.submitServiceUpdate();
+        } else {
+          this.submitServiceAdd();
+        }
+      }
     },
-    setUpdateData(props) {
-      this.updateFormValues.name = props.name;
-      this.updateFormValues.description = props.description;
-      this.updateFormValues.price = props.price;
-      this.updateFormValues.active = props.active;
-      this.updateFormValues.groupId = props.group.id;
-      this.updateId = props.id;
-      this.$set(this.updateFormValues, props.id, true);
+    openFormDialog(props) {
+      this.formDialog = true;
+      this.formId = null;
+      if (props.id) {
+        this.formValues.name = props.name;
+        this.formValues.description = props.description;
+        this.formValues.price = props.price;
+        this.formValues.payment = props.payment;
+        this.formValues.active = props.active;
+        this.formValues.groupId = props.group.id;
+        this.formId = props.id;
+      }
     },
-    setDeleteData(props) {
-      this.deleteDialog.name = props.name;
-      this.deleteDialog.id = props.id;
-      this.$set(this.deleteDialog, props.id, true);
+    closeFormDialog() {
+      this.formDialog = false;
+    },
+    openDeleteDialog(props) {
+      this.deleteDialog = true;
+      this.deleteId = props.id;
+      this.deleteValues.name = props.name;
+    },
+    closeDeleteDialog() {
+      this.deleteDialog = false;
+    },
+    renderFormatUSD(string) {
+      return string ? `$ ${string}` : "0";
     },
   },
   watch: {
-    addDialog(newVal) {
+    formDialog(newVal) {
       if (!newVal) {
-        this.$refs.addForm.reset();
+        this.$refs.formDialog.reset();
       }
     },
   },

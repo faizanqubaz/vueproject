@@ -1,5 +1,15 @@
-export const formRules = {
-  required: (value: string): string | boolean => !!value || "Required.",
+import phone from "phone";
+
+export const FormRules = {
+  required: [(v: string): string | boolean => !!v || "This field is required"],
+  email: [
+    (v: string): string | boolean =>
+      /.+@.+/.test(v) || "Email address is invalid",
+  ],
+  phone: [
+    (v: string): string | boolean =>
+      phone(v, { country: "USA" }).isValid || "Phone number is invalid",
+  ],
 };
 
 export const VisitStatuses = [
