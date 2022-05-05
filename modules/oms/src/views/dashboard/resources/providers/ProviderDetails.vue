@@ -19,18 +19,14 @@
                   <span class="text-h5">Update Provider</span>
                 </v-card-title>
                 <v-card-text>
-                  <v-form
-                    ref="updateProfileForm"
-                    v-model="validUpdatedProfile"
-                    lazy-validation
-                  >
+                  <v-form ref="updateProfileForm" v-model="validUpdateProfileForm" lazy-validation>
                    <v-card elevation="0" width="50%">
                     <v-row>
                       <v-col cols="12">
                         <v-text-field
                           v-model="provider.firstName"
-                          placeholder="First Name"
                           label="First Name"
+                          :rules="requiredRules"
                           required
                         />
                       </v-col>
@@ -44,8 +40,8 @@
                       <v-col cols="12">
                         <v-text-field
                           v-model="provider.lastName"
-                          placeholder="Last Name"
                           label="Last Name"
+                          :rules="requiredRules"
                           required
                         />
                       </v-col>
@@ -68,6 +64,8 @@
                                 v-bind="attrs"
                                 @blur="provider.dob = parseDate(formattedDate)"
                                 v-on="on"
+                                :rules="requiredRules"
+                                required
                               />
                             </template>
                             <v-date-picker
@@ -86,22 +84,23 @@
                           v-model="provider.gender"
                           :items="genderList"
                           label="Gender"
+                          :rules="requiredRules"
                           required
                         />
                       </v-col>
                       <v-col cols="12">
                         <v-text-field
                           v-model="provider.phone"
-                          placeholder="Phone Number"
                           label="Phone Number"
+                          :rules="phoneRules"
                           required
                         />
                       </v-col>
                       <v-col cols="12">
                         <v-text-field
                           v-model="provider.email"
-                          placeholder="Email Address"
                           label="Email Address"
+                          :rules="emailRules"
                           required
                         />
                       </v-col>
@@ -110,9 +109,8 @@
                           depressed
                           color="primary"
                           @click="updateProvider"
-                          :disabled="!validUpdatedProfile"
+                          :disabled="!isUpdateProfileValid"
                           :loading="saveLoading"
-                          block
                         >
                           Update
                         </v-btn>
@@ -144,7 +142,6 @@
                             <v-btn
                               block
                               color="primary"
-                              dark
                               v-bind="attrs"
                               v-on="on"
                             >
@@ -156,7 +153,7 @@
                               <span class="text-h5">Add Address</span>
                             </v-card-title>
                             <v-card-text>
-                              <v-form ref="addAddressForm" v-model="validAddedAddress" lazy-validation>
+                              <v-form ref="addAddressForm" v-model="validAddAddressForm" lazy-validation>
                                 <v-container>
                                   <v-row>
                                     <v-col cols="12" sm="12" md="12">
@@ -167,6 +164,7 @@
                                         placeholder="Address"
                                         v-on:placechanged="getNewAddressData"
                                         country="us"
+                                        :rules="requiredRules"
                                         required
                                       />
                                     </v-col>
@@ -188,22 +186,21 @@
                               </v-form>
                             </v-card-text>
                             <v-card-actions>
-                              <v-spacer />
                               <v-btn
-                                color="blue darken-1"
-                                text
-                                @click="closeAddAddressDialog"
-                              >
-                                Cancel
-                              </v-btn>
-                              <v-btn
-                                color="blue darken-1"
-                                text
+                                depressed
+                                color="primary"
                                 @click="addAddress"
-                                :disabled="!validAddedAddress"
+                                :disabled="!isAddAddressValid"
                                 :loading="saveLoading"
                               >
                                 Save
+                              </v-btn>
+                              <v-btn
+                                depressed
+                                color="secondary"
+                                @click="closeAddAddressDialog"
+                              >
+                                Cancel
                               </v-btn>
                             </v-card-actions>
                           </v-card>
@@ -218,59 +215,64 @@
                           <span class="text-h5">Address #{{ props.item.id }}</span>
                         </v-card-title>
                         <v-card-text>
-                          <v-form
-                            ref="updateAddressForm"
-                            v-model="validUpdatedAddress"
-                            lazy-validation
-                          >
-                            <v-row>
-                              <v-col cols="12" sm="12" md="12">
-                                <vuetify-google-autocomplete
-                                  ref="providerUpdateAddress"
-                                  id="providerUpdateMap"
-                                  label="Address"
-                                  classname="form-control"
-                                  :value= "updateAddressFull"
-                                  v-on:placechanged="getUpdateAddressData"
-                                  country="us"
-                                  required
-                                />
-                              </v-col>
-                              <v-col cols="12">
-                                <v-text-field
-                                  label="Apartment"
-                                  v-model="updatedAddress.apartment"
-                                />
-                              </v-col>
-                              <v-col cols="12" sm="12" md="12">
+                          <v-form ref="updateAddressForm" v-model="validUpdateAddressForm" lazy-validation>
+                            <v-container>
+                              <v-row>
+                                <v-col cols="12" sm="12" md="12">
+                                  <vuetify-google-autocomplete
+                                    ref="providerUpdateAddress"
+                                    id="providerUpdateMap"
+                                    label="Address"
+                                    classname="form-control"
+                                    :value= "updatedAddressFull"
+                                    v-on:placechanged="getUpdateAddressData"
+                                    country="us"
+                                    :rules="requiredRules"
+                                    required
+                                  />
+                                </v-col>
+                                <v-col cols="12">
+                                  <v-text-field
+                                    v-model="updatedAddress.apartment"
+                                    label="Apartment"
+                                  />
+                                </v-col>
+                                <v-col cols="12" sm="12" md="12">
                                   <v-switch
-                                    label="Primary"
                                     v-model="updatedAddress.primary"
+                                    label="Primary"
                                     color="success"
                                   />
                                 </v-col>
-                              <v-col cols="12">
-                                <v-btn
-                                  depressed
-                                  color="primary"
-                                  @click="updateAddress"
-                                  :disabled="!validUpdatedAddress"
-                                  :loading="saveLoading"
-                                  block
-                                >
-                                  Update
-                                </v-btn>
-                              </v-col>
-                            </v-row>
+                              </v-row>
+                            </v-container>
                           </v-form>
                         </v-card-text>
+                        <v-card-actions>
+                          <v-btn
+                            depressed
+                            color="primary"
+                            @click="updateAddress"
+                            :disabled="!isUpdateAddressValid"
+                            :loading="saveLoading"
+                          >
+                            Update
+                          </v-btn>
+                          <v-btn
+                            depressed
+                            color="secondary"
+                            @click="closeUpdateAddressDialog(props.item.id)"
+                          >
+                            Cancel
+                          </v-btn>
+                        </v-card-actions>
                       </v-card>
                     </v-dialog>
                     <v-btn
                       depressed
+                      color="primary"    
                       @click.stop="setUpdateAddress(props.item)"
                       class="mr-2"
-                      color="secondary"
                     >
                       Update
                     </v-btn>
@@ -285,10 +287,9 @@
                           <v-row>
                             <v-col cols="12" sm="6">
                               <v-btn
-                                :loading="saveLoading"
                                 depressed
-                                block
                                 color="error"
+                                :loading="saveLoading"
                                 @click="deleteAddress()"
                               >
                                 Delete
@@ -297,9 +298,7 @@
                             <v-col cols="12" sm="6">
                               <v-btn
                                 depressed
-                                block
-                                text
-                                color="blue-grey"
+                                color="secondary"
                                 @click="$set(deletedAddress, props.item.id, false)"
                               >
                                 Cancel
@@ -311,8 +310,8 @@
                     </v-dialog>
                     <v-btn
                       depressed
-                      @click.stop="setDeleteAddress(props.item)"
                       color="error"
+                      @click.stop="setDeleteAddress(props.item)"
                     >
                       Delete
                     </v-btn>
@@ -341,7 +340,6 @@
                             <v-btn
                               block
                               color="primary"
-                              dark
                               v-bind="attrs"
                               v-on="on"
                             >
@@ -353,7 +351,7 @@
                               <span class="text-h5">Add Service</span>
                             </v-card-title>
                             <v-card-text>
-                              <v-form ref="addServiceForm" v-model="validAddedService" lazy-validation>
+                              <v-form ref="addServiceForm" v-model="validAddServiceForm" lazy-validation>
                                 <v-container>
                                   <v-row>
                                     <v-col cols="12" sm="12" md="12">
@@ -365,6 +363,8 @@
                                         item-value="id"
                                         clearable
                                         dense
+                                        :rules="requiredRules"
+                                        required
                                       />
                                     </v-col>
                                     <v-col cols="12" sm="12" md="12">
@@ -381,22 +381,21 @@
                               </v-form>
                             </v-card-text>
                             <v-card-actions>
-                              <v-spacer />
                               <v-btn
-                                color="blue darken-1"
-                                text
-                                @click="closeAddServiceDialog"
-                              >
-                                Cancel
-                              </v-btn>
-                              <v-btn
-                                color="blue darken-1"
-                                text
+                                depressed
+                                color="primary"
                                 @click="addService"
-                                :disabled="!validAddedService"
+                                :disabled="!isAddServiceValid"
                                 :loading="saveLoading"
                               >
                                 Save
+                              </v-btn>
+                              <v-btn
+                                depressed
+                                color="secondary"
+                                @click="closeAddServiceDialog"
+                              >
+                                Cancel
                               </v-btn>
                             </v-card-actions>
                           </v-card>
@@ -405,65 +404,6 @@
                     </v-row>
                   </template>
                   <template v-slot:[`item.actions`]="props">
-                    <v-dialog v-model="updatedService[props.item.id]" max-width="600px">
-                      <v-card>
-                        <v-card-title>
-                          <span class="text-h5">Service #{{ props.item.id }}</span>
-                        </v-card-title>
-                        <v-card-text>
-                          <v-form
-                            ref="updateServiceForm"
-                            v-model="validUpdatedService"
-                            lazy-validation
-                          >
-                            <v-row>
-                              <v-col cols="12" sm="12" md="12">
-                                <v-autocomplete
-                                  v-model="updatedService.serviceId"
-                                  :items="serviceList"
-                                  label="Service"
-                                  item-text="name"
-                                  item-value="id"
-                                  clearable
-                                  dense
-                                />
-                              </v-col>
-                              <v-col cols="12" sm="12" md="12">
-                                <v-autocomplete
-                                  v-model="updatedService.cityId"
-                                  :items="cityList"
-                                  label="City"
-                                  item-text="name"
-                                  item-value="id"
-                                  clearable
-                                  dense
-                                />
-                              </v-col>
-                              <v-col cols="12">
-                                <v-btn
-                                  depressed
-                                  color="primary"
-                                  @click="updateService"
-                                  :disabled="!validUpdatedService"
-                                  :loading="saveLoading"
-                                  block
-                                >
-                                  Update
-                                </v-btn>
-                              </v-col>
-                            </v-row>
-                          </v-form>
-                        </v-card-text>
-                      </v-card>
-                    </v-dialog>
-                    <v-btn
-                      depressed
-                      @click.stop="setUpdateService(props.item)"
-                      class="mr-2"
-                      color="secondary"
-                    >
-                      Update
-                    </v-btn>
                     <v-dialog v-model="deletedService[props.item.id]" max-width="400px">
                       <v-card>
                         <v-card-text>
@@ -474,10 +414,9 @@
                           <v-row>
                             <v-col cols="12" sm="6">
                               <v-btn
-                                :loading="saveLoading"
                                 depressed
-                                block
                                 color="error"
+                                :loading="saveLoading"
                                 @click="deleteService()"
                               >
                                 Delete
@@ -486,9 +425,7 @@
                             <v-col cols="12" sm="6">
                               <v-btn
                                 depressed
-                                block
-                                text
-                                color="blue-grey"
+                                color="secondary"
                                 @click="$set(deletedService, props.item.id, false)"
                               >
                                 Cancel
@@ -500,8 +437,8 @@
                     </v-dialog>
                     <v-btn
                       depressed
-                      @click.stop="setDeleteService(props.item)"
                       color="error"
+                      @click.stop="setDeleteService(props.item)"
                     >
                       Delete
                     </v-btn>
@@ -521,8 +458,8 @@
       {{ snackbar.message }}
       <template v-slot:action="{ attrs }">
         <v-btn
-          color="red"
-          text
+          depressed
+          color="secondary"
           v-bind="attrs"
           @click="snackbar.active = false"
         >
@@ -607,9 +544,9 @@ export default Vue.extend({
       activePicker: null,
       datePicker: false,
       formattedDate: null,
-      validUpdatedProfile: false,
+      validUpdateProfileForm: false,
       addAddressDialog: false,
-      validAddedAddress: false,
+      validAddAddressForm: false,
       newAddress: {
         street: "",
         apartment: "",
@@ -620,28 +557,27 @@ export default Vue.extend({
         longitude: 0,
         latitude: 0
       },
-      validUpdatedAddress: false,
+      validUpdateAddressForm: false,
       updatedAddress: {},
-      updateAddressId: null,
-      updateAddressFull: null,
+      updatedAddressId: null,
+      updatedAddressFull: null,
       deletedAddress: {},
       addServiceDialog: false,
-      validAddedService: false,
+      validAddServiceForm: false,
       serviceList: [],
       cityList: [],
       newService: {
         serviceIds: [],
         ciyId: null
       },
-      validUpdatedService: false,
-      updatedService: {},
-      updateServiceId: null,
+      validUpdateServiceForm: false,
+      updatedServiceId: null,
       deletedService: {},
       genderList: ["male", "female"],
+      requiredRules: [(v) => !!v || 'Required'],
       phoneRules: [
         (phoneNumber) => !!phoneNumber || 'Phone number is required',
-        (phoneNumber) =>
-          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
+        (phoneNumber) => (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
       ],
       emailRules: [
         (emailAddress) => !!emailAddress || 'Email is required',
@@ -746,9 +682,12 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
+    closeUpdateAddressDialog (id) {
+      this.updatedAddress[id] = false;
+    },
     setUpdateAddress (props) {
-      this.updateAddressId = props.id;
-      this.updateAddressFull = `${ props.street }, ${ props.city }, ${ props.state } ${ props.zipCode }, USA`;
+      this.updatedAddressId = props.id;
+      this.updatedAddressFull = `${ props.street }, ${ props.city }, ${ props.state } ${ props.zipCode }, USA`;
       this.updatedAddress.street = props.street;
       this.updatedAddress.apartment = props.apartment;
       this.updatedAddress.city = props.city;
@@ -781,14 +720,14 @@ export default Vue.extend({
           longitude: this.updatedAddress.longitude,
           latitude: this.updatedAddress.latitude
         };
-        const response = await api.updateAddress(this.updateAddressId, address);
+        const response = await api.updateAddress(this.updatedAddressId, address);
         if (response) {
           this.provider.addresses = this.provider.addresses.map(adrs => {
-            return adrs.id == this.updateAddressId ? { ...address, id: this.updateAddressId } : adrs; 
+            return adrs.id == this.updatedAddressId ? { ...address, id: this.updatedAddressId } : adrs; 
           });
           this.snackbar.message = response.message;
           this.saveLoading = false;
-          this.$set(this.updatedAddress, this.updateAddressId, false);
+          this.$set(this.updatedAddress, this.updatedAddressId, false);
           this.snackbar.active = true;
         }
       } catch (error) {
@@ -848,6 +787,14 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
+    isProviderServiceValid () {
+      if(this.$refs.providerServiceForm) {
+        this.$refs.providerServiceForm.validate();
+      }
+      return this.newService.cityId &&
+        this.newService.serviceIds.length &&
+        this.validProviderServiceForm;  
+    },
     async addService () {
       this.saveLoading = true;
       try {
@@ -868,35 +815,6 @@ export default Vue.extend({
       } catch (error) {
         this.saveLoading = false;
         this.snackbar.message = "Failed to add Service";
-        this.snackbar.active = true;
-      }
-    },
-    setUpdateService (props) {
-      this.updateServiceId = props.id;
-      this.updatedService.serviceId = props.serviceId;
-      this.updatedService.cityId = props.cityId;
-      this.$set(this.updatedService, props.id, true);
-    },
-    async updateService () {
-      this.saveLoading = true;
-      try {
-        const api = new OMSApi();
-        const service = {
-          providerId: this.providerId,
-          serviceId: this.updatedService.serviceId,
-          cityId: this.updatedService.cityId
-        };
-        const response = await api.updateProviderService(this.updateServiceId, service);
-        if (response) {
-          await this.getProviderServices();
-          this.snackbar.message = response.message;
-          this.saveLoading = false;
-          this.$set(this.updatedService, this.updateServiceId, false);
-          this.snackbar.active = true;
-        }
-      } catch (error) {
-        this.saveLoading = false;
-        this.snackbar.message = "Failed to update Service";
         this.snackbar.active = true;
       }
     },
@@ -940,6 +858,52 @@ export default Vue.extend({
       const [month, day, year] = date.split('/');
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
+  },
+  computed: {
+    isUpdateProfileValid () {
+      if(this.$refs.updateProfileForm) {
+        this.$refs.updateProfileForm.validate();
+      }
+      return this.provider.firstName &&
+        this.provider.lastName &&
+        this.provider.dob &&
+        this.provider.gender &&
+        this.provider.phone &&
+        this.provider.email &&
+        this.validUpdateProfileForm;
+    },
+    isAddAddressValid () {
+      if(this.$refs.addAddressForm) {
+        this.$refs.addAddressForm.validate();
+      }
+      return this.newAddress.street &&
+        this.newAddress.city &&
+        this.newAddress.state &&
+        this.newAddress.zipCode &&
+        this.newAddress.longitude &&
+        this.newAddress.latitude &&
+        this.validAddAddressForm;  
+    },
+    isUpdateAddressValid () {
+      if(this.$refs.updateAddressForm) {
+        this.$refs.updateAddressForm.validate();
+      }
+      return this.updatedAddress.street &&
+        this.updatedAddress.city &&
+        this.updatedAddress.state &&
+        this.updatedAddress.zipCode &&
+        this.updatedAddress.longitude &&
+        this.updatedAddress.latitude &&
+        this.validUpdateAddressForm;  
+    },
+    isAddServiceValid () {
+      if(this.$refs.addServiceForm) {
+        this.$refs.addServiceForm.validate();
+      }
+      return this.newService.cityId &&
+        this.newService.serviceIds.length &&
+        this.validAddServiceForm;  
+    },
   },
   watch: {
     addAddressDialog (newVal) {

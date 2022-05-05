@@ -22,7 +22,6 @@
                   <v-btn
                     block
                     color="primary"
-                    dark
                     v-bind="attrs"
                     v-on="on"
                   >
@@ -55,13 +54,14 @@
                     <v-stepper-items>
                       <v-stepper-content step="1">
                         <v-card-text>
-                          <v-form ref="addForm" v-model="valid" lazy-validation>
+                          <v-form ref="providerForm" v-model="validProviderForm" lazy-validation>
                             <v-container>
                               <v-row>
                                 <v-col cols="12" sm="12" md="12">
                                   <v-text-field
                                     v-model="newProvider.firstName"
                                     label="First Name"
+                                    :rules="requiredRules"
                                     required
                                   />
                                 </v-col>
@@ -75,6 +75,7 @@
                                   <v-text-field
                                     v-model="newProvider.lastName"
                                     label="Last Name"
+                                    :rules="requiredRules"
                                     required
                                   />
                                 </v-col>
@@ -97,6 +98,8 @@
                                           v-bind="attrs"
                                           @blur="newProvider.dob = parseDate(formattedDate)"
                                           v-on="on"
+                                          :rules="requiredRules"
+                                          required
                                         />
                                       </template>
                                       <v-date-picker
@@ -115,6 +118,7 @@
                                     v-model="newProvider.gender"
                                     :items="genderList"
                                     label="Gender"
+                                    :rules="requiredRules"
                                     required
                                   />
                                 </v-col>
@@ -140,15 +144,17 @@
                         </v-card-text>
                         <v-card-actions>
                           <v-btn
+                            depressed
                             color="primary"
                             @click="addProvider"
-                            :disabled="!valid"
+                            :disabled="!isProviderValid"
                             :loading="saveLoading"
                           >
                             Save &amp; Continue
                           </v-btn>
                           <v-btn
-                            text
+                            depressed
+                            color="secondary"
                             @click="closeAddDialog(false)"
                           >
                             Cancel
@@ -157,7 +163,7 @@
                       </v-stepper-content>
                       <v-stepper-content step="2">
                         <v-card-text>
-                          <v-form ref="addAddressForm" v-model="validAddedAddress" lazy-validation>
+                          <v-form ref="providerAddressForm" v-model="validProviderAddressForm" lazy-validation>
                             <v-container>
                               <v-row>
                                 <v-col cols="12" sm="12" md="12">
@@ -168,6 +174,7 @@
                                     placeholder="Address"
                                     v-on:placechanged="getNewAddressData"
                                     country="us"
+                                    :rules="requiredRules"
                                     required
                                   />
                                 </v-col>
@@ -190,15 +197,17 @@
                         </v-card-text>
                         <v-card-actions>
                           <v-btn
+                            depressed
                             color="primary"
                             @click="addAddress"
-                            :disabled="!validAddedAddress"
+                            :disabled="!isProviderAddressValid"
                             :loading="saveLoading"
                           >
                             Save &amp; Continue
                           </v-btn>
                           <v-btn
-                            text
+                            depressed
+                            color="secondary"
                             @click="closeAddDialog(true)"
                           >
                             Cancel
@@ -207,7 +216,7 @@
                       </v-stepper-content>
                       <v-stepper-content step="3">
                         <v-card-text>
-                          <v-form ref="addServiceForm" v-model="validAddedService" lazy-validation>
+                          <v-form ref="providerServiceForm" v-model="validProviderServiceForm" lazy-validation>
                             <v-container>
                               <v-row>
                                 <v-col cols="12" sm="12" md="12">
@@ -219,6 +228,8 @@
                                     item-value="id"
                                     clearable
                                     dense
+                                    :rules="requiredRules"
+                                    required
                                   />
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12">
@@ -236,15 +247,17 @@
                         </v-card-text>
                         <v-card-actions>
                           <v-btn
+                            depressed
                             color="primary"
                             @click="addService"
-                            :disabled="!validAddedService"
+                            :disabled="!isProviderServiceValid"
                             :loading="saveLoading"
                           >
                             Save &amp; Exit
                           </v-btn>
                           <v-btn
-                            text
+                            depressed
+                            color="secondary"
                             @click="closeAddDialog(true)"
                           >
                             Cancel
@@ -271,9 +284,9 @@
         <template v-slot:[`item.actions`]="props">
           <v-btn
             depressed
+            color="primary"
              @click="details(props.item)"
             class="mr-2"
-            color="secondary"
           >
             Details
           </v-btn>
@@ -286,10 +299,9 @@
                 <v-row>
                   <v-col cols="12" sm="6">
                     <v-btn
-                      :loading="saveLoading"
                       depressed
-                      block
                       color="error"
+                      :loading="saveLoading"
                       @click="deleteProvider"
                     >
                       Delete
@@ -298,9 +310,7 @@
                   <v-col cols="12" sm="6">
                     <v-btn
                       depressed
-                      block
-                      text
-                      color="blue-grey"
+                      color="secondary"
                       @click="$set(deletedProvider, props.item.id, false)"
                     >
                       Cancel
@@ -312,8 +322,8 @@
           </v-dialog>
           <v-btn
             depressed
-            @click.stop="setDelete(props.item)"
             color="error"
+            @click.stop="setDelete(props.item)"
           >
             Delete
           </v-btn>
@@ -324,8 +334,8 @@
       {{ snackbar.message }}
       <template v-slot:action="{ attrs }">
         <v-btn
-          color="red"
-          text
+          depressed
+          color="secondary"
           v-bind="attrs"
           @click="snackbar.active = false"
         >
@@ -383,7 +393,7 @@ export default Vue.extend({
         message: null,
         active: false,
       },
-      validAddedAddress: false,
+      validProviderAddressForm: false,
       newAddress: {
         street: "",
         apartment: "",
@@ -394,7 +404,7 @@ export default Vue.extend({
         longitude: 0,
         latitude: 0
       },
-      validAddedService: false,
+      validProviderServiceForm: false,
       newService: {
         serviceIds: [],
         ciyId: null
@@ -405,7 +415,7 @@ export default Vue.extend({
       loading: true,
       saveLoading: false,
       addDialog: false,
-      valid: false,
+      validProviderForm: false,
       newProvider: {
         firstName: null,
         middleName: null,
@@ -413,7 +423,7 @@ export default Vue.extend({
         dob: null,
         gender: null,
         phone: null,
-        email: null,
+        email: null
       },
       genderList: [
         "male",
@@ -422,10 +432,10 @@ export default Vue.extend({
       activePicker: null,
       datePicker: false,
       formattedDate: null,
+      requiredRules: [(v) => !!v || 'Required'],
       phoneRules: [
         (phoneNumber) => !!phoneNumber || 'Phone number is required',
-        (phoneNumber) =>
-          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
+        (phoneNumber) => (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
       ],
       emailRules: [
         (emailAddress) => !!emailAddress || 'Email is required',
@@ -448,7 +458,7 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const response = await api.getProviders();
-        if (response.result.data.length > 0) {
+        if (response.result.data.length) {
           this.providerList = response.result.data;
           this.loading = false;
         }
@@ -460,7 +470,7 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const response = await api.getServices();
-        if (response.result.data.length > 0) {
+        if (response.result.data.length) {
           this.serviceList = response.result.data;
         }
       } catch (error) {
@@ -473,7 +483,7 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const response = await api.getCities();
-        if (response.result.data.length > 0) {
+        if (response.result.data.length) {
           this.cityList = response.result.data;
         }
       } catch (error) {
@@ -612,14 +622,48 @@ export default Vue.extend({
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
   },
+  computed: {
+    isProviderValid () {
+      if(this.$refs.providerForm) {
+        this.$refs.providerForm.validate();
+      }
+      return this.newProvider.firstName &&
+        this.newProvider.lastName &&
+        this.newProvider.dob &&
+        this.newProvider.gender &&
+        this.newProvider.phone &&
+        this.newProvider.email &&
+        this.validProviderForm;
+    },
+    isProviderAddressValid () {
+      if(this.$refs.providerAddressForm) {
+        this.$refs.providerAddressForm.validate();
+      }
+      return this.newAddress.street &&
+        this.newAddress.city &&
+        this.newAddress.state &&
+        this.newAddress.zipCode &&
+        this.newAddress.longitude &&
+        this.newAddress.latitude &&
+        this.validProviderAddressForm;  
+    },
+    isProviderServiceValid () {
+      if(this.$refs.providerServiceForm) {
+        this.$refs.providerServiceForm.validate();
+      }
+      return this.newService.cityId &&
+        this.newService.serviceIds.length &&
+        this.validProviderServiceForm;  
+    }
+  },
   watch: {
     addDialog (newVal) {
       if (!newVal) {
-        this.$refs.addForm.reset();
-        this.$refs.addAddressForm.reset();
+        this.$refs.providerForm.reset();
+        this.$refs.providerAddressForm.reset();
         this.newAddress.primary = false;
         this.newAddress.apartment = "";
-        this.$refs.addServiceForm.reset();
+        this.$refs.providerServiceForm.reset();
       }
     },
     datePicker (newValue) {
