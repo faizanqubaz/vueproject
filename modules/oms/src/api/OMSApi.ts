@@ -119,6 +119,7 @@ export interface Patient {
   phone: string;
   email: string;
   authId: string;
+  guardian: string
 }
 export interface PatientsResponse {
   message: string;
@@ -129,6 +130,19 @@ export interface PatientsResponse {
     totalPages: number;
     totalRecords: number;
   }[];
+}
+export interface PatientsDetailsResponse {
+  message: string;
+  result: Patient
+}
+export interface PatientPayload {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  dob?: string;
+  gender?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Address {
@@ -828,6 +842,24 @@ export default class OMSApi extends HttpClient {
     try {
       const response: AxiosResponse<PatientsResponse> = await this.instance.get(
         url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async updatetPatients(id:number, payload:PatientPayload): Promise<PatientsDetailsResponse> {
+    const url = "patients/" + id;
+    try {
+      const response: AxiosResponse<PatientsDetailsResponse> = await this.instance.put(
+        url, payload
       );
       const { status } = response;
       if (status === 200) {
