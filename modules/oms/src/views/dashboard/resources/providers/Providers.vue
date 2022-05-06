@@ -233,12 +233,14 @@
                                   />
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12">
-                                  <v-checkbox
-                                    v-model="newService.serviceIds"
-                                    v-for="service in serviceList"
-                                    :key="service.id"
-                                    :label="service.name"
-                                    :value="service.id"
+                                  <v-select
+                                    v-model="serviceListByCity[newService.cityId]"
+                                    :items="serviceList"
+                                    item-text="name"
+                                    item-value="id"
+                                    label="Services"
+                                    multiple
+                                    chips
                                   />
                                 </v-col>
                               </v-row>
@@ -410,6 +412,7 @@ export default Vue.extend({
         ciyId: null
       },
       serviceList: [],
+      serviceListByCity: {},
       cityList: [],
       providerList: [],
       loading: true,
@@ -450,6 +453,7 @@ export default Vue.extend({
     await this.getProviders();
     await this.getServices();
     await this.getCities();
+    this.populateServiceListByCity();
     this.loading = false;
   },
   methods: {
@@ -548,18 +552,28 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
+    populateServiceListByCity () {
+      this.cityList.forEach((city) => {
+        this.serviceListByCity[city.id] = [];
+      });
+    },
     async addService () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        await Promise.all(this.newService.serviceIds.map(async (serviceId) => {
-          const service = {
-            providerId: this.newProviderId,
-            serviceId,
-            cityId: this.newService.cityId
-          };
-          await api.createProviderService(service);
+        const cityIds = Object.keys(this.serviceListByCity);
+        await Promise.all(cityIds.map(async (cityId) => {
+          const services = this.serviceListByCity[cityId];
+          await Promise.all(services.map(async (serviceId) => {
+            const service = {
+              providerId: this.newProviderId,
+              serviceId,
+              cityId: parseInt(cityId)
+            };
+            await api.createProviderService(service);
+          }));
         }));
+
         this.saveLoading = false;
         this.closeAddDialog(true);
         this.snackbar.message = "Provider added successfully"
@@ -651,9 +665,7 @@ export default Vue.extend({
       if(this.$refs.providerServiceForm) {
         this.$refs.providerServiceForm.validate();
       }
-      return this.newService.cityId &&
-        this.newService.serviceIds.length &&
-        this.validProviderServiceForm;  
+      return this.newService.cityId && this.validProviderServiceForm;  
     }
   },
   watch: {
@@ -670,7 +682,9 @@ export default Vue.extend({
       newValue && setTimeout(() => (this.activePicker = 'YEAR'))
     },
     'newProvider.dob' (newValue) {
-      this.formattedDate = this.formatDate(this.newProvider.dob);
+      if (newValue) {
+        this.formattedDate = this.formatDate(this.newProvider.dob);
+      }
     }
   }
 })

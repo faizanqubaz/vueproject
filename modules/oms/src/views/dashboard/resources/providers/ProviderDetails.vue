@@ -335,21 +335,25 @@
                   <template v-slot:top>
                     <v-row align="center">
                       <v-col sm="6" md="2" lg="2" xl="1">
+
                         <v-dialog v-model="addServiceDialog" max-width="600px">
                           <template v-slot:activator="{ on, attrs }">
+
                             <v-btn
                               block
                               color="primary"
                               v-bind="attrs"
                               v-on="on"
                             >
-                              Add
+                              Add / Edit
                             </v-btn>
                           </template>
+
                           <v-card>
                             <v-card-title>
                               <span class="text-h5">Add Service</span>
                             </v-card-title>
+
                             <v-card-text>
                               <v-form ref="addServiceForm" v-model="validAddServiceForm" lazy-validation>
                                 <v-container>
@@ -368,12 +372,14 @@
                                       />
                                     </v-col>
                                     <v-col cols="12" sm="12" md="12">
-                                       <v-checkbox
-                                        v-model="newService.serviceIds"
-                                        v-for="service in serviceList"
-                                        :key="service.id"
-                                        :label="service.name"
-                                        :value="service.id"
+                                      <v-select
+                                        v-model="serviceListByCity[newService.cityId]"
+                                        :items="serviceList"
+                                        item-text="name"
+                                        item-value="id"
+                                        label="Services"
+                                        multiple
+                                        chips
                                       />
                                     </v-col>
                                   </v-row>
@@ -476,6 +482,7 @@ import OMSApi from "@/api/OMSApi";
 import phone from 'phone';
 import email from 'email-validator';
 import VuetifyGoogleAutocomplete from 'vuetify-google-autocomplete';
+import _ from "lodash";
 
 Vue.use(VuetifyGoogleAutocomplete, {
   apiKey: 'AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw',
@@ -563,6 +570,8 @@ export default Vue.extend({
       updatedAddressFull: null,
       deletedAddress: {},
       addServiceDialog: false,
+      serviceListByCity: {},
+      currentServiceListByCity: {},
       validAddServiceForm: false,
       serviceList: [],
       cityList: [],
@@ -592,6 +601,7 @@ export default Vue.extend({
     await this.getProviderServices();
     await this.getServices();
     await this.getCities();
+    this.populateServiceListByCity();
     this.loading = false;
   },
   methods: {
@@ -787,26 +797,34 @@ export default Vue.extend({
         this.snackbar.active = true;
       }
     },
-    isProviderServiceValid () {
-      if(this.$refs.providerServiceForm) {
-        this.$refs.providerServiceForm.validate();
-      }
-      return this.newService.cityId &&
-        this.newService.serviceIds.length &&
-        this.validProviderServiceForm;  
+    populateServiceListByCity () {
+      this.cityList.forEach((city) => {
+        this.serviceListByCity[city.id] = []; 
+      });
+
+      this.provider.services.forEach((service) => {
+        this.serviceListByCity[service.cityId].push(service.serviceId);
+      });
+
+      this.currentServiceListByCity = _.cloneDeep(this.serviceListByCity);
     },
     async addService () {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        await Promise.all(this.newService.serviceIds.map(async (serviceId) => {
-          const service = {
-            providerId: this.providerId,
-            serviceId,
-            cityId: this.newService.cityId
-          };
-          await api.createProviderService(service);
+        const cityIds = Object.keys(this.serviceListByCity);
+        await Promise.all(cityIds.map(async (cityId) => {
+          const services = _.difference(this.serviceListByCity[cityId], this.currentServiceListByCity[cityId]);
+          await Promise.all(services.map(async (serviceId) => {
+            const service = {
+              providerId: this.providerId,
+              serviceId,
+              cityId: parseInt(cityId)
+            };
+            await api.createProviderService(service);
+          }));
         }));
+
         await this.getProviderServices();
         this.snackbar.message = "Service added successfully";
         this.saveLoading = false;
@@ -900,9 +918,7 @@ export default Vue.extend({
       if(this.$refs.addServiceForm) {
         this.$refs.addServiceForm.validate();
       }
-      return this.newService.cityId &&
-        this.newService.serviceIds.length &&
-        this.validAddServiceForm;  
+      return this.newService.cityId && this.validAddServiceForm;  
     },
   },
   watch: {
@@ -920,7 +936,9 @@ export default Vue.extend({
       newValue && setTimeout(() => (this.activePicker = 'YEAR'))
     },
     'provider.dob' (newValue) {
-      this.formattedDate = this.formatDate(this.provider.dob);
+      if(newValue) {
+        this.formattedDate = this.formatDate(this.provider.dob);
+      }
     }
   }
 })
