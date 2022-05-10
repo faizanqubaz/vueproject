@@ -345,7 +345,7 @@
                               v-bind="attrs"
                               v-on="on"
                             >
-                              Add / Edit
+                              Add
                             </v-btn>
                           </template>
 
@@ -598,10 +598,9 @@ export default Vue.extend({
   async created () {
     this.loading = true;
     this.provider = this.$route.params.provider;
-    await this.getProviderServices();
     await this.getServices();
     await this.getCities();
-    this.populateServiceListByCity();
+    await this.getProviderServices();
     this.loading = false;
   },
   methods: {
@@ -647,6 +646,7 @@ export default Vue.extend({
             })
           })
           this.provider.services = services;
+          this.populateServiceListByCity();
         }
       } catch (error) {
         console.error(error);
@@ -801,11 +801,11 @@ export default Vue.extend({
       this.cityList.forEach((city) => {
         this.serviceListByCity[city.id] = []; 
       });
-
-      this.provider.services.forEach((service) => {
-        this.serviceListByCity[service.cityId].push(service.serviceId);
-      });
-
+      if(this.provider.services) {
+        this.provider.services.forEach((service) => {
+          this.serviceListByCity[service.cityId].push(service.serviceId);
+        });
+      }
       this.currentServiceListByCity = _.cloneDeep(this.serviceListByCity);
     },
     async addService () {
@@ -815,14 +815,15 @@ export default Vue.extend({
         const cityIds = Object.keys(this.serviceListByCity);
         await Promise.all(cityIds.map(async (cityId) => {
           const services = _.difference(this.serviceListByCity[cityId], this.currentServiceListByCity[cityId]);
-          await Promise.all(services.map(async (serviceId) => {
+          if (cityId && services.length > 0) {
             const service = {
               providerId: this.providerId,
-              serviceId,
+              services,
               cityId: parseInt(cityId)
             };
+            console.log('citi id', cityId, ' service :', services)
             await api.createProviderService(service);
-          }));
+          }
         }));
 
         await this.getProviderServices();
@@ -848,7 +849,7 @@ export default Vue.extend({
         const response = await api.deleteProviderService(this.deletedService.id);
         if (response) {
            this.saveLoading = false;
-           this.provider.services = this.provider.services.filter(service => service.id !== this.deletedService.id);
+           await this.getProviderServices ();
            this.snackbar.message = response.message;
            this.snackbar.active = true;
            this.$set(this.deletedService, this.deletedService.id, false);

@@ -564,14 +564,14 @@ export default Vue.extend({
         const cityIds = Object.keys(this.serviceListByCity);
         await Promise.all(cityIds.map(async (cityId) => {
           const services = this.serviceListByCity[cityId];
-          await Promise.all(services.map(async (serviceId) => {
+          if(cityId && services.length > 0) {
             const service = {
               providerId: this.newProviderId,
-              serviceId,
+              services,
               cityId: parseInt(cityId)
             };
             await api.createProviderService(service);
-          }));
+          }
         }));
 
         this.saveLoading = false;
