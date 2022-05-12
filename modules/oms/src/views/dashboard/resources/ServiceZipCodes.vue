@@ -22,6 +22,12 @@
                 Add
               </v-btn>
             </v-col>
+            <v-col sm="6" md="2" lg="2" xl="1">
+              <v-btn color="primary" @click="openUploadDialog">
+                <v-icon class="pr-2">mdi-cloud-upload</v-icon>
+                Upload
+              </v-btn>
+            </v-col>
           </v-row>
         </template>
 
@@ -59,6 +65,62 @@
       </v-data-table>
     </v-card>
 
+    <v-dialog v-model="uploadDialog" max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5"> Upload Data </span>
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="uploadDialog" v-model="isFormUploadValid">
+            <v-col cols="12" sm="12" md="12">
+              <v-file-input
+                v-model="uploadFile"
+                accept=".csv, text/csv"
+                @change="onUpload"
+                label="Upload File"
+                :rules="[...inputRules.required]"
+                prepend-icon=""
+              />
+            </v-col>
+            <v-col cols="12" sm="12" md="12">
+              <v-autocomplete
+                v-model="formValues.serviceId"
+                :items="serviceList"
+                label="Service"
+                item-text="name"
+                item-value="id"
+                :disabled="formId ? true : false"
+                :rules="[...inputRules.required]"
+              />
+            </v-col>
+            <v-col cols="12" sm="12" md="12">
+              <v-autocomplete
+                v-model="formValues.cityId"
+                :items="cityList"
+                label="City"
+                item-text="name"
+                item-value="id"
+                disabled
+              />
+            </v-col>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="blue darken-1" text @click="closeUploadDialog">
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="submitUpload"
+            :loading="isSubmitting"
+            large
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="formDialog" max-width="600px">
       <v-card>
         <v-card-title>
@@ -75,6 +137,9 @@
                     v-model="formValues.zipCode"
                     label="Zip Code"
                     required
+                    :rules="[...inputRules.required]"
+                    maxLength="5"
+                    type="tel"
                   />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
@@ -85,6 +150,7 @@
                     item-text="name"
                     item-value="id"
                     :disabled="formId ? true : false"
+                    :rules="[...inputRules.required]"
                   />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
@@ -108,7 +174,6 @@
           </v-btn>
           <v-btn
             color="primary"
-            :disabled="!isFormValid"
             @click="handleSubmit"
             :loading="isSubmitting"
             large
@@ -160,6 +225,8 @@
 <script>
 import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
+import Papa from "papaparse";
+import { FormRules } from "@/utils";
 
 export default Vue.extend({
   data() {
@@ -186,6 +253,9 @@ export default Vue.extend({
       },
       serviceList: [],
       cityList: [],
+      uploadDialog: false,
+      uploadData: null,
+      uploadFile: null,
       formDialog: false,
       formValues: {},
       formId: null,
@@ -193,8 +263,10 @@ export default Vue.extend({
       deleteValues: {},
       deleteId: null,
       isFormValid: false,
+      isFormUploadValid: false,
       isLoading: false,
       isSubmitting: false,
+      inputRules: FormRules,
       statusColor: {
         true: "success",
         false: "error",
@@ -274,7 +346,9 @@ export default Vue.extend({
         this.isSubmitting = true;
         const api = new OMSApi();
         const payload = {
-          zipCode: this.formValues.zipCode,
+          zipCodes: this.formDialog
+            ? [`${this.formValues.zipCode}`]
+            : this.uploadData,
           serviceId: this.formValues.serviceId,
           cityId: this.formValues.cityId,
         };
@@ -282,14 +356,16 @@ export default Vue.extend({
         if (res) {
           this.getServiceZipCodes();
           this.closeFormDialog();
+          this.closeUploadDialog();
           this.$root.snackbar.show({
             message: res.message,
             type: "success",
           });
         }
       } catch (error) {
+        const errMsg = error.response.data.error;
         this.$root.snackbar.show({
-          message: "Failed to add zip code",
+          message: errMsg || "Failed to add zip code",
           type: "error",
         });
         console.error(error);
@@ -318,7 +394,7 @@ export default Vue.extend({
           message: "Failed to update zip code",
           type: "error",
         });
-        console.error(error);
+        // console.error(error);
       } finally {
         this.isSubmitting = false;
       }
@@ -346,11 +422,51 @@ export default Vue.extend({
         this.isSubmitting = false;
       }
     },
-    handleSubmit() {
-      if (this.formId) {
-        this.submitUpdate();
-      } else {
+    async submitUpload() {
+      await this.$refs.uploadDialog.validate();
+      if (this.isFormUploadValid) {
         this.submitAdd();
+      }
+    },
+    async handleSubmit() {
+      await this.$refs.formDialog.validate();
+      if (this.isFormValid) {
+        if (this.formId) {
+          this.submitUpdate();
+        } else {
+          this.submitAdd();
+        }
+      }
+    },
+    openUploadDialog() {
+      this.uploadDialog = true;
+      this.formValues.cityId = parseInt(this.$route.params.cityId);
+    },
+    closeUploadDialog() {
+      this.uploadDialog = false;
+    },
+    onUpload(file) {
+      if (file) {
+        Papa.parse(file, {
+          complete: function (results) {
+            if (results.data.length > 0) {
+              const joinData = results.data.map((val) => val.join(", "));
+              const header = joinData.shift();
+              if (header === "ZipCodes") {
+                this.uploadFile = file;
+                this.uploadData = joinData;
+              } else {
+                this.uploadFile = null;
+                this.$root.snackbar.show({
+                  message: "The file must contain 'ZipCodes' header",
+                  type: "error",
+                });
+              }
+            }
+          }.bind(this),
+        });
+      } else {
+        this.uploadData = null;
       }
     },
     openFormDialog(props) {
@@ -387,6 +503,11 @@ export default Vue.extend({
       if (!newVal) {
         this.$refs.formDialog.reset();
         this.formId = null;
+      }
+    },
+    uploadDialog(newVal) {
+      if (!newVal) {
+        this.$refs.uploadDialog.reset();
       }
     },
   },

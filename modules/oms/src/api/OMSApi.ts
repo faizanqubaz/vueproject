@@ -184,7 +184,7 @@ export interface AddressCreateResponse {
     latitude: number;
     primary: boolean;
     id: number;
-  }
+  };
 }
 
 export interface AddressesResponse {
@@ -326,7 +326,9 @@ export default class OMSApi extends HttpClient {
   async getCities(): Promise<CitiesResponse> {
     const url = "cities";
     try {
-      const response: AxiosResponse<CitiesResponse> = await this.instance.get(url);
+      const response: AxiosResponse<CitiesResponse> = await this.instance.get(
+        url
+      );
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -448,7 +450,10 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async updateProvider(id: number, param: ProviderPayload): Promise<ProvidersResponse> {
+  async updateProvider(
+    id: number,
+    param: ProviderPayload
+  ): Promise<ProvidersResponse> {
     const url = "providers/" + id.toString();
 
     try {
@@ -483,7 +488,6 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-
   async getProviderServices(providerId: number): Promise<ProvidersResponse> {
     const url = `providers/${providerId}/services`;
     try {
@@ -501,10 +505,13 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async createAddress(address: AddressCreatePayload): Promise<AddressCreateResponse> {
+  async createAddress(
+    address: AddressCreatePayload
+  ): Promise<AddressCreateResponse> {
     const url = "addresses";
     try {
-      const response: AxiosResponse<AddressCreateResponse> = await this.instance.post(url, address);
+      const response: AxiosResponse<AddressCreateResponse> =
+        await this.instance.post(url, address);
       const { status } = response;
       if (status === 201) {
         const { data } = response;
@@ -520,7 +527,10 @@ export default class OMSApi extends HttpClient {
   async updateAddress(id: number, address: Address): Promise<GeneralResponse> {
     const url = `addresses/${id}`;
     try {
-      const response: AxiosResponse<GeneralResponse> = await this.instance.put(url, address);
+      const response: AxiosResponse<GeneralResponse> = await this.instance.put(
+        url,
+        address
+      );
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -536,7 +546,8 @@ export default class OMSApi extends HttpClient {
   async deleteAddress(id: number): Promise<GeneralResponse> {
     const url = `addresses/${id}`;
     try {
-      const response: AxiosResponse<GeneralResponse> = await this.instance.delete(url);
+      const response: AxiosResponse<GeneralResponse> =
+        await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -549,10 +560,13 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async createProviderService(service: ProviderServicePayload): Promise<ProviderServicesResponse> {
+  async createProviderService(
+    service: ProviderServicePayload
+  ): Promise<ProviderServicesResponse> {
     const url = "provider-services";
     try {
-      const response: AxiosResponse<ProviderServicesResponse> = await this.instance.post(url, service);
+      const response: AxiosResponse<ProviderServicesResponse> =
+        await this.instance.post(url, service);
       const { status } = response;
       if (status === 201) {
         const { data } = response;
@@ -565,10 +579,16 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async updateProviderService(id: number, service: ProviderServicePayload): Promise<GeneralResponse> {
+  async updateProviderService(
+    id: number,
+    service: ProviderServicePayload
+  ): Promise<GeneralResponse> {
     const url = `provider-services/${id}`;
     try {
-      const response: AxiosResponse<GeneralResponse> = await this.instance.put(url, service);
+      const response: AxiosResponse<GeneralResponse> = await this.instance.put(
+        url,
+        service
+      );
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -584,7 +604,8 @@ export default class OMSApi extends HttpClient {
   async deleteProviderService(serviceId: number): Promise<DeleteResponse> {
     const url = `provider-services/${serviceId}`;
     try {
-      const response: AxiosResponse<DeleteResponse> = await this.instance.delete(url);
+      const response: AxiosResponse<DeleteResponse> =
+        await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
