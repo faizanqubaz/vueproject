@@ -23,8 +23,7 @@
                         <v-btn
                           color="secondary"
                           @click="patientDialog = true"
-                          text
-                          tile
+                          depressed
                         >
                           <v-icon class="mr-2">mdi-pencil</v-icon>
                           Edit
@@ -153,210 +152,238 @@
           </v-card>
         </v-hover>
       </v-col>
-      <v-dialog v-model="patientDialog" max-width="800px">
+      <v-dialog v-model="patientDialog" max-width="800px" scrollable>
         <v-card>
-          <!-- profile -->
-          <v-card-title>
-            <v-row>
-              <v-col>
-                 <span class="primary--text">Profile</span>
-              </v-col>
-              <v-col>
-                 <div class="text-right">
-                   <v-btn
-                    @click="updatePatient"
-                    depressed
-                    color="primary"
-                    :disabled="!isEditPatientFormValid"
-                    :loading="isUpdatePatient"
-                    text
-                  >
-                    Save
-                  </v-btn>
-                 </div>
-              </v-col>
-            </v-row>
+          <v-card-title class="pa-0">
+             <v-toolbar dark color="primary" >
+              <v-toolbar-title>Edit Patient</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn
+                icon
+                @click="patientDialog = false"
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+             </v-toolbar>
           </v-card-title>
           <v-card-text>
-            <v-form
-              ref="updatePatientForm"
-              v-model="isEditPatientFormValid"
-              lazy-validation
-            >
+            <!-- profile -->
+            <v-card-title>
               <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="patientForm.firstName"
-                    placeholder="First Name"
-                    label="First Name"
-                    required
-                  />
+                <v-col>
+                  <span class="primary--text">Profile</span>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="patientForm.middleName"
-                    placeholder="Middle Name"
-                    label="Middle Name"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="patientForm.lastName"
-                    placeholder="Last Name"
-                    label="Last Name"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                 
-                 <v-menu
-                    ref="menu1"
-                    v-model="datePicker"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template
-                      v-slot:activator="{ on, attrs }"
+                <v-col>
+                  <div class="text-right">
+                    <v-btn
+                      @click="updatePatient"
+                      depressed
+                      color="primary"
+                      :disabled="!isEditPatientFormValid"
+                      :loading="isUpdatePatient"
                     >
-                      <v-text-field
-                        v-model="patientForm.dob"
-                        label="Date of Birth"
-                        hint="MM/DD/YYYY"
-                        persistent-hint
-                        v-bind="attrs"
-                        @blur="
-                          date = parseDate(patientForm.dob),
-                          datePicker = false
-                        "
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="date"
-                      no-title
-                      @input="datePicker = false"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-autocomplete
-                    v-model="patientForm.gender"
-                    :items="genderList"
-                    label="Gender"
-                    required
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="patientForm.phone"
-                    placeholder="Phone Number"
-                    :rules="phoneRules"
-                    hint="xxx-xxx-xxxx"
-                    label="Phone"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="patientForm.email"
-                    placeholder="Email"
-                    label="Email"
-                    required
-                  />
+                      Save
+                    </v-btn>
+                  </div>
                 </v-col>
               </v-row>
-            </v-form>
-          </v-card-text>
-          <!-- end profile -->
-          <v-divider></v-divider>
-          <!-- address -->
-          <v-card-title>
-            <v-row>
-              <v-col>
-                 <span class="primary--text">Address</span>
-              </v-col>
-              <v-col>
-                 <div class="text-right">
-                   <v-btn
-                    depressed
-                    color="primary"
-                    disabled
-                    :loading="isUpdatePatient"
-                    text
-                  >
-                    Save
-                  </v-btn>
-                 </div>
-              </v-col>
-            </v-row>
-          </v-card-title>
-          <v-card-text>
-               <v-form
-              ref="updatePatientForm"
-              v-model="isEditPatientFormValid"
-              lazy-validation
-            >
+            </v-card-title>
+            <v-card-text>
+              <v-form
+                ref="updatePatientForm"
+                v-model="isEditPatientFormValid"
+                lazy-validation
+              >
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="patientForm.firstName"
+                      placeholder="First Name"
+                      label="First Name"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="patientForm.middleName"
+                      placeholder="Middle Name"
+                      label="Middle Name"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="patientForm.lastName"
+                      placeholder="Last Name"
+                      label="Last Name"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                  
+                  <v-menu
+                      v-model="datePicker"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      max-width="290px"
+                      min-width="290px"
+                    >
+                      <template
+                        v-slot:activator="{ on, attrs }"
+                      >
+                        <v-text-field
+                          v-model="patientForm.dob"
+                          label="Date of Birth"
+                          hint="MM/DD/YYYY"
+                          persistent-hint
+                          v-bind="attrs"
+                          @blur="
+                            date = parseDate(patientForm.dob),
+                            datePicker = false
+                          "
+                          v-on="on"
+                        />
+                      </template>
+                      <v-date-picker
+                        v-model="date"
+                        no-title
+                        @input="datePicker = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-autocomplete
+                      v-model="patientForm.gender"
+                      :items="genderList"
+                      label="Gender"
+                      required
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="patientForm.phone"
+                      placeholder="Phone Number"
+                      :rules="phoneRules"
+                      label="Phone"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="patientForm.email"
+                      placeholder="Email"
+                      label="Email"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+            <!-- end profile -->
+            <v-divider></v-divider>
+            <!-- address -->
+            <v-card-title>
               <v-row>
-                <v-col cols="12">
-                  <vuetify-google-autocomplete
-                    ref="patientEditAddress"
-                    id="patientEditMap"
-                    classname="form-control"
-                    placeholder="Address"
-                    v-on:placechanged="getNewAddressData"
-                    country="us"
-                    :value= "addressFormat(visitDetails.address.street,visitDetails.address.city, visitDetails.address.state, visitDetails.address.zipCode)"
-                    required
-                  />
+                <v-col>
+                  <span class="primary--text">Address</span>
+                </v-col>
+                <v-col>
+                  <div class="text-right">
+                    <v-btn
+                      depressed
+                      color="primary"
+                      @click="updateAddress"
+                      :loading="isUpdatePatient"
+                    >
+                      Save
+                    </v-btn>
+                  </div>
                 </v-col>
               </v-row>
-            </v-form>
-          </v-card-text>
-          <!-- end addres -->
-          <v-divider></v-divider>
-          <!-- Notes -->
-          <v-card-title>
-            <v-row>
-              <v-col>
-                  <span class="primary--text">Notes</span>
-              </v-col>
-              <v-col>
+            </v-card-title>
+            <v-card-text>
+                <v-form
+                ref="updatePatientForm"
+                v-model="isEditPatientFormValid"
+                lazy-validation
+              >
+                <v-row>
+                  <v-col cols="12">
+                    <vuetify-google-autocomplete
+                      ref="patientEditAddress"
+                      id="patientEditMap"
+                      classname="form-control"
+                      placeholder="Address"
+                      v-on:placechanged="getNewAddressData"
+                      country="us"
+                      :value= "patientAddress.address"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="9">
+                  <v-text-field
+                      v-model="patientAddress.apartment"
+                      placeholder="Apartment"
+                      label="Apartment"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                  <v-switch
+                      v-model="patientAddress.primary"
+                      label="Primary"
+                      color="success"
+                    />
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+            <!-- end addres -->
+            <v-divider></v-divider>
+            <!-- Notes -->
+            <v-card-title>
+              <v-row>
+                <v-col>
+                    <span class="primary--text">Notes</span>
+                </v-col>
+                <v-col>
                   <div class="text-right">
                     <v-btn
                     depressed
                     color="primary"
                     :loading="isUpdatePatient"
-                    text
-                    disabled
+                    v-if="patientNote"
+                    @click="saveNote"
                   >
                     Save
                   </v-btn>
+                  <v-btn v-else color="primary" @click="createNote">+ Add Notes</v-btn>
                   </div>
-              </v-col>
-            </v-row>
-          </v-card-title>
-          <v-card-text>
-                <v-form
-              ref="updatePatientForm"
-              v-model="isEditPatientFormValid"
-              lazy-validation
-            >
-              <v-row>
-                <v-col cols="12">
-                   <v-text-field
-                    v-model="patientNote"
-                    placeholder="Notes"
-                    label="Notes"
-                    required
-                  />
                 </v-col>
               </v-row>
-            </v-form>
+            </v-card-title>
+            <v-card-text>
+              <v-form
+                ref="updatePatientForm"
+                v-model="isEditPatientFormValid"
+                lazy-validation
+                v-if="patientNote"
+              >
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="patientNoteData.memo"
+                      placeholder="Notes"
+                      label="Notes"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-form>
+              
+            </v-card-text>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -379,8 +406,7 @@
                         <v-btn
                           color="secondary"
                           @click="visitDialog = true"
-                          text
-                          tile
+                          depressed
                         >
                           <v-icon class="mr-2">mdi-pencil</v-icon> Edit
                         </v-btn>
@@ -558,8 +584,7 @@
                             visitDetails.provider ? 'secondary' : 'primaryzzzzz'
                           "
                           @click="providerDialog = true"
-                          text
-                          tile
+                          depressed
                         >
                           <v-icon class="mr-2"
                             >mdi-{{
@@ -670,7 +695,6 @@
                 <v-btn
                   depressed
                   block
-                  text
                   color="blue-grey"
                   @click="cancelDialog = false"
                 >
@@ -751,13 +775,22 @@ export default Vue.extend({
         email: null,
       },
       patientFormId:null,
-      patientNote:null,
+      patientAddress:{
+        address:null,
+        apartment:null,
+        primary:false
+      },
+      patientAddressId:null,
+      patientNoteData:{
+        id:null,
+        memo:null
+      },
+      patientNote:false,
       datePicker:false,
       date:null,
       maxDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       newAddress: {
         street: "",
-        apartment: "",
         city: "",
         state: "",
         zipCode: "",
@@ -771,6 +804,11 @@ export default Vue.extend({
     date(val) {
       this.patientForm.dob = this.formatDate(this.date);
     },
+    patientDialog(val) {
+      if (!val && !this.patientNoteData.memo && !this.patientNoteData.id) {
+        this.patientNote = false
+      }
+    }
   },
   methods: {
     async getVisitDetails(id) {
@@ -817,10 +855,22 @@ export default Vue.extend({
       this.patientForm.phone = this.visitDetails.patient.phone;
       this.patientForm.email = this.visitDetails.patient.email;
       this.patientFormId = this.visitDetails.patient.id;
+      this.patientAddress.address = this.addressFormat(this.visitDetails.address.street, this.visitDetails.address.city, this.visitDetails.address.state, this.visitDetails.address.zipCode)
+      this.patientAddress.apartment = this.visitDetails.address.apartment
+      this.patientAddress.primary = this.visitDetails.address.primary
+      this.patientAddressId = this.visitDetails.address.id
+      this.newAddress.street = this.visitDetails.address.street;
+      this.newAddress.city = this.visitDetails.address.city;
+      this.newAddress.state = this.visitDetails.address.state;
+      this.newAddress.zipCode = this.visitDetails.address.zipCode;
+      this.newAddress.longitude = this.visitDetails.address.longitude;
+      this.newAddress.latitude = this.visitDetails.address.latitude;
+      this.patientNoteData = this.visitDetails.patientNote
+      if (this.patientNoteData.id) {
+        this.patientNote = true
+      }
     },
     async updatePatient() {
-      console.log(this.patientFormId);
-      console.log(this.patientForm);
       this.isUpdatePatient = true
       const patientForm = {
         ...this.patientForm,
@@ -835,19 +885,74 @@ export default Vue.extend({
         this.snackbar.message = "Failed to update patient";
         this.snackbar.active = true;
       } finally {
-        this.patientDialog = false;
         this.snackbar.message = "Patient updated";
         this.snackbar.active = true;
         this.isUpdatePatient = false;
       }
     },
-     getNewAddressData (addressData, placeResultData) {
+    async updateAddress() {
+      this.isUpdatePatient = true
+      try {
+        const api = new OMSApi();
+        const address = {
+          street: this.newAddress.street,
+          apartment: this.patientAddress.apartment,
+          city: this.newAddress.city,
+          state: this.newAddress.state,
+          zipCode: this.newAddress.zipCode,
+          primary: this.patientAddress.primary,
+          longitude: this.newAddress.longitude,
+          latitude: this.newAddress.latitude
+        };
+        const response = await api.updateAddress(this.patientAddressId, address);
+        if (response) {
+          this.getVisitDetails(this.$router.currentRoute.params.id)
+        }
+      } catch (error) {
+        this.snackbar.message = "Failed to update Address";
+        this.snackbar.active = true;
+      } finally {
+        this.snackbar.message = "Address updated";
+        this.snackbar.active = true;
+        this.isUpdatePatient = false;
+      }
+    },
+    async saveNote() {
+      this.isUpdatePatient = true
+      try {
+        const api = new OMSApi();
+        if (this.patientNoteData.id) {
+          const response = await api.updateNote(this.patientNoteData.id, this.patientNoteData.memo);
+        }
+        else {
+          const payload = {
+            visitId : this.visitDetails.id,
+            patientId : this.visitDetails.patient.id,
+            memo : this.patientNoteData.memo
+          }
+          const response = await api.addNote(payload);
+        }
+      } catch (error) {
+        this.snackbar.message = "Failed to save note";
+        this.snackbar.active = true;
+      } finally {
+        this.getVisitDetails(this.$router.currentRoute.params.id)
+        this.snackbar.message = "Note Saved";
+        this.snackbar.active = true;
+        this.isUpdatePatient = false;
+      }
+    },
+    getNewAddressData (addressData, placeResultData) {
       this.newAddress.street = addressData.name;
       this.newAddress.city = placeResultData.formatted_address.split(',')[1];
       this.newAddress.state = addressData.administrative_area_level_1;
       this.newAddress.zipCode = addressData.postal_code;
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
+    },
+    createNote() {
+      this.patientNoteData = {id:null, memo:''}
+      this.patientNote = true
     },
     colorStatus(val) {
       let color;

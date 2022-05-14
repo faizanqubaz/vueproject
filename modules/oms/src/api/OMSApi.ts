@@ -201,6 +201,38 @@ export interface Note {
   id: number;
   memo: string;
 }
+export interface NoteIdResponse {
+  id: number;
+}
+export interface NoteCreateResult {
+  visit: NoteIdResponse;
+  provider: NoteIdResponse;
+  patient: NoteIdResponse;
+  memo: string;
+  id: number;
+}
+export interface NoteCreateResponse {
+  message: string;
+  result: NoteCreateResult;
+}
+export interface NoteCreatePayload {
+  visitId: NoteIdResponse;
+  patientId: NoteIdResponse;
+  memo: string;
+}
+
+export interface NoteUpdateResult {
+  id: number;
+  memo: string;
+  patient?: Patient;
+  visit?: Visit;
+  provider?: Provider;
+}
+export interface NoteUpdateResponse {
+  message: string;
+  result: NoteUpdateResult;
+}
+
 export interface Visit {
   id: number;
   date: string;
@@ -974,6 +1006,38 @@ export default class OMSApi extends HttpClient {
     try {
       const response: AxiosResponse<ServiceTimeSlotsResponse> =
         await this.instance.delete(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async createNote(payload: NoteCreatePayload): Promise<NoteCreateResponse> {
+    const url = "notes";
+    try {
+      const response: AxiosResponse<NoteCreateResponse> =
+      await this.instance.post(url, payload);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async updateNote(id:number, memo: string): Promise<NoteUpdateResponse> {
+    const url = "notes/" + id;
+    try {
+      const response: AxiosResponse<NoteUpdateResponse> =
+      await this.instance.put(url, {memo: memo});
       const { status } = response;
       if (status === 200) {
         const { data } = response;
