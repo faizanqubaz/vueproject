@@ -132,6 +132,7 @@ import moment from 'moment'
 export default Vue.extend({
   data () {
     return {
+      image: null,
       snackbar: {
         open: false,
         message: ''

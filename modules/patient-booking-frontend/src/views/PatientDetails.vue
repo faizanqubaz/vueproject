@@ -154,8 +154,13 @@ export default Vue.extend({
       this.$store.commit('setDob', this.dob)
       this.$store.commit('setEmail', this.email)
 
-      if (this.$store.getters.insurance && this.valid) {
-        this.$router.push('/insurance')
+      if (this.$store.getters.payment && this.valid) {
+        if (this.$store.getters.payment.insurance) {
+          this.$router.push('/insurance')
+        }
+        if (this.$store.getters.payment.card) {
+          this.$router.push('/payment')
+        }
       } else if (this.valid) {
         this.$router.push('/review-appointment')
       }
