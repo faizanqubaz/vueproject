@@ -15,29 +15,18 @@
       >
         <template v-slot:top>
           <v-row align="center">
-            <v-col sm="6" md="2" lg="2" xl="1">
-              <v-btn block color="primary" dark v-bind="attrs" v-on="on">
-                Add Service Group
-              </v-btn>
+            <v-col sm="6" md="2" lg="6" xl="1">
+              <v-btn color="primary" width="120px"> Add </v-btn>
             </v-col>
           </v-row>
         </template>
 
         <template v-slot:[`item.actions`]>
-          <v-btn depressed class="mr-2" color="secondary"> Update </v-btn>
+          <v-btn depressed class="mr-2" color="primary"> Update </v-btn>
           <v-btn depressed color="error"> Delete </v-btn>
         </template>
       </v-data-table>
     </v-card>
-
-    <v-snackbar outlined color="success" top v-model="snackbar.active">
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn color="red" text v-bind="attrs" @click="snackbar.active = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -51,14 +40,16 @@ export default Vue.extend({
       headers: [
         { text: "Id", value: "id" },
         { text: "Name", value: "name" },
-        { text: "Actions", value: "actions", align: "center", width: "240px" },
+        {
+          text: "Actions",
+          value: "actions",
+          align: "center",
+          width: "240px",
+          sortable: false,
+        },
       ],
       serviceGroupList: [],
       isLoading: false,
-      snackbar: {
-        message: null,
-        active: false,
-      },
     };
   },
   created() {
@@ -74,8 +65,11 @@ export default Vue.extend({
           this.serviceGroupList = res.result.data;
         }
       } catch (error) {
-        this.snackbar.message = "Failed to get service groups list";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get service zip codes list",
+          type: "error",
+        });
+        console.error(error);
       } finally {
         this.isLoading = false;
       }

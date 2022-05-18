@@ -15,8 +15,8 @@
       >
         <template v-slot:top>
           <v-row align="center">
-            <v-col sm="6" md="2" lg="2" xl="1">
-              <v-btn block color="primary" @click.stop="openFormDialog">
+            <v-col sm="6" md="2" lg="6" xl="1">
+              <v-btn width="120px" color="primary" @click.stop="openFormDialog">
                 Add
               </v-btn>
             </v-col>
@@ -46,7 +46,7 @@
           <v-btn
             depressed
             class="mr-2"
-            color="secondary"
+            color="primary"
             @click.stop="openFormDialog(props.item)"
           >
             Update
@@ -200,7 +200,13 @@ export default Vue.extend({
         { text: "Provider Payment", value: "payment" },
         { text: "Group", value: "group.name" },
         { text: "Active", value: "active" },
-        { text: "Actions", value: "actions", align: "center", width: "240px" },
+        {
+          text: "Actions",
+          value: "actions",
+          align: "center",
+          width: "240px",
+          sortable: false,
+        },
       ],
       serviceList: [],
       serviceGroupList: [],

@@ -136,11 +136,11 @@
                 >
                   <template v-slot:top>
                     <v-row align="center">
-                      <v-col sm="6" md="2" lg="2" xl="1">
+                      <v-col sm="6" md="2" lg="6" xl="1">
                         <v-dialog v-model="addAddressDialog" max-width="600px">
                           <template v-slot:activator="{ on, attrs }">
                             <v-btn
-                              block
+                              width="120px"
                               color="primary"
                               v-bind="attrs"
                               v-on="on"
@@ -334,13 +334,13 @@
                 >
                   <template v-slot:top>
                     <v-row align="center">
-                      <v-col sm="6" md="2" lg="2" xl="1">
+                      <v-col sm="6" md="2" lg="6" xl="1">
 
                         <v-dialog v-model="addServiceDialog" max-width="600px">
                           <template v-slot:activator="{ on, attrs }">
 
                             <v-btn
-                              block
+                              width="120px"
                               color="primary"
                               v-bind="attrs"
                               v-on="on"
@@ -456,23 +456,6 @@
         </v-card>
       </template>
     </v-card>
-    <v-snackbar
-      outlined color="success"
-      top
-      v-model="snackbar.active"
-    >
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          depressed
-          color="secondary"
-          v-bind="attrs"
-          @click="snackbar.active = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -520,7 +503,10 @@ export default Vue.extend({
         {
           text: "Actions",
           value: "actions",
-        }
+          align: "center",
+          width: "240px",
+          sortable: false,
+        },
       ],
       serviceHeaders: [
         {
@@ -538,12 +524,11 @@ export default Vue.extend({
         {
           text: "Actions",
           value: "actions",
-        }
+          align: "center",
+          width: "240px",
+          sortable: false,
+        },
       ],
-      snackbar: {
-        message: null,
-        active: false,
-      },
       activeTab: null,
       loading: true,
       saveLoading: false,
@@ -620,14 +605,18 @@ export default Vue.extend({
             email: this.provider.email
           });
         if (response) {
-          this.snackbar.message = response.message;
+          this.$root.snackbar.show({
+            message: response.message,
+            type: "success",
+          });
           this.saveLoading = false;
-          this.snackbar.active = true;
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to update providers";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to update provider",
+          type: "error",
+        });
       }
     },
     async getProviderServices () {
@@ -650,8 +639,10 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get provider services list";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get provider services list",
+          type: "error",
+        });
       }
     },
     getNewAddressData (addressData, placeResultData) {
@@ -681,15 +672,19 @@ export default Vue.extend({
             ...this.newAddress,
             id: response.result.id
           });
-          this.snackbar.message = response.message;
+          this.$root.snackbar.show({
+          message: response.message,
+          type: "success",
+        });
           this.saveLoading = false;
           this.closeAddAddressDialog();
-          this.snackbar.active = true;
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to add address";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to add address",
+          type: "error",
+        });
       }
     },
     closeUpdateAddressDialog (id) {
@@ -735,15 +730,19 @@ export default Vue.extend({
           this.provider.addresses = this.provider.addresses.map(adrs => {
             return adrs.id == this.updatedAddressId ? { ...address, id: this.updatedAddressId } : adrs; 
           });
-          this.snackbar.message = response.message;
+          this.$root.snackbar.show({
+          message: response.message,
+          type: "success",
+        });
           this.saveLoading = false;
           this.$set(this.updatedAddress, this.updatedAddressId, false);
-          this.snackbar.active = true;
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to update Address";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to update address",
+          type: "error",
+        });
       }
     },
     setDeleteAddress (props) {
@@ -758,14 +757,18 @@ export default Vue.extend({
         if (response) {
            this.saveLoading = false;
            this.provider.addresses = this.provider.addresses.filter(address => address.id !== this.deletedAddress.id);
-           this.snackbar.message = response.message;
-           this.snackbar.active = true;
+           this.$root.snackbar.show({
+            message: response.message,
+            type: "success",
+           });
            this.$set(this.deletedAddress, this.deletedAddress.id, false);
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to delete Address";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to delete address",
+          type: "error",
+        });
       }
     },
     closeAddServiceDialog () {
@@ -780,8 +783,10 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get services list";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get services list",
+          type: "error",
+        });
       }
     },
     async getCities () {
@@ -793,8 +798,10 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get city list";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get cities list",
+          type: "error",
+        });
       }
     },
     populateServiceListByCity () {
@@ -827,14 +834,18 @@ export default Vue.extend({
         }));
 
         await this.getProviderServices();
-        this.snackbar.message = "Service added successfully";
+        this.$root.snackbar.show({
+          message: "Service added successfully",
+          type: "success",
+        });
         this.saveLoading = false;
         this.closeAddServiceDialog();
-        this.snackbar.active = true;
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to add Service";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to add service",
+          type: "error",
+        });
       }
     },
     setDeleteService (props) {
@@ -850,14 +861,18 @@ export default Vue.extend({
         if (response) {
            this.saveLoading = false;
            await this.getProviderServices ();
-           this.snackbar.message = response.message;
-           this.snackbar.active = true;
+           this.$root.snackbar.show({
+            message: response.message,
+            type: "success",
+           });
            this.$set(this.deletedService, this.deletedService.id, false);
         }
       } catch (error) {
         this.saveLoading = false;
-        this.snackbar.message = "Failed to delete Service";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to delete service",
+          type: "error",
+        });
       }
     },
      save (date) {

@@ -20,87 +20,94 @@
       >
         <template v-slot:top>
           <v-row align="center" class="mb-2">
-            <v-col sm="6" md="2" lg="2" xl="1">
-              <v-btn block color="primary" @click="visitDialog = true" dark>
-                Add Visit
-              </v-btn>
+            <v-col sm="6" md="6" lg="6" xl="1">
+              <div class="d-flex">
+                <v-btn
+                  width="120px"
+                  color="primary"
+                  @click="visitDialog = true"
+                  dark
+                  class="mr-4"
+                >
+                  Add
+                </v-btn>
+
+                <v-menu
+                  v-model="menuFilter"
+                  :close-on-content-click="false"
+                  :nudge-width="200"
+                  offset-x
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn v-bind="attrs" v-on="on">
+                      <v-progress-circular
+                        v-if="isLoadingFilter"
+                        indeterminate
+                        width="2"
+                        size="20"
+                        class="mr-2"
+                      />
+                      <v-icon v-else class="mr-2">mdi-filter-variant</v-icon>
+                      Filters
+                    </v-btn>
+                  </template>
+
+                  <v-card>
+                    <v-card-title> Filter Options </v-card-title>
+                    <v-card-text class="pb-0">
+                      <v-autocomplete
+                        v-model="listParams.service"
+                        :items="serviceList"
+                        label="Service"
+                        item-text="name"
+                        item-value="id"
+                        clearable
+                        dense
+                      />
+                      <v-autocomplete
+                        v-model="listParams.provider"
+                        :items="providerList"
+                        label="Provider"
+                        item-text="email"
+                        item-value="id"
+                        clearable
+                        dense
+                      />
+                      <v-autocomplete
+                        v-model="listParams.status"
+                        :items="statusList"
+                        label="Status"
+                        item-text="label"
+                        item-value="value"
+                        clearable
+                        dense
+                      />
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-btn
+                        v-if="renderFilterBtn()"
+                        text
+                        width="72px"
+                        @click="clearFilters"
+                      >
+                        Clear
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        width="72px"
+                        @click="applyFilters"
+                      >
+                        Apply
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-menu>
+              </div>
             </v-col>
 
-            <v-col sm="6" md="2">
-              <v-menu
-                v-model="menuFilter"
-                :close-on-content-click="false"
-                :nudge-width="200"
-                offset-x
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on">
-                    <v-progress-circular
-                      v-if="isLoadingFilter"
-                      indeterminate
-                      width="2"
-                      size="20"
-                      class="mr-2"
-                    />
-                    <v-icon v-else class="mr-2">mdi-filter-variant</v-icon>
-                    Filters
-                  </v-btn>
-                </template>
-
-                <v-card>
-                  <v-card-title> Filter Options </v-card-title>
-                  <v-card-text class="pb-0">
-                    <v-autocomplete
-                      v-model="listParams.service"
-                      :items="serviceList"
-                      label="Service"
-                      item-text="name"
-                      item-value="id"
-                      clearable
-                      dense
-                    />
-                    <v-autocomplete
-                      v-model="listParams.provider"
-                      :items="providerList"
-                      label="Provider"
-                      item-text="email"
-                      item-value="id"
-                      clearable
-                      dense
-                    />
-                    <v-autocomplete
-                      v-model="listParams.status"
-                      :items="statusList"
-                      label="Status"
-                      item-text="label"
-                      item-value="value"
-                      clearable
-                      dense
-                    />
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      v-if="renderFilterBtn()"
-                      text
-                      width="72px"
-                      @click="clearFilters"
-                    >
-                      Clear
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      width="72px"
-                      @click="applyFilters"
-                    >
-                      Apply
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-menu>
-            </v-col>
-            <v-col sm="12" md="4" offset-md="4" lg="4">
+            <v-col sm="12" md="4" offset-md="2" lg="4">
               <v-spacer />
               <v-text-field
                 v-model="listParams.search"

@@ -15,10 +15,16 @@
       >
         <template v-slot:top>
           <v-row align="center">
-            <v-col sm="6" md="2" lg="2" xl="1">
+            <v-col sm="6" md="2" lg="6" xl="1">
               <v-dialog v-model="formDialog" max-width="600px">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn block color="primary" dark v-bind="attrs" v-on="on">
+                  <v-btn
+                    width="120px"
+                    color="primary"
+                    dark
+                    v-bind="attrs"
+                    v-on="on"
+                  >
                     Add
                   </v-btn>
                 </template>
@@ -88,12 +94,15 @@
               </v-dialog>
             </v-col>
 
-            <v-col cols="12" sm="12" md="6" lg="4" class="pa-0">
+            <v-col cols="12" sm="12" md="6" lg="4" offset-md="2">
+              <v-spacer />
               <v-text-field
                 v-model="searchText"
                 prepend-icon="mdi-magnify"
                 label="Search"
                 clearable
+                class="pa-0 ma-0"
+                hide-details
               />
             </v-col>
           </v-row>
@@ -103,7 +112,7 @@
             :to="{ name: 'City Detail', params: { cityId: props.item.id } }"
             depressed
             class="mr-2"
-            color="secondary"
+            color="primary"
           >
             Details
           </v-btn>

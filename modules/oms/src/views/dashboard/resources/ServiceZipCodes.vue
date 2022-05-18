@@ -17,16 +17,21 @@
       >
         <template v-slot:top>
           <v-row align="center">
-            <v-col sm="6" md="2" lg="2" xl="1">
-              <v-btn block color="primary" @click.stop="openFormDialog">
-                Add
-              </v-btn>
-            </v-col>
-            <v-col sm="6" md="2" lg="2" xl="1">
-              <v-btn color="primary" @click="openUploadDialog">
-                <v-icon class="pr-2">mdi-cloud-upload</v-icon>
-                Upload
-              </v-btn>
+            <v-col sm="6" md="2" lg="6" xl="1">
+              <div class="d-flex">
+                <v-btn
+                  width="120px"
+                  color="primary"
+                  @click.stop="openFormDialog"
+                  class="mr-2"
+                >
+                  Add
+                </v-btn>
+                <v-btn color="primary" @click="openUploadDialog">
+                  <v-icon class="pr-2">mdi-cloud-upload</v-icon>
+                  Upload
+                </v-btn>
+              </div>
             </v-col>
           </v-row>
         </template>
@@ -49,7 +54,7 @@
           <v-btn
             depressed
             class="mr-2"
-            color="secondary"
+            color="primary"
             @click.stop="openFormDialog(props.item)"
           >
             Update
