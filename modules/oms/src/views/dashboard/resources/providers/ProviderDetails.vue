@@ -582,13 +582,32 @@ export default Vue.extend({
   },
   async created () {
     this.loading = true;
-    this.provider = this.$route.params.provider;
+    await this.getProviderDetail();
     await this.getServices();
     await this.getCities();
     await this.getProviderServices();
     this.loading = false;
   },
   methods: {
+    async getProviderDetail() {
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const providerId = this.$route.params.providerId;
+        const response = await api.getProviderById(providerId);
+        if (response.result) {
+          this.provider = response.result;
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to get provider detail",
+          type: "error",
+        });
+        console.error(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async updateProvider () {
       this.saveLoading = true;
       try {

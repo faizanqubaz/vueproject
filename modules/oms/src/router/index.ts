@@ -36,7 +36,7 @@ const routes: Array<RouteConfig> = [
       },
       {
         name: "Provider Details",
-        path: "resources/providers/:providerId/details",
+        path: "resources/providers/:providerId",
         component: () =>
           import("@/views/dashboard/resources/providers/ProviderDetails.vue"),
         props: true,

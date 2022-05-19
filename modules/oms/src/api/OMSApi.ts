@@ -465,6 +465,24 @@ export default class OMSApi extends HttpClient {
     }
   }
 
+  async getProviderById(id: number): Promise<ProvidersResponse> {
+    const url = `providers/${id}`;
+    try {
+      const response: AxiosResponse<ProvidersResponse> = await this.instance.get(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async createProvider(param: ProviderPayload): Promise<ProvidersResponse> {
     const url = "providers";
     try {
