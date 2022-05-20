@@ -292,8 +292,7 @@
                     label="Service"
                     item-text="name"
                     item-value="id"
-                  >
-                  </v-autocomplete>
+                  />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
                   <v-autocomplete
@@ -302,8 +301,7 @@
                     label="Patient"
                     :item-text="getPatientItemText"
                     item-value="id"
-                  >
-                  </v-autocomplete>
+                  />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
                   <v-autocomplete
@@ -312,8 +310,7 @@
                     label="Address"
                     item-text="street"
                     item-value="id"
-                  >
-                  </v-autocomplete>
+                  />
                 </v-col>
               </v-row>
             </v-container>

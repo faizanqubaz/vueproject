@@ -119,7 +119,7 @@ export interface Patient {
   phone: string;
   email: string;
   authId: string;
-  guardian: string
+  guardian: string;
 }
 export interface PatientsResponse {
   message: string;
@@ -133,7 +133,7 @@ export interface PatientsResponse {
 }
 export interface PatientsDetailsResponse {
   message: string;
-  result: Patient
+  result: Patient;
 }
 export interface PatientPayload {
   firstName?: string;
@@ -275,8 +275,10 @@ export interface VisitPayload {
   scheduledStartTime: string;
   scheduledEndTime: string;
   serviceId: number;
-  patientId: number;
-  addressId: number;
+  payment: number;
+  startTime: number;
+  checkInTime: string;
+  checkOutTime: string;
   status: string;
 }
 
@@ -372,7 +374,7 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
-  
+
   async getCityById(id: number): Promise<CitiesResponse> {
     const url = `cities/${id}`;
     try {
@@ -892,6 +894,24 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
+  async cancelVisit(id: number): Promise<VisitsResponse> {
+    const url = "visits/" + id.toString() + "/cancel";
+
+    try {
+      const response: AxiosResponse<VisitsResponse> = await this.instance.put(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
   async getVisitDetails(id: number): Promise<VisitDetailsResponse> {
     const url = `visits/${id}`;
     try {
@@ -926,12 +946,14 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async updatetPatients(id:number, payload:PatientPayload): Promise<PatientsDetailsResponse> {
+  async updatetPatients(
+    id: number,
+    payload: PatientPayload
+  ): Promise<PatientsDetailsResponse> {
     const url = "patients/" + id;
     try {
-      const response: AxiosResponse<PatientsDetailsResponse> = await this.instance.put(
-        url, payload
-      );
+      const response: AxiosResponse<PatientsDetailsResponse> =
+        await this.instance.put(url, payload);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -1039,7 +1061,7 @@ export default class OMSApi extends HttpClient {
     const url = "notes";
     try {
       const response: AxiosResponse<NoteCreateResponse> =
-      await this.instance.post(url, payload);
+        await this.instance.post(url, payload);
       const { status } = response;
       if (status === 201) {
         const { data } = response;
@@ -1051,11 +1073,11 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
-  async updateNote(id:number, memo: string): Promise<NoteUpdateResponse> {
+  async updateNote(id: number, memo: string): Promise<NoteUpdateResponse> {
     const url = "notes/" + id;
     try {
       const response: AxiosResponse<NoteUpdateResponse> =
-      await this.instance.put(url, {memo: memo});
+        await this.instance.put(url, { memo: memo });
       const { status } = response;
       if (status === 200) {
         const { data } = response;

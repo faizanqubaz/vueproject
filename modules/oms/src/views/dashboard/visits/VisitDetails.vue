@@ -18,7 +18,13 @@
                       <span class="primary--text">Patient</span>
                     </v-col>
                     <v-spacer></v-spacer>
-                    <v-col v-if="hover">
+                    <v-col
+                      v-if="
+                        hover &&
+                        visitDetails.status != 'canceled' &&
+                        visitDetails.status != 'completed'
+                      "
+                    >
                       <div class="text-right">
                         <v-btn
                           color="secondary"
@@ -155,16 +161,13 @@
       <v-dialog v-model="patientDialog" max-width="800px" scrollable>
         <v-card>
           <v-card-title class="pa-0">
-             <v-toolbar dark color="primary" >
+            <v-toolbar dark color="primary">
               <v-toolbar-title>Edit Patient</v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-btn
-                icon
-                @click="patientDialog = false"
-              >
+              <v-btn icon @click="patientDialog = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
-             </v-toolbar>
+            </v-toolbar>
           </v-card-title>
           <v-card-text>
             <!-- profile -->
@@ -220,8 +223,7 @@
                     />
                   </v-col>
                   <v-col cols="12" md="4">
-                  
-                  <v-menu
+                    <v-menu
                       v-model="datePicker"
                       :close-on-content-click="false"
                       :nudge-right="40"
@@ -230,9 +232,7 @@
                       max-width="290px"
                       min-width="290px"
                     >
-                      <template
-                        v-slot:activator="{ on, attrs }"
-                      >
+                      <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="patientForm.dob"
                           label="Date of Birth"
@@ -240,8 +240,8 @@
                           persistent-hint
                           v-bind="attrs"
                           @blur="
-                            date = parseDate(patientForm.dob),
-                            datePicker = false
+                            (date = parseDate(patientForm.dob)),
+                              (datePicker = false)
                           "
                           v-on="on"
                         />
@@ -259,7 +259,7 @@
                       :items="genderList"
                       label="Gender"
                       required
-                    ></v-autocomplete>
+                    />
                   </v-col>
                   <v-col cols="12" md="4">
                     <v-text-field
@@ -304,7 +304,7 @@
               </v-row>
             </v-card-title>
             <v-card-text>
-                <v-form
+              <v-form
                 ref="updatePatientForm"
                 v-model="isEditPatientFormValid"
                 lazy-validation
@@ -318,12 +318,12 @@
                       placeholder="Address"
                       v-on:placechanged="getNewAddressData"
                       country="us"
-                      :value= "patientAddress.address"
+                      :value="patientAddress.address"
                       required
                     />
                   </v-col>
                   <v-col cols="12" md="9">
-                  <v-text-field
+                    <v-text-field
                       v-model="patientAddress.apartment"
                       placeholder="Apartment"
                       label="Apartment"
@@ -331,7 +331,7 @@
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                  <v-switch
+                    <v-switch
                       v-model="patientAddress.primary"
                       label="Primary"
                       color="success"
@@ -346,20 +346,22 @@
             <v-card-title>
               <v-row>
                 <v-col>
-                    <span class="primary--text">Notes</span>
+                  <span class="primary--text">Notes</span>
                 </v-col>
                 <v-col>
                   <div class="text-right">
                     <v-btn
-                    depressed
-                    color="primary"
-                    :loading="isUpdatePatient"
-                    v-if="patientNote"
-                    @click="saveNote"
-                  >
-                    Save
-                  </v-btn>
-                  <v-btn v-else color="primary" @click="createNote">+ Add Notes</v-btn>
+                      depressed
+                      color="primary"
+                      :loading="isUpdatePatient"
+                      v-if="patientNote"
+                      @click="saveNote"
+                    >
+                      Save
+                    </v-btn>
+                    <v-btn v-else color="primary" @click="createNote"
+                      >+ Add Notes</v-btn
+                    >
                   </div>
                 </v-col>
               </v-row>
@@ -382,7 +384,6 @@
                   </v-col>
                 </v-row>
               </v-form>
-              
             </v-card-text>
           </v-card-text>
         </v-card>
@@ -401,7 +402,13 @@
                   <v-row align="center" style="height: 64px">
                     <v-col><span class="primary--text">Visit</span> </v-col>
                     <v-spacer></v-spacer>
-                    <v-col v-if="hover">
+                    <v-col
+                      v-if="
+                        hover &&
+                        visitDetails.status != 'canceled' &&
+                        visitDetails.status != 'completed'
+                      "
+                    >
                       <div class="text-right">
                         <v-btn
                           color="secondary"
@@ -467,7 +474,6 @@
                             </v-col>
                           </v-row>
                         </v-col>
-
                         <v-col cols="5" class="pb-0">Price</v-col>
                         <v-col cols="7" class="pb-0">
                           <v-row>
@@ -478,6 +484,15 @@
                                   ? visitDetails.service.price
                                   : "--"
                               }}
+                            </v-col>
+                          </v-row>
+                        </v-col>
+                        <v-col cols="5" class="pb-0">Payment</v-col>
+                        <v-col cols="7" class="pb-0">
+                          <v-row>
+                            <v-col class="pr-0" cols="1">:</v-col>
+                            <v-col class="pl-0" cols="10">
+                              ${{ visitDetails.payment }}
                             </v-col>
                           </v-row>
                         </v-col>
@@ -511,9 +526,7 @@
                             <v-col class="pl-0" cols="10">
                               {{
                                 visitDetails.startTime
-                                  ? dateFormat(visitDetails.startTime) +
-                                    " " +
-                                    formatTimeCustom(visitDetails.startTime)
+                                  ? setTimeZone(visitDetails.startTime)
                                   : "--"
                               }}
                             </v-col>
@@ -526,9 +539,7 @@
                             <v-col class="pl-0" cols="10">
                               {{
                                 visitDetails.checkInTime
-                                  ? dateFormat(visitDetails.checkInTime) +
-                                    " " +
-                                    formatTimeCustom(visitDetails.checkInTime)
+                                  ? setTimeZone(visitDetails.checkInTime)
                                   : "--"
                               }}
                             </v-col>
@@ -541,13 +552,18 @@
                             <v-col class="pl-0" cols="10">
                               {{
                                 visitDetails.checkOutTime
-                                  ? dateFormat(visitDetails.checkOutTime) +
-                                    " " +
-                                    formatTimeCustom(visitDetails.checkOutTime)
+                                  ? setTimeZone(visitDetails.checkOutTime)
                                   : "--"
                               }}
                             </v-col>
                           </v-row>
+                        </v-col>
+                        <v-col cols="12" class="pb-0 pt-0">
+                          <v-switch
+                            v-model="timeZoneSwitch"
+                            label="Local Time Zone"
+                            color="success"
+                          />
                         </v-col>
                       </v-row>
                     </v-col>
@@ -558,9 +574,155 @@
           </v-card>
         </v-hover>
       </v-col>
-      <v-dialog v-model="visitDialog" max-width="400px">
+      <v-dialog v-model="visitDialog" max-width="800px" scrollable>
         <v-card>
-          <v-card-title> Visit Dialog On Progress </v-card-title>
+          <v-card-title class="pa-0">
+            <v-toolbar dark color="primary">
+              <v-toolbar-title>Edit Visit</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon @click="visitDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar>
+          </v-card-title>
+          <v-card-text>
+            <v-card-title>
+              <v-row>
+                <v-col>
+                  <span class="primary--text">Visit</span>
+                </v-col>
+                <v-col>
+                  <div class="text-right">
+                    <v-btn
+                      @click="updateVisit"
+                      depressed
+                      color="primary"
+                      :disabled="!isEditPatientFormValid"
+                      :loading="isUpdatePatient"
+                    >
+                      Save
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-form
+                ref="updatePatientForm"
+                v-model="isEditPatientFormValid"
+                lazy-validation
+              >
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <v-menu
+                      v-model="datePickerVisit"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      max-width="290px"
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="visitForm.date"
+                          label="Date"
+                          hint="MM/DD/YYYY"
+                          persistent-hint
+                          v-bind="attrs"
+                          @blur="
+                            (dateVisit = parseDate(patientForm.dob)),
+                              (datePickerVisit = false)
+                          "
+                          v-on="on"
+                        />
+                      </template>
+                      <v-date-picker
+                        v-model="dateVisit"
+                        no-title
+                        @input="datePickerVisit = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="visitForm.scheduledStartTime"
+                      :placeholder="'Scheduled Start Time'"
+                      label="Scheduled Start Time"
+                      type="time"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-autocomplete
+                      v-model="visitForm.service"
+                      :items="serviceList"
+                      item-text="name"
+                      label="Service"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="visitForm.price"
+                      append-outer-icon="mdi-currency-usd"
+                      placeholder="Service Price"
+                      label="Service Price"
+                      required
+                      readonly
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="visitForm.payment"
+                      append-outer-icon="mdi-currency-usd"
+                      placeholder="Payment"
+                      label="Payment"
+                      type="number"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-autocomplete
+                      v-model="visitForm.status"
+                      :items="statusData"
+                      label="Status"
+                      item-text="label"
+                      item-value="value"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="visitForm.startTime"
+                      :placeholder="'Start Time'"
+                      label="Start Time"
+                      type="datetime-local"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="visitForm.checkInTime"
+                      :placeholder="'Check In Time'"
+                      label="Check In Time"
+                      type="datetime-local"
+                      required
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="visitForm.checkOutTime"
+                      :placeholder="'Check Out Time'"
+                      label="Check Out Time"
+                      type="datetime-local"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card-text>
         </v-card>
       </v-dialog>
     </v-row>
@@ -577,7 +739,13 @@
                   <v-row align="center" style="height: 64px">
                     <v-col><span class="primary--text">Provider</span> </v-col>
                     <v-spacer></v-spacer>
-                    <v-col v-if="hover">
+                    <v-col
+                      v-if="
+                        hover &&
+                        visitDetails.status != 'canceled' &&
+                        visitDetails.status != 'completed'
+                      "
+                    >
                       <div class="text-right">
                         <v-btn
                           :color="
@@ -722,20 +890,22 @@
 import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
 import moment from "moment";
+import "moment-timezone";
 import phone from "phone";
 import email from "email-validator";
-import VuetifyGoogleAutocomplete from 'vuetify-google-autocomplete';
+import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
+import { States, VisitStatuses } from "@/utils";
 
 Vue.use(VuetifyGoogleAutocomplete, {
   apiKey: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_KEY,
-  version: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_VERSION
+  version: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_VERSION,
 });
 
 export default Vue.extend({
   async created() {
     this.$router.currentRoute.params.id
       ? await this.getVisitDetails(this.$router.currentRoute.params.id)
-      : this.$router.push(-1);
+      : this.$router.push("/");
   },
   data() {
     return {
@@ -774,21 +944,40 @@ export default Vue.extend({
         phone: null,
         email: null,
       },
-      patientFormId:null,
-      patientAddress:{
-        address:null,
-        apartment:null,
-        primary:false
+      patientFormId: null,
+      patientAddress: {
+        address: null,
+        apartment: null,
+        primary: false,
       },
-      patientAddressId:null,
-      patientNoteData:{
-        id:null,
-        memo:null
+      patientAddressId: null,
+      patientNoteData: {
+        id: null,
+        memo: null,
       },
-      patientNote:false,
-      datePicker:false,
-      date:null,
-      maxDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      patientNote: false,
+      datePicker: false,
+      datePickerVisit: false,
+      date: null,
+      dateVisit: null,
+      visitForm: {
+        date: null,
+        scheduledStartTime: null,
+        scheduledEndTime: null,
+        serviceId: null,
+        service: null,
+        price: null,
+        payment: null,
+        status: null,
+        startTime: null,
+        checkInTime: null,
+        checkOutTime: null,
+      },
+      serviceList: null,
+      statusData: VisitStatuses,
+      maxDate: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .substr(0, 10),
       newAddress: {
         street: "",
         city: "",
@@ -796,19 +985,39 @@ export default Vue.extend({
         zipCode: "",
         primary: false,
         longitude: 0,
-        latitude: 0
+        latitude: 0,
       },
+      timeZoneAddress: null,
+      timeZone: null,
+      timeZoneSwitch: false,
     };
   },
   watch: {
-    date(val) {
+    date() {
       this.patientForm.dob = this.formatDate(this.date);
     },
     patientDialog(val) {
       if (!val && !this.patientNoteData.memo && !this.patientNoteData.id) {
-        this.patientNote = false
+        this.patientNote = false;
       }
-    }
+    },
+    "visitForm.service"(val) {
+      if (this.serviceList) {
+        let serice = this.serviceList.filter((res) => {
+          return res.name === val;
+        });
+        this.visitForm.price = serice[0].price;
+        this.visitForm.serviceId = serice[0].id;
+      }
+    },
+    timeZoneSwitch(val) {
+      if (val && this.timeZone.length > 0) {
+        this.timeZone[0].timeZone = moment.tz.guess();
+      } else {
+        this.timeZone[0].timeZone = this.timeZoneAddress;
+      }
+      this.setEditVisit();
+    },
   },
   methods: {
     async getVisitDetails(id) {
@@ -816,12 +1025,23 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const res = await api.getVisitDetails(id);
-        this.visitDetails = res.result;
-        this.setEditPatient();
+        if (res) {
+          this.visitDetails = res.result;
+          this.timeZone = States.filter((res) => {
+            return (
+              res.code == this.visitDetails.address.state ||
+              res.name == this.visitDetails.address.state
+            );
+          });
+          this.timeZoneAddress = this.timeZone[0].timeZone;
+          this.setEditPatient();
+          this.setEditVisit();
+        }
       } catch (error) {
-        // console.error(error);
-        this.snackbar.message = "Failed to get visit details";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to get visit details",
+          type: "error",
+        });
       } finally {
         this.loading = false;
       }
@@ -830,19 +1050,21 @@ export default Vue.extend({
       this.cancelLoading = true;
       try {
         const api = new OMSApi();
-        let params = {
-          status: "canceled",
-        };
-        const res = await api.updateVisit(id, params);
-        this.visitDetails = res.result;
+        const res = await api.cancelVisit(id);
+        if (res) {
+          this.getVisitDetails(id);
+          this.$root.snackbar.show({
+            message: "Visit canceled",
+            type: "success",
+          });
+        }
       } catch (error) {
-        // console.error(error);
-        this.snackbar.message = "Failed to cancel visit";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to cancel visit",
+          type: "error",
+        });
       } finally {
         this.cancelDialog = false;
-        this.snackbar.message = "Visit Canceled";
-        this.snackbar.active = true;
         this.cancelLoading = false;
       }
     },
@@ -855,43 +1077,92 @@ export default Vue.extend({
       this.patientForm.phone = this.visitDetails.patient.phone;
       this.patientForm.email = this.visitDetails.patient.email;
       this.patientFormId = this.visitDetails.patient.id;
-      this.patientAddress.address = this.addressFormat(this.visitDetails.address.street, this.visitDetails.address.city, this.visitDetails.address.state, this.visitDetails.address.zipCode)
-      this.patientAddress.apartment = this.visitDetails.address.apartment
-      this.patientAddress.primary = this.visitDetails.address.primary
-      this.patientAddressId = this.visitDetails.address.id
+      this.patientAddress.address = this.addressFormat(
+        this.visitDetails.address.street,
+        this.visitDetails.address.city,
+        this.visitDetails.address.state,
+        this.visitDetails.address.zipCode
+      );
+      this.patientAddress.apartment = this.visitDetails.address.apartment;
+      this.patientAddress.primary = this.visitDetails.address.primary;
+      this.patientAddressId = this.visitDetails.address.id;
       this.newAddress.street = this.visitDetails.address.street;
       this.newAddress.city = this.visitDetails.address.city;
       this.newAddress.state = this.visitDetails.address.state;
       this.newAddress.zipCode = this.visitDetails.address.zipCode;
       this.newAddress.longitude = this.visitDetails.address.longitude;
       this.newAddress.latitude = this.visitDetails.address.latitude;
-      this.patientNoteData = this.visitDetails.patientNote
-      if (this.patientNoteData.id) {
-        this.patientNote = true
+      this.patientNoteData = this.visitDetails.patientNote;
+      if (this.patientNoteData && this.patientNoteData.id) {
+        this.patientNote = true;
       }
     },
+    setEditVisit() {
+      this.visitForm.date = this.dateFormat(this.visitDetails.date);
+      this.visitForm.scheduledStartTime = this.visitDetails.scheduledStartTime;
+      this.visitForm.scheduledEndTime = this.visitDetails.scheduledEndTime;
+      this.visitForm.service = this.visitDetails.service.name;
+      this.visitForm.serviceId = this.visitDetails.service.id;
+      this.visitForm.price = this.visitDetails.service.price;
+      this.visitForm.payment = this.visitDetails.payment;
+      this.visitForm.status = this.visitDetails.status;
+      this.visitForm.startTime = this.visitDetails.startTime
+        ? this.formatTimeZoneForEdit(this.visitDetails.startTime)
+        : this.visitDetails.startTime;
+      this.visitForm.checkInTime = this.visitDetails.checkInTime
+        ? this.formatTimeZoneForEdit(this.visitDetails.checkInTime)
+        : this.visitDetails.checkInTime;
+      this.visitForm.checkOutTime = this.visitDetails.checkOutTime
+        ? this.formatTimeZoneForEdit(this.visitDetails.checkOutTime)
+        : this.visitDetails.checkOutTime;
+    },
+    setTimeZone(date) {
+      let myDatetimeString;
+      this.timeZone.length > 0
+        ? (myDatetimeString = moment(date)
+            .tz(this.timeZone[0].timeZone)
+            .format("MM/DD/YYYY hh:mm A z"))
+        : (myDatetimeString = moment(date).format("MM/DD/YYYY hh:mm A"));
+
+      return myDatetimeString;
+    },
+    formatTimeZoneForEdit(date) {
+      let myDatetimeString;
+      this.timeZone.length > 0
+        ? (myDatetimeString = moment(date)
+            .tz(this.timeZone[0].timeZone)
+            .format("YYYY-MM-DDThh:mm"))
+        : (myDatetimeString = moment(date).format("YYYY-MM-DDThh:mm"));
+
+      return myDatetimeString;
+    },
     async updatePatient() {
-      this.isUpdatePatient = true
+      this.isUpdatePatient = true;
       const patientForm = {
         ...this.patientForm,
-        dob:this.parseDate(this.patientForm.dob)
+        dob: this.parseDate(this.patientForm.dob),
       };
       try {
         const api = new OMSApi();
         const res = await api.updatetPatients(this.patientFormId, patientForm);
-        this.getVisitDetails(this.$router.currentRoute.params.id)
+        if (res) {
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          this.$root.snackbar.show({
+            message: "Patient updated",
+            type: "success",
+          });
+        }
       } catch (error) {
-        // console.error(error);
-        this.snackbar.message = "Failed to update patient";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to update patient",
+          type: "error",
+        });
       } finally {
-        this.snackbar.message = "Patient updated";
-        this.snackbar.active = true;
         this.isUpdatePatient = false;
       }
     },
     async updateAddress() {
-      this.isUpdatePatient = true
+      this.isUpdatePatient = true;
       try {
         const api = new OMSApi();
         const address = {
@@ -902,57 +1173,135 @@ export default Vue.extend({
           zipCode: this.newAddress.zipCode,
           primary: this.patientAddress.primary,
           longitude: this.newAddress.longitude,
-          latitude: this.newAddress.latitude
+          latitude: this.newAddress.latitude,
         };
-        const response = await api.updateAddress(this.patientAddressId, address);
+        const response = await api.updateAddress(
+          this.patientAddressId,
+          address
+        );
         if (response) {
-          this.getVisitDetails(this.$router.currentRoute.params.id)
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          this.$root.snackbar.show({
+            message: "Address updated",
+            type: "success",
+          });
         }
       } catch (error) {
-        this.snackbar.message = "Failed to update Address";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to update Address",
+          type: "error",
+        });
       } finally {
-        this.snackbar.message = "Address updated";
-        this.snackbar.active = true;
+        this.isUpdatePatient = false;
+      }
+    },
+    async updateVisit() {
+      this.isUpdatePatient = true;
+      try {
+        const api = new OMSApi();
+        const params = {
+          checkInTime: this.visitForm.checkInTime
+            ? this.timeZone.length > 0
+              ? moment
+                  .tz(this.visitForm.checkInTime, this.timeZone[0].timeZone)
+                  .utc()
+                  .format()
+              : moment(this.visitForm.checkInTime).format()
+            : null,
+          checkOutTime: this.visitForm.checkOutTime
+            ? this.timeZone.length > 0
+              ? moment
+                  .tz(this.visitForm.checkOutTime, this.timeZone[0].timeZone)
+                  .utc()
+                  .format()
+              : moment(this.visitForm.checkOutTime).format()
+            : null,
+          date: moment(this.visitForm.date).format("YYYY-MM-DD"),
+          payment: parseFloat(this.visitForm.payment),
+          serviceId: this.visitForm.serviceId,
+          scheduledEndTime: this.visitForm.scheduledEndTime,
+          scheduledStartTime:
+            this.visitForm.scheduledStartTime.split(":").length !== 3
+              ? this.visitForm.scheduledStartTime + ":00"
+              : this.visitForm.scheduledStartTime,
+          startTime: this.visitForm.startTime
+            ? this.timeZone.length > 0
+              ? moment
+                  .tz(this.visitForm.startTime, this.timeZone[0].timeZone)
+                  .utc()
+                  .format()
+              : moment(this.visitForm.startTime).format()
+            : null,
+          status: this.visitForm.status,
+        };
+        const response = await api.updateVisit(this.visitDetails.id, params);
+        if (response) {
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          this.$root.snackbar.show({
+            message: "Visit updated",
+            type: "success",
+          });
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to update Visit",
+          type: "error",
+        });
+      } finally {
         this.isUpdatePatient = false;
       }
     },
     async saveNote() {
-      this.isUpdatePatient = true
+      this.isUpdatePatient = true;
       try {
         const api = new OMSApi();
         if (this.patientNoteData.id) {
-          const response = await api.updateNote(this.patientNoteData.id, this.patientNoteData.memo);
-        }
-        else {
-          const payload = {
-            visitId : this.visitDetails.id,
-            patientId : this.visitDetails.patient.id,
-            memo : this.patientNoteData.memo
+          const response = await api.updateNote(
+            this.patientNoteData.id,
+            this.patientNoteData.memo
+          );
+          if (response) {
+            this.getVisitDetails(this.$router.currentRoute.params.id);
+            this.$root.snackbar.show({
+              message: "Note Updated",
+              type: "success",
+            });
           }
-          const response = await api.addNote(payload);
+        } else {
+          const params = {
+            visitId: this.visitDetails.id,
+            patientId: this.visitDetails.patient.id,
+            memo: this.patientNoteData.memo,
+          };
+          const response = await api.addNote(params);
+          if (response) {
+            this.getVisitDetails(this.$router.currentRoute.params.id);
+            this.$root.snackbar.show({
+              message: "Note Saved",
+              type: "success",
+            });
+          }
         }
       } catch (error) {
-        this.snackbar.message = "Failed to save note";
-        this.snackbar.active = true;
+        this.$root.snackbar.show({
+          message: "Failed to save note",
+          type: "error",
+        });
       } finally {
-        this.getVisitDetails(this.$router.currentRoute.params.id)
-        this.snackbar.message = "Note Saved";
-        this.snackbar.active = true;
         this.isUpdatePatient = false;
       }
     },
-    getNewAddressData (addressData, placeResultData) {
+    getNewAddressData(addressData, placeResultData) {
       this.newAddress.street = addressData.name;
-      this.newAddress.city = placeResultData.formatted_address.split(',')[1];
+      this.newAddress.city = placeResultData.formatted_address.split(",")[1];
       this.newAddress.state = addressData.administrative_area_level_1;
       this.newAddress.zipCode = addressData.postal_code;
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
     },
     createNote() {
-      this.patientNoteData = {id:null, memo:''}
-      this.patientNote = true
+      this.patientNoteData = { id: null, memo: "" };
+      this.patientNote = true;
     },
     colorStatus(val) {
       let color;
@@ -979,6 +1328,9 @@ export default Vue.extend({
     },
     dateFormat(date) {
       return moment(date).format("MM/DD/YYYY");
+    },
+    dateTimeFormat(date) {
+      return moment(date).format("YYYY-DD-MM hh:mm");
     },
     formatTimeCustom(time) {
       return time ? moment(time, "HH:mm:ss").format("hh:mm A") : "";
