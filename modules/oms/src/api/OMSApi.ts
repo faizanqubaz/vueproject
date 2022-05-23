@@ -854,6 +854,26 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
+
+  async getVisitCount(params: VisitParams): Promise<VisitsResponse> {
+    const urlParams = qs.stringify(pickBy(params, identity));
+    const url = `visits/count?${urlParams}`;
+    try {
+      const response: AxiosResponse<VisitsResponse> = await this.instance.get(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async postVisit(payload: VisitPayload): Promise<VisitsResponse> {
     const url = "visits";
     try {

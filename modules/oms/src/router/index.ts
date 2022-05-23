@@ -29,58 +29,56 @@ const routes: Array<RouteConfig> = [
       },
       {
         name: "Providers",
-        path: "resources/providers",
+        path: "settings/providers",
         component: () =>
-          import("@/views/dashboard/resources/providers/Providers.vue"),
+          import("@/views/dashboard/settings/providers/Providers.vue"),
         beforeEnter: authGuard,
       },
       {
         name: "Provider Details",
-        path: "resources/providers/:providerId",
+        path: "settings/providers/:providerId",
         component: () =>
-          import("@/views/dashboard/resources/providers/ProviderDetails.vue"),
+          import("@/views/dashboard/settings/providers/ProviderDetails.vue"),
         props: true,
         beforeEnter: authGuard,
       },
       {
         name: "Cities",
-        path: "resources/cities",
-        component: () =>
-          import("@/views/dashboard/resources/Cities/Cities.vue"),
+        path: "settings/cities",
+        component: () => import("@/views/dashboard/settings/Cities/Cities.vue"),
         beforeEnter: authGuard,
       },
       {
         name: "Add City",
-        path: "resources/cities/add",
+        path: "settings/cities/add",
         component: () =>
-          import("@/views/dashboard/resources/Cities/CityForm.vue"),
+          import("@/views/dashboard/settings/Cities/CityForm.vue"),
         beforeEnter: authGuard,
       },
       {
         name: "City Detail",
-        path: "resources/cities/:cityId",
+        path: "settings/cities/:cityId",
         component: () =>
-          import("@/views/dashboard/resources/Cities/CityForm.vue"),
+          import("@/views/dashboard/settings/Cities/CityForm.vue"),
         beforeEnter: authGuard,
       },
       {
         name: "Services",
-        path: "resources/services",
-        component: () => import("@/views/dashboard/resources/Services.vue"),
+        path: "settings/services",
+        component: () => import("@/views/dashboard/settings/Services.vue"),
         beforeEnter: authGuard,
       },
       {
         name: "Service Groups",
-        path: "resources/service-groups",
-        component: () =>
-          import("@/views/dashboard/resources/ServiceGroups.vue"),
+        path: "settings/service-groups",
+        component: () => import("@/views/dashboard/settings/ServiceGroups.vue"),
         beforeEnter: authGuard,
       },
       {
         name: "Service Zip Codes",
-        path: "resources/service-zip-codes",
+        path: "settings/service-zip-codes",
         component: () =>
-          import("@/views/dashboard/resources/ServiceZipCodes.vue"),
+          import("@/views/dashboard/settings/ServiceZipCodes.vue"),
         beforeEnter: authGuard,
       },
     ],

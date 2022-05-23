@@ -38,7 +38,7 @@
 
         <base-item v-else :key="`item-${i}`" :item="item" />
       </template>
-      <template v-for="(item, i) in computedResources">
+      <template v-for="(item, i) in computedSettings">
         <base-item-group v-if="item.children" :key="`group-${i}`" :item="item">
         </base-item-group>
 
@@ -85,11 +85,11 @@ export default Vue.extend({
         to: "/visits",
       },
     ],
-    resources: [
+    settings: [
       {
         icon: "mdi-layers",
-        title: "Resources",
-        group: "/resources",
+        title: "Settings",
+        group: "/settings",
         children: [
           {
             to: "service-groups",
@@ -106,10 +106,6 @@ export default Vue.extend({
           {
             to: "cities",
             title: "Cities",
-          },
-          {
-            to: "",
-            title: "Rendered Services",
           },
         ],
       },
@@ -129,8 +125,8 @@ export default Vue.extend({
     computedItems() {
       return this.items.filter(this.filterItem).map(this.mapItem);
     },
-    computedResources() {
-      return this.resources.filter(this.filterItem).map(this.mapItem);
+    computedSettings() {
+      return this.settings.filter(this.filterItem).map(this.mapItem);
     },
     profile() {
       return {
