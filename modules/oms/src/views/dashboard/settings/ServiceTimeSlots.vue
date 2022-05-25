@@ -202,13 +202,12 @@
                 </v-col>
 
                 <v-col cols="12">
-                  <v-radio-group v-model="formValues.enabled" row>
-                    <template #label>
-                      <p class="text-h6 mb-0 text-gray">Enabled</p>
-                    </template>
-                    <v-radio :label="`Yes`" :value="true" />
-                    <v-radio :label="`No`" :value="false" />
-                  </v-radio-group>
+                  <v-switch 
+                    v-model="formValues.enabled"
+                    label="Enabled"
+                    color="primary"
+                    class="mt-0"
+                  />
                 </v-col>
               </v-row>
             </v-container>

@@ -62,13 +62,12 @@
                           />
                         </v-col>
                         <v-col cols="12">
-                          <v-radio-group v-model="formValues.active" row>
-                            <template #label>
-                              <p class="text-h6 mb-0 text-gray">Active</p>
-                            </template>
-                            <v-radio :label="`Yes`" :value="true" />
-                            <v-radio :label="`No`" :value="false" />
-                          </v-radio-group>
+                          <v-switch 
+                            v-model="formValues.active"
+                            label="Active"
+                            color="primary"
+                            class="mt-0"
+                          />
                         </v-col>
                       </v-row>
                     </v-form>

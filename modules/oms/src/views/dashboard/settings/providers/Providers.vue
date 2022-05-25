@@ -145,6 +145,15 @@
                           </v-form>
                         </v-card-text>
                         <v-card-actions>
+                          <v-spacer />
+                          <v-btn
+                            depressed
+                            color="blue darken-1" 
+                            text
+                            @click="closeAddDialog(false)"
+                          >
+                            Cancel
+                          </v-btn>
                           <v-btn
                             depressed
                             color="primary"
@@ -153,13 +162,6 @@
                             :loading="saveLoading"
                           >
                             Save &amp; Continue
-                          </v-btn>
-                          <v-btn
-                            depressed
-                            color="secondary"
-                            @click="closeAddDialog(false)"
-                          >
-                            Cancel
                           </v-btn>
                         </v-card-actions>
                       </v-stepper-content>
@@ -202,6 +204,15 @@
                           </v-form>
                         </v-card-text>
                         <v-card-actions>
+                          <v-spacer />
+                          <v-btn
+                            depressed
+                            color="blue darken-1" 
+                            text
+                            @click="closeAddDialog(true)"
+                          >
+                            Cancel
+                          </v-btn>
                           <v-btn
                             depressed
                             color="primary"
@@ -210,13 +221,6 @@
                             :loading="saveLoading"
                           >
                             Save &amp; Continue
-                          </v-btn>
-                          <v-btn
-                            depressed
-                            color="secondary"
-                            @click="closeAddDialog(true)"
-                          >
-                            Cancel
                           </v-btn>
                         </v-card-actions>
                       </v-stepper-content>
@@ -260,6 +264,15 @@
                           </v-form>
                         </v-card-text>
                         <v-card-actions>
+                          <v-spacer />
+                          <v-btn
+                            depressed
+                            color="blue darken-1" 
+                            text
+                            @click="closeAddDialog(true)"
+                          >
+                            Cancel
+                          </v-btn>
                           <v-btn
                             depressed
                             color="primary"
@@ -268,13 +281,6 @@
                             :loading="saveLoading"
                           >
                             Save &amp; Exit
-                          </v-btn>
-                          <v-btn
-                            depressed
-                            color="secondary"
-                            @click="closeAddDialog(true)"
-                          >
-                            Cancel
                           </v-btn>
                         </v-card-actions>
                       </v-stepper-content>

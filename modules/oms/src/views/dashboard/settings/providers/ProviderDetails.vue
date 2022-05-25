@@ -178,7 +178,7 @@
                                       <v-switch
                                         v-model="newAddress.primary"
                                         label="Primary"
-                                        color="success"
+                                        color="primary"
                                       />
                                     </v-col>
                                   </v-row>
@@ -186,21 +186,24 @@
                               </v-form>
                             </v-card-text>
                             <v-card-actions>
+                              <v-spacer />
+                              <v-btn
+                                depressed
+                                color="blue darken-1" 
+                                text
+                                @click="closeAddAddressDialog"
+                              >
+                                Cancel
+                              </v-btn>
                               <v-btn
                                 depressed
                                 color="primary"
                                 @click="addAddress"
                                 :disabled="!isAddAddressValid"
                                 :loading="saveLoading"
+                                large
                               >
                                 Save
-                              </v-btn>
-                              <v-btn
-                                depressed
-                                color="secondary"
-                                @click="closeAddAddressDialog"
-                              >
-                                Cancel
                               </v-btn>
                             </v-card-actions>
                           </v-card>
@@ -241,7 +244,7 @@
                                   <v-switch
                                     v-model="updatedAddress.primary"
                                     label="Primary"
-                                    color="success"
+                                    color="primary"
                                   />
                                 </v-col>
                               </v-row>
@@ -249,21 +252,24 @@
                           </v-form>
                         </v-card-text>
                         <v-card-actions>
+                          <v-spacer />
+                          <v-btn
+                            depressed
+                            color="blue darken-1" 
+                            text
+                            @click="closeUpdateAddressDialog(props.item.id)"
+                          >
+                            Cancel
+                          </v-btn>
                           <v-btn
                             depressed
                             color="primary"
                             @click="updateAddress"
                             :disabled="!isUpdateAddressValid"
                             :loading="saveLoading"
+                            large
                           >
                             Update
-                          </v-btn>
-                          <v-btn
-                            depressed
-                            color="secondary"
-                            @click="closeUpdateAddressDialog(props.item.id)"
-                          >
-                            Cancel
                           </v-btn>
                         </v-card-actions>
                       </v-card>
@@ -387,21 +393,24 @@
                               </v-form>
                             </v-card-text>
                             <v-card-actions>
+                              <v-spacer />
+                              <v-btn
+                                depressed
+                                color="blue darken-1" 
+                                text
+                                @click="closeAddServiceDialog"
+                              >
+                                Cancel
+                              </v-btn>
                               <v-btn
                                 depressed
                                 color="primary"
                                 @click="addService"
                                 :disabled="!isAddServiceValid"
                                 :loading="saveLoading"
+                                large
                               >
                                 Save
-                              </v-btn>
-                              <v-btn
-                                depressed
-                                color="secondary"
-                                @click="closeAddServiceDialog"
-                              >
-                                Cancel
                               </v-btn>
                             </v-card-actions>
                           </v-card>
