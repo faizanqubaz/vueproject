@@ -285,7 +285,7 @@
                             >?
                           </div>
                           <v-row>
-                            <v-col cols="12" sm="6">
+                            <v-col cols="12" sm="8">
                               <v-btn
                                 depressed
                                 color="error"
@@ -295,7 +295,7 @@
                                 Delete
                               </v-btn>
                             </v-col>
-                            <v-col cols="12" sm="6">
+                            <v-col cols="12" sm="4">
                               <v-btn
                                 depressed
                                 color="secondary"
@@ -418,7 +418,7 @@
                             <strong>{{ deletedService.service }}</strong>?
                           </div>
                           <v-row>
-                            <v-col cols="12" sm="6">
+                            <v-col cols="12" sm="8">
                               <v-btn
                                 depressed
                                 color="error"
@@ -428,7 +428,7 @@
                                 Delete
                               </v-btn>
                             </v-col>
-                            <v-col cols="12" sm="6">
+                            <v-col cols="12" sm="4">
                               <v-btn
                                 depressed
                                 color="secondary"
