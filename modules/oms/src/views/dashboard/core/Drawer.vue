@@ -38,6 +38,12 @@
 
         <base-item v-else :key="`item-${i}`" :item="item" />
       </template>
+      <template v-for="(item, i) in computedVisits">
+        <base-item-group v-if="item.children" :key="`visit-${i}`" :item="item">
+        </base-item-group>
+
+        <base-item v-else :key="`item-${i}`" :item="item" />
+      </template>
       <template v-for="(item, i) in computedSettings">
         <base-item-group v-if="item.children" :key="`group-${i}`" :item="item">
         </base-item-group>
@@ -79,10 +85,22 @@ export default Vue.extend({
         title: "Dashboard",
         to: "/",
       },
+    ],
+    visits: [
       {
         icon: "mdi-calendar-multiple",
         title: "Visits",
-        to: "/visits",
+        group: "/visits",
+        children: [
+          {
+            to: "open",
+            title: "Open",
+          },
+          {
+            to: "all",
+            title: "All",
+          },
+        ],
       },
     ],
     settings: [
@@ -127,6 +145,9 @@ export default Vue.extend({
     },
     computedSettings() {
       return this.settings.filter(this.filterItem).map(this.mapItem);
+    },
+    computedVisits() {
+      return this.visits.filter(this.filterItem).map(this.mapItem);
     },
     profile() {
       return {

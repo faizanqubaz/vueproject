@@ -269,6 +269,7 @@ export interface VisitParams {
   patient?: number;
   provider?: number;
   date?: string;
+  sortOrder?: string;
 }
 export interface VisitPayload {
   date?: string;

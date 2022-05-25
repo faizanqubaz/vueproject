@@ -16,9 +16,15 @@ const routes: Array<RouteConfig> = [
         beforeEnter: authGuard,
       },
       {
-        name: "Visits",
-        path: "visits",
-        component: () => import("@/views/dashboard/visits/Visits.vue"),
+        name: "Open Visits",
+        path: "visits/open",
+        component: () => import("@/views/dashboard/visits/OpenVisits.vue"),
+        beforeEnter: authGuard,
+      },
+      {
+        name: "All Visits",
+        path: "visits/all",
+        component: () => import("@/views/dashboard/visits/AllVisits.vue"),
         beforeEnter: authGuard,
       },
       {

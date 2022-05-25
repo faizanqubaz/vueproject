@@ -37,6 +37,7 @@
                   :close-on-content-click="false"
                   :nudge-width="200"
                   offset-x
+                  v-if="page !== 'open'"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn v-bind="attrs" v-on="on">
@@ -343,6 +344,9 @@ import moment from "moment";
 import { VisitStatuses } from "@/utils";
 
 export default Vue.extend({
+  props: {
+    page: null,
+  },
   data() {
     return {
       headers: [
@@ -415,8 +419,9 @@ export default Vue.extend({
           limit: itemsPerPage || 50,
           service: this.listParams.service,
           provider: this.listParams.provider,
-          status: this.listParams.status,
+          status: this.page === "open" ? "booked" : this.listParams.status,
           search: this.listParams.search,
+          sortOrder: this.page === "open" ? "ASC" : null,
         };
         const res = await api.getVisits(params);
         if (res.result) {
