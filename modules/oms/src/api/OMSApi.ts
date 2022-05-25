@@ -271,15 +271,16 @@ export interface VisitParams {
   date?: string;
 }
 export interface VisitPayload {
-  date: string;
-  scheduledStartTime: string;
-  scheduledEndTime: string;
-  serviceId: number;
-  payment: number;
-  startTime: number;
-  checkInTime: string;
-  checkOutTime: string;
-  status: string;
+  date?: string;
+  scheduledStartTime?: string;
+  scheduledEndTime?: string;
+  serviceId?: number;
+  providerId?: number;
+  payment?: number;
+  startTime?: number;
+  checkInTime?: string;
+  checkOutTime?: string;
+  status?: string;
 }
 
 export interface ServiceZipCode {
@@ -470,9 +471,8 @@ export default class OMSApi extends HttpClient {
   async getProviderById(id: number): Promise<ProvidersResponse> {
     const url = `providers/${id}`;
     try {
-      const response: AxiosResponse<ProvidersResponse> = await this.instance.get(
-        url
-      );
+      const response: AxiosResponse<ProvidersResponse> =
+        await this.instance.get(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;

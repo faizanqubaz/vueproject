@@ -316,7 +316,7 @@
                       id="patientEditMap"
                       classname="form-control"
                       placeholder="Address"
-                      v-on:placechanged="getNewAddressData"
+                      v-on:placeAssignd="getNewAddressData"
                       country="us"
                       :value="patientAddress.address"
                       required
@@ -423,7 +423,7 @@
                 </v-card-title>
                 <v-card-text>
                   <v-row>
-                    <v-col sm="12" md="6">
+                    <v-col sm="12" md="5">
                       <v-row>
                         <v-col cols="5" class="pb-0">Date</v-col>
                         <v-col cols="7" class="pb-0">
@@ -498,10 +498,10 @@
                         </v-col>
                       </v-row>
                     </v-col>
-                    <v-col sm="12" md="6">
+                    <v-col sm="12" md="7">
                       <v-row>
-                        <v-col cols="5" class="pb-0">Status</v-col>
-                        <v-col cols="7" class="pb-0">
+                        <v-col md="3" sm="5" class="pb-0">Status</v-col>
+                        <v-col md="9" sm="7" class="pb-0">
                           <v-row>
                             <v-col class="pr-0" cols="1">:</v-col>
                             <v-col class="pl-0" cols="10">
@@ -519,52 +519,120 @@
                             </v-col>
                           </v-row>
                         </v-col>
-                        <v-col cols="5" class="pb-0">Start Time</v-col>
-                        <v-col cols="7" class="pb-0">
+                        <v-col md="3" sm="5" class="pb-0">Start Time</v-col>
+                        <v-col md="9" sm="7" class="pb-0">
                           <v-row>
                             <v-col class="pr-0" cols="1">:</v-col>
-                            <v-col class="pl-0" cols="10">
+                            <v-col
+                              class="pl-0"
+                              :cols="
+                                setTimeZoneFromAddress(visitDetails.startTime)
+                                  ? 5
+                                  : 10
+                              "
+                            >
                               {{
                                 visitDetails.startTime
-                                  ? setTimeZone(visitDetails.startTime)
+                                  ? setTimeZoneNY(visitDetails.startTime)
+                                  : "--"
+                              }}
+                            </v-col>
+                            <v-col
+                              class="pl-0"
+                              cols="5"
+                              v-if="
+                                setTimeZoneFromAddress(visitDetails.startTime)
+                              "
+                            >
+                              {{
+                                visitDetails.startTime
+                                  ? setTimeZoneFromAddress(
+                                      visitDetails.startTime
+                                    )
                                   : "--"
                               }}
                             </v-col>
                           </v-row>
                         </v-col>
-                        <v-col cols="5" class="pb-0">Check In Time</v-col>
-                        <v-col cols="7" class="pb-0">
+                        <v-col md="3" sm="5" class="pb-0">Check In Time</v-col>
+                        <v-col md="9" sm="7" class="pb-0">
                           <v-row>
                             <v-col class="pr-0" cols="1">:</v-col>
-                            <v-col class="pl-0" cols="10">
+                            <v-col
+                              class="pl-0"
+                              :cols="
+                                setTimeZoneFromAddress(visitDetails.startTime)
+                                  ? 5
+                                  : 10
+                              "
+                            >
                               {{
                                 visitDetails.checkInTime
-                                  ? setTimeZone(visitDetails.checkInTime)
+                                  ? setTimeZoneNY(visitDetails.checkInTime)
+                                  : "--"
+                              }}
+                            </v-col>
+                            <v-col
+                              class="pl-0"
+                              cols="5"
+                              v-if="
+                                setTimeZoneFromAddress(visitDetails.checkInTime)
+                              "
+                            >
+                              {{
+                                visitDetails.checkInTime
+                                  ? setTimeZoneFromAddress(
+                                      visitDetails.checkInTime
+                                    )
                                   : "--"
                               }}
                             </v-col>
                           </v-row>
                         </v-col>
-                        <v-col cols="5" class="pb-0">Check Out Time</v-col>
-                        <v-col cols="7" class="pb-0">
+                        <v-col md="3" sm="5" class="pb-0">Check Out Time</v-col>
+                        <v-col md="9" sm="7" class="pb-0">
                           <v-row>
                             <v-col class="pr-0" cols="1">:</v-col>
-                            <v-col class="pl-0" cols="10">
+                            <v-col
+                              class="pl-0"
+                              :cols="
+                                setTimeZoneFromAddress(visitDetails.startTime)
+                                  ? 5
+                                  : 10
+                              "
+                            >
                               {{
                                 visitDetails.checkOutTime
-                                  ? setTimeZone(visitDetails.checkOutTime)
+                                  ? setTimeZoneNY(visitDetails.checkOutTime)
+                                  : "--"
+                              }}
+                            </v-col>
+                            <v-col
+                              class="pl-0"
+                              cols="5"
+                              v-if="
+                                setTimeZoneFromAddress(
+                                  visitDetails.checkOutTime
+                                )
+                              "
+                            >
+                              {{
+                                visitDetails.checkOutTime
+                                  ? setTimeZoneFromAddress(
+                                      visitDetails.checkOutTime
+                                    )
                                   : "--"
                               }}
                             </v-col>
                           </v-row>
                         </v-col>
-                        <v-col cols="12" class="pb-0 pt-0">
+                        <!-- <v-col cols="12" class="pb-0 pt-0">
                           <v-switch
                             v-model="timeZoneSwitch"
                             label="Local Time Zone"
                             color="success"
                           />
-                        </v-col>
+                        </v-col> -->
                       </v-row>
                     </v-col>
                   </v-row>
@@ -828,9 +896,69 @@
           </v-card>
         </v-hover>
       </v-col>
-      <v-dialog v-model="providerDialog" max-width="400px">
-        <v-card>
-          <v-card-title> Provider Dialog On Progress </v-card-title>
+      <v-dialog v-model="providerDialog" max-width="800px" scrollable>
+        <v-card height="90vh">
+          <v-card-title class="pa-0">
+            <v-toolbar dark color="primary">
+              <v-toolbar-title
+                >{{
+                  visitDetails.provider ? "Assign" : "Add"
+                }}
+                Provider</v-toolbar-title
+              >
+              <v-spacer></v-spacer>
+              <v-btn icon @click="providerDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar>
+          </v-card-title>
+          <v-card-text class="pt-4">
+            <v-data-table
+              :headers="headers"
+              :footer-props="{
+                'items-per-page-options': [10, 25, 50, 100],
+              }"
+              :items="providerList"
+              :search="search"
+              :loading="loading"
+              loading-text="Loading Providers..."
+              item-key="_id"
+              class="elevation-1 pa-3"
+              mobile-breakpoint="0"
+            >
+              <template v-slot:top>
+                <v-row align="center">
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="search"
+                      prepend-icon="mdi-magnify"
+                      label="Search"
+                      single-line
+                      hide-details
+                      clearable
+                      class="pa-0 ma-0"
+                    />
+                  </v-col>
+                </v-row>
+              </template>
+              <template v-slot:[`item.name`]="props">
+                <span>
+                  {{ props.item.firstName }} {{ props.item.lastName }}
+                </span>
+              </template>
+              <template v-slot:[`item.actions`]="props">
+                <v-btn
+                  :loading="isUpdatePatient"
+                  depressed
+                  color="primary"
+                  @click="saveProvider(props.item)"
+                  class="mr-2"
+                >
+                  {{ visitDetails.provider ? "Assign" : "Add" }}
+                </v-btn>
+              </template>
+            </v-data-table>
+          </v-card-text>
         </v-card>
       </v-dialog>
     </v-row>
@@ -840,6 +968,7 @@
       <v-btn plain class="mb-6" @click="cancelDialog = true" color="error"
         >Cancel Visit</v-btn
       >
+      <!-- cancel dialog -->
       <v-dialog v-model="cancelDialog" max-width="400px">
         <v-card>
           <v-card-text>
@@ -874,15 +1003,6 @@
         </v-card>
       </v-dialog>
     </div>
-
-    <v-snackbar outlined color="success" top v-model="snackbar.active">
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn color="red" text v-bind="attrs" @click="snackbar.active = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -903,9 +1023,9 @@ Vue.use(VuetifyGoogleAutocomplete, {
 
 export default Vue.extend({
   async created() {
-    this.$router.currentRoute.params.id
-      ? await this.getVisitDetails(this.$router.currentRoute.params.id)
-      : this.$router.push("/");
+    await this.getVisitDetails(this.$router.currentRoute.params.id);
+    await this.getProviders();
+    await this.getServices();
   },
   data() {
     return {
@@ -918,10 +1038,6 @@ export default Vue.extend({
       providerDialog: false,
       isEditPatientFormValid: false,
       isUpdatePatient: false,
-      snackbar: {
-        message: null,
-        active: false,
-      },
       genderList: ["male", "female"],
       phoneRules: [
         (phoneNumber) => !!phoneNumber || "Phone number is required",
@@ -990,6 +1106,27 @@ export default Vue.extend({
       timeZoneAddress: null,
       timeZone: null,
       timeZoneSwitch: false,
+      providerList: null,
+      headers: [
+        {
+          text: "Name",
+          value: "name",
+        },
+        {
+          text: "Email",
+          value: "email",
+        },
+        {
+          text: "Phone",
+          value: "phone",
+        },
+        {
+          text: "Actions",
+          value: "actions",
+          sortable: false,
+        },
+      ],
+      search: "",
     };
   },
   watch: {
@@ -1020,6 +1157,69 @@ export default Vue.extend({
     },
   },
   methods: {
+    async getProviders() {
+      this.loading = true;
+      try {
+        const api = new OMSApi();
+        const response = await api.getProviders();
+        if (response.result.data.length) {
+          this.providerList = response.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async saveProvider(props) {
+      this.isUpdatePatient = true;
+      try {
+        const api = new OMSApi();
+        const params = {
+          providerId: props.id,
+        };
+        const response = await api.updateVisit(this.visitDetails.id, params);
+        if (response) {
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          if (this.visitDetails.provider) {
+            this.$root.snackbar.show({
+              message: "Provider Assignd",
+              type: "success",
+            });
+          } else {
+            this.$root.snackbar.show({
+              message: "Provider added",
+              type: "success",
+            });
+          }
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to save provider",
+          type: "error",
+        });
+      } finally {
+        this.isUpdatePatient = false;
+      }
+    },
+    async getServices() {
+      try {
+        this.isLoading = true;
+        const api = new OMSApi();
+        const res = await api.getServices();
+        if (res.result.data) {
+          this.serviceList = res.result.data;
+        }
+      } catch (error) {
+        console.error(error);
+        this.$root.snackbar.show({
+          message: "Failed to get services list",
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async getVisitDetails(id) {
       this.loading = true;
       try {
@@ -1033,7 +1233,11 @@ export default Vue.extend({
               res.name == this.visitDetails.address.state
             );
           });
-          this.timeZoneAddress = this.timeZone[0].timeZone;
+
+          this.timeZoneAddress =
+            this.timeZone && this.timeZone.length > 0
+              ? this.timeZone[0].timeZone
+              : null;
           this.setEditPatient();
           this.setEditVisit();
         }
@@ -1042,6 +1246,7 @@ export default Vue.extend({
           message: "Failed to get visit details",
           type: "error",
         });
+        console.error(error);
       } finally {
         this.loading = false;
       }
@@ -1116,13 +1321,23 @@ export default Vue.extend({
         ? this.formatTimeZoneForEdit(this.visitDetails.checkOutTime)
         : this.visitDetails.checkOutTime;
     },
-    setTimeZone(date) {
+    setTimeZoneNY(date) {
       let myDatetimeString;
       this.timeZone.length > 0
         ? (myDatetimeString = moment(date)
-            .tz(this.timeZone[0].timeZone)
+            .tz("US/Eastern")
             .format("MM/DD/YYYY hh:mm A z"))
         : (myDatetimeString = moment(date).format("MM/DD/YYYY hh:mm A"));
+
+      return myDatetimeString;
+    },
+    setTimeZoneFromAddress(date) {
+      let myDatetimeString;
+      this.timeZone.length > 0 && this.timeZone[0].timeZone !== "US/Eastern"
+        ? (myDatetimeString = moment(date)
+            .tz(this.timeZone[0].timeZone)
+            .format("MM/DD/YYYY hh:mm A z"))
+        : null;
 
       return myDatetimeString;
     },
@@ -1130,7 +1345,7 @@ export default Vue.extend({
       let myDatetimeString;
       this.timeZone.length > 0
         ? (myDatetimeString = moment(date)
-            .tz(this.timeZone[0].timeZone)
+            .tz("US/Eastern")
             .format("YYYY-MM-DDThh:mm"))
         : (myDatetimeString = moment(date).format("YYYY-MM-DDThh:mm"));
 
@@ -1203,7 +1418,7 @@ export default Vue.extend({
           checkInTime: this.visitForm.checkInTime
             ? this.timeZone.length > 0
               ? moment
-                  .tz(this.visitForm.checkInTime, this.timeZone[0].timeZone)
+                  .tz(this.visitForm.checkInTime, "US/Eastern")
                   .utc()
                   .format()
               : moment(this.visitForm.checkInTime).format()
@@ -1211,7 +1426,7 @@ export default Vue.extend({
           checkOutTime: this.visitForm.checkOutTime
             ? this.timeZone.length > 0
               ? moment
-                  .tz(this.visitForm.checkOutTime, this.timeZone[0].timeZone)
+                  .tz(this.visitForm.checkOutTime, "US/Eastern")
                   .utc()
                   .format()
               : moment(this.visitForm.checkOutTime).format()
@@ -1226,10 +1441,7 @@ export default Vue.extend({
               : this.visitForm.scheduledStartTime,
           startTime: this.visitForm.startTime
             ? this.timeZone.length > 0
-              ? moment
-                  .tz(this.visitForm.startTime, this.timeZone[0].timeZone)
-                  .utc()
-                  .format()
+              ? moment.tz(this.visitForm.startTime, "US/Eastern").utc().format()
               : moment(this.visitForm.startTime).format()
             : null,
           status: this.visitForm.status,
