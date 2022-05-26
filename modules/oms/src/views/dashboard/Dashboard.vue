@@ -22,7 +22,7 @@
                 />
                 <p v-else class="mb-0 text-h5 font-weight-bold">
                   {{ visitCount[stat.id] }}
-                  <span class="body-1 font-weight-regular">data</span>
+                  <span class="body-1 font-weight-regular">visits</span>
                 </p>
               </div>
             </v-flex>
