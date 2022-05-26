@@ -62,7 +62,7 @@
                           />
                         </v-col>
                         <v-col cols="12">
-                          <v-switch 
+                          <v-switch
                             v-model="formValues.active"
                             label="Active"
                             color="primary"
@@ -222,6 +222,7 @@ export default Vue.extend({
       formDialog: false,
       formValues: {},
       deleteDialog: {},
+      isFormValid: false,
       isLoading: false,
       isSubmitting: false,
     };

@@ -79,6 +79,9 @@ export interface ServiceGroupsResponse {
     totalRecords: number;
   }[];
 }
+export interface ServiceGroupPayload {
+  name: string;
+}
 export interface Provider {
   id: number;
   firstName: string;
@@ -750,6 +753,61 @@ export default class OMSApi extends HttpClient {
     try {
       const response: AxiosResponse<ServiceGroupsResponse> =
         await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async createServiceGroup(
+    param: ServiceGroupPayload
+  ): Promise<ServiceGroupsResponse> {
+    const url = "service-groups";
+    try {
+      const response: AxiosResponse<ServiceGroupsResponse> =
+        await this.instance.post(url, param);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async updateServiceGroup(
+    id: number,
+    param: ServiceGroupPayload
+  ): Promise<ServiceGroupsResponse> {
+    const url = `service-groups/${id}`;
+
+    try {
+      const response: AxiosResponse<ServiceGroupsResponse> =
+        await this.instance.put(url, param);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async deleteServiceGroup(id: number): Promise<ServiceGroupsResponse> {
+    const url = `service-groups/${id}`;
+
+    try {
+      const response: AxiosResponse<ServiceGroupsResponse> =
+        await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;

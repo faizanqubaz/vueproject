@@ -110,20 +110,16 @@ export default Vue.extend({
         group: "/settings",
         children: [
           {
-            to: "service-groups",
-            title: "Service Groups",
-          },
-          {
-            to: "providers",
-            title: "Providers",
-          },
-          {
             to: "services",
             title: "Services",
           },
           {
             to: "cities",
             title: "Cities",
+          },
+          {
+            to: "providers",
+            title: "Providers",
           },
         ],
       },
