@@ -23,7 +23,7 @@ const Appointment = {
         id: 0,
         name: '',
         description: '',
-        price: 0,
+        price: 0.0,
         image: '',
         notes: ''
       }

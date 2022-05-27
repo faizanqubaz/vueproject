@@ -93,26 +93,19 @@ export default Vue.extend({
         date: new Date(),
         id: 0
       },
-      timeSlots: [] as SlotType[],
-      fromBack: false
+      timeSlots: [] as SlotType[]
     }
   },
   beforeMount () {
-    this.dateAndTime = cloneDeep(this.$store.getters.dateAndTime)
-    if (!this.dateAndTime.date) {
-      this.dateAndTime.date = new Date()
-    } else {
-      this.fromBack = true
-      this.timeSlots = this.$store.getters.timeSlots
-    }
+    this.dateAndTime.date = new Date()
   },
   methods: {
     async fetchAppointment () {
       try {
         const bookingApiClient = new BookingApiClient()
-        const fetchDate = moment(this.dateAndTime.date).format('YYYY-MM-DD')
+        const fetchDate = moment(this.dateAndTime.date).toISOString()
         const response = await bookingApiClient.getServiceTimeSlots(fetchDate,
-          this.$store.getters.locationCityId, this.$store.getters.serviceId)
+          this.$store.getters.locationCityId, this.$store.getters.serviceTypeId)
         if (response.result.length > 0) {
           this.timeSlots = []
           this.dateAndTime.id = 0
@@ -140,7 +133,6 @@ export default Vue.extend({
     },
     proceed () {
       this.$store.commit('setDateAndTime', this.dateAndTime)
-      this.$store.commit('setTimeSlots', this.timeSlots)
       if (this.isValid) {
         this.$router.push('/details')
       }
@@ -164,11 +156,7 @@ export default Vue.extend({
   watch: {
     'dateAndTime.date' (newDate) {
       this.dateAndTime.date = newDate
-      if (!this.fromBack) {
-        this.fetchAppointment()
-      } else {
-        this.fromBack = false
-      }
+      this.fetchAppointment()
     },
     'dateAndTime.id' (newValue) {
       if (newValue) {

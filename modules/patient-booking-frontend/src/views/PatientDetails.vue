@@ -9,8 +9,6 @@
       </div>
       <div class="">
         <wz-form
-          ref="form"
-          v-model="valid"
           class="py-7 grid md:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-x-5 gap-y-3"
           autocomplete="on"
         >
@@ -61,15 +59,6 @@
           required
         >
         </wz-date-picker>
-        <!-- <wz-input
-          icon="calendar"
-          label="Date of Birth"
-          v-model="dob"
-          type="date"
-          :error="false"
-          required
-          errorMessage=""
-        /> -->
         <wz-input
           icon="email"
           label="Email"
@@ -85,7 +74,7 @@
         <wz-button
           block
           color="primary"
-          :disabled="!valid"
+          :disabled="!isDetailsValid"
           @click="proceed"
         >
           <p class="text-white">Proceed</p>
@@ -123,7 +112,6 @@ export default Vue.extend({
       firstNameRules: [(firstName: string) => !!firstName || 'First name is required'],
       lastNameRules: [(lastName: string) => !!lastName || 'Last name is required'],
       genderRules: [(gender:boolean) => !!gender || 'Gender is required'],
-      valid: false,
       phoneRules: [
         (phoneNumber: string) => !!phoneNumber || 'Phone number is required',
         (phoneNumber: string) =>
@@ -142,8 +130,6 @@ export default Vue.extend({
     this.gender = this.$store.getters.gender
     this.dob = this.$store.getters.dob
     this.email = this.$store.getters.email
-    this.valid = !!this.firstName && !!this.lastName && !!this.phoneNumber && !!this.gender &&
-      !!this.dob && !!this.email
   },
   methods: {
     proceed () {
@@ -154,16 +140,26 @@ export default Vue.extend({
       this.$store.commit('setDob', this.dob)
       this.$store.commit('setEmail', this.email)
 
-      if (this.$store.getters.payment && this.valid) {
+      if (this.$store.getters.payment && this.isDetailsValid) {
         if (this.$store.getters.payment.insurance) {
           this.$router.push('/insurance')
         }
         if (this.$store.getters.payment.card) {
           this.$router.push('/payment')
         }
-      } else if (this.valid) {
+      } else if (this.isDetailsValid) {
         this.$router.push('/review-appointment')
       }
+    }
+  },
+  computed: {
+    isDetailsValid () {
+      return !!this.firstName &&
+        !!this.lastName &&
+        !!this.phoneNumber &&
+        !!this.gender &&
+        this.dob !== null &&
+        !!this.email
     }
   }
 })

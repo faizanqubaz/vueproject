@@ -128,6 +128,7 @@ export default Vue.extend({
     this.fromBack = !!this.$store.getters.locationAddress
     this.location.apartment = this.$store.getters.locationApartment
     this.location.zipCode = this.$store.getters.locationZipCode
+    this.location.cityId = this.$store.getters.locationCityId
     this.payment = this.$store.getters.payment
   },
   methods: {
@@ -146,46 +147,37 @@ export default Vue.extend({
     },
     async proceed () {
       try {
-        if (this.location.zipCode === this.$store.getters.locationZipCode) {
-          const location = { ...this.location, street: this.location.address.split(',')[0] }
+        const bookingApiClient = new BookingApiClient()
+        const response = await bookingApiClient.getService(this.location.zipCode)
+        if (response.result.serviceGroups.length > 0) {
+          this.$store.commit('setServiceList', response.result.serviceGroups)
+          const location = {
+            ...this.location,
+            street: this.location.address.split(',')[0],
+            cityId: response.result.id,
+            timeZone: response.result.timeZone
+          }
           this.$store.commit('setLocation', location)
           this.$store.commit('setPayment', this.payment)
           if (this.isValid) {
             this.$router.push('/services')
           }
         } else {
-          const bookingApiClient = new BookingApiClient()
-          const response = await bookingApiClient.getService(this.location.zipCode)
-          if (response.result.serviceGroups.length > 0) {
-            this.$store.commit('setServiceList', response.result.serviceGroups)
-            const location = {
-              ...this.location,
-              street: this.location.address.split(',')[0],
-              cityId: response.result.id,
-              timeZone: response.result.timeZone
-            }
-            this.$store.commit('setLocation', location)
-            this.$store.commit('setPayment', this.payment)
-            if (this.isValid) {
-              this.$router.push('/services')
-            }
-          } else {
-            this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
-            this.snackbar.open = true
-            this.location = {
-              address: '',
-              apartment: '',
-              city: '',
-              state: '',
-              zipCode: '',
-              longitude: '',
-              latitude: '',
-              cityId: 0,
-              timeZone: ''
-            }
-            this.payment.insurance = false
-            this.payment.card = false
+          this.snackbar.message = 'Sorry! We do not have services in your location at this moment'
+          this.snackbar.open = true
+          this.location = {
+            address: '',
+            apartment: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            longitude: '',
+            latitude: '',
+            cityId: 0,
+            timeZone: ''
           }
+          this.payment.insurance = false
+          this.payment.card = false
         }
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong. Please try again'
