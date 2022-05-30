@@ -202,7 +202,7 @@
                 </v-col>
 
                 <v-col cols="12">
-                  <v-switch 
+                  <v-switch
                     v-model="formValues.enabled"
                     label="Enabled"
                     color="primary"
@@ -215,7 +215,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="closeFormDialog">
+          <v-btn color="blue-grey" text @click="closeFormDialog">
             Cancel
           </v-btn>
           <v-btn

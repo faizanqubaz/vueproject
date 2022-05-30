@@ -27,7 +27,7 @@
                     >
                       <div class="text-right">
                         <v-btn
-                          color="secondary"
+                          color="primary"
                           @click="patientDialog = true"
                           depressed
                         >
@@ -411,7 +411,7 @@
                     >
                       <div class="text-right">
                         <v-btn
-                          color="secondary"
+                          color="primary"
                           @click="visitDialog = true"
                           depressed
                         >
@@ -816,9 +816,7 @@
                     >
                       <div class="text-right">
                         <v-btn
-                          :color="
-                            visitDetails.provider ? 'secondary' : 'primaryzzzzz'
-                          "
+                          color="primary"
                           @click="providerDialog = true"
                           depressed
                         >
@@ -992,6 +990,7 @@
                 <v-btn
                   depressed
                   block
+                  text
                   color="blue-grey"
                   @click="cancelDialog = false"
                 >

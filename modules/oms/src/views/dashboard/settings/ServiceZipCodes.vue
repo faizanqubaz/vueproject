@@ -112,7 +112,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="closeUploadDialog">
+          <v-btn color="blue-grey" text @click="closeUploadDialog">
             Cancel
           </v-btn>
           <v-btn
@@ -174,7 +174,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="closeFormDialog">
+          <v-btn color="blue-grey" text @click="closeFormDialog">
             Cancel
           </v-btn>
           <v-btn

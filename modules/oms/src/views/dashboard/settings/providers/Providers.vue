@@ -17,7 +17,7 @@
         <template v-slot:top>
           <v-row align="center">
             <v-col sm="6" md="2" lg="6" xl="1">
-              <v-dialog v-model="addDialog" max-width="600px" persistent>
+              <v-dialog v-model="addDialog" max-width="600px">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn width="120px" color="primary" v-bind="attrs" v-on="on">
                     Add
@@ -148,7 +148,7 @@
                           <v-spacer />
                           <v-btn
                             depressed
-                            color="blue darken-1" 
+                            color="blue-grey"
                             text
                             @click="closeAddDialog(false)"
                           >
@@ -158,10 +158,9 @@
                             depressed
                             color="primary"
                             @click="addProvider"
-                            :disabled="!isProviderValid"
                             :loading="saveLoading"
                           >
-                            Save &amp; Continue
+                            Continue
                           </v-btn>
                         </v-card-actions>
                       </v-stepper-content>
@@ -207,7 +206,7 @@
                           <v-spacer />
                           <v-btn
                             depressed
-                            color="blue darken-1" 
+                            color="blue-grey"
                             text
                             @click="closeAddDialog(true)"
                           >
@@ -217,10 +216,9 @@
                             depressed
                             color="primary"
                             @click="addAddress"
-                            :disabled="!isProviderAddressValid"
                             :loading="saveLoading"
                           >
-                            Save &amp; Continue
+                            Continue
                           </v-btn>
                         </v-card-actions>
                       </v-stepper-content>
@@ -267,7 +265,7 @@
                           <v-spacer />
                           <v-btn
                             depressed
-                            color="blue darken-1" 
+                            color="blue-grey"
                             text
                             @click="closeAddDialog(true)"
                           >
@@ -277,10 +275,9 @@
                             depressed
                             color="primary"
                             @click="addService"
-                            :disabled="!isProviderServiceValid"
                             :loading="saveLoading"
                           >
-                            Save &amp; Exit
+                            Save
                           </v-btn>
                         </v-card-actions>
                       </v-stepper-content>
@@ -320,9 +317,10 @@
                   >?
                 </div>
                 <v-row>
-                  <v-col cols="12" sm="8">
+                  <v-col cols="12" sm="6">
                     <v-btn
                       depressed
+                      block
                       color="error"
                       :loading="saveLoading"
                       @click="deleteProvider"
@@ -330,10 +328,12 @@
                       Delete
                     </v-btn>
                   </v-col>
-                  <v-col cols="12" sm="4">
+                  <v-col cols="12" sm="6">
                     <v-btn
                       depressed
-                      color="secondary"
+                      block
+                      text
+                      color="blue-grey"
                       @click="$set(deletedProvider, props.item.id, false)"
                     >
                       Cancel

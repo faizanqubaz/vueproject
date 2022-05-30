@@ -320,12 +320,11 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="closeAddDialog">
+          <v-btn color="blue-grey" depressed text @click="closeAddDialog()">
             Cancel
           </v-btn>
           <v-btn
-            color="blue darken-1"
-            text
+            color="primary"
             :disabled="!isAddFormValid"
             @click="submitVisitAdd"
           >
@@ -523,7 +522,7 @@ export default Vue.extend({
       }
     },
     closeAddDialog() {
-      this.addDialog = false;
+      this.visitDialog = false;
     },
     formatDate(date) {
       return date ? moment(date).format("L") : "";

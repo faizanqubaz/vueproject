@@ -62,7 +62,7 @@ const routes: Array<RouteConfig> = [
         beforeEnter: authGuard,
       },
       {
-        name: "City Detail",
+        name: "City Details",
         path: "settings/cities/:cityId",
         component: () =>
           import("@/views/dashboard/settings/Cities/CityForm.vue"),

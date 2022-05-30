@@ -8,8 +8,8 @@
               Loading
             </v-progress-circular>
           </v-overlay>
-          <v-tabs v-model="activeTab"> 
-            <v-tab>Details</v-tab>
+          <v-tabs v-model="activeTab">
+            <v-tab>Provider</v-tab>
             <v-tab>Addresses</v-tab>
             <v-tab>Services</v-tab>
             <v-tabs-items v-model="activeTab">
@@ -19,103 +19,116 @@
                   <span class="text-h5">Update Provider</span>
                 </v-card-title>
                 <v-card-text>
-                  <v-form ref="updateProfileForm" v-model="validUpdateProfileForm" lazy-validation>
-                   <v-card elevation="0" width="50%">
-                    <v-row>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="provider.firstName"
-                          label="First Name"
-                          :rules="requiredRules"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="provider.middleName"
-                          placeholder="Middle Name"
-                          label="Middle Name"
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="provider.lastName"
-                          label="Last Name"
-                          :rules="requiredRules"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-flex>
-                          <v-menu
-                            ref="datePicker"
-                            v-model="datePicker"
-                            :close-on-content-click="false"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="formattedDate"
-                                label="Date of Birth"
-                                hint="MM/DD/YYYY"
-                                persistent-hint
-                                v-bind="attrs"
-                                @blur="provider.dob = parseDate(formattedDate)"
-                                v-on="on"
-                                :rules="requiredRules"
-                                required
+                  <v-form
+                    ref="updateProfileForm"
+                    v-model="validUpdateProfileForm"
+                    lazy-validation
+                  >
+                    <v-card elevation="0" width="50%">
+                      <v-row>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="provider.firstName"
+                            label="First Name"
+                            :rules="requiredRules"
+                            required
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="provider.middleName"
+                            placeholder="Middle Name"
+                            label="Middle Name"
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="provider.lastName"
+                            label="Last Name"
+                            :rules="requiredRules"
+                            required
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-flex>
+                            <v-menu
+                              ref="datePicker"
+                              v-model="datePicker"
+                              :close-on-content-click="false"
+                              transition="scale-transition"
+                              offset-y
+                              min-width="auto"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="formattedDate"
+                                  label="Date of Birth"
+                                  hint="MM/DD/YYYY"
+                                  persistent-hint
+                                  v-bind="attrs"
+                                  @blur="
+                                    provider.dob = parseDate(formattedDate)
+                                  "
+                                  v-on="on"
+                                  :rules="requiredRules"
+                                  required
+                                />
+                              </template>
+                              <v-date-picker
+                                v-model="provider.dob"
+                                no-title
+                                :active-picker.sync="activePicker"
+                                :max="
+                                  new Date(
+                                    Date.now() -
+                                      new Date().getTimezoneOffset() * 60000
+                                  )
+                                    .toISOString()
+                                    .substr(0, 10)
+                                "
+                                min="1920-01-01"
+                                @change="save"
                               />
-                            </template>
-                            <v-date-picker
-                              v-model="provider.dob"
-                              no-title
-                              :active-picker.sync="activePicker"
-                              :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
-                              min="1920-01-01"
-                              @change="save"
-                            />
-                          </v-menu>
-                        </v-flex>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-autocomplete
-                          v-model="provider.gender"
-                          :items="genderList"
-                          label="Gender"
-                          :rules="requiredRules"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="provider.phone"
-                          label="Phone Number"
-                          :rules="phoneRules"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="provider.email"
-                          label="Email Address"
-                          :rules="emailRules"
-                          required
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-btn
-                          depressed
-                          color="primary"
-                          @click="updateProvider"
-                          :disabled="!isUpdateProfileValid"
-                          :loading="saveLoading"
-                        >
-                          Update
-                        </v-btn>
-                      </v-col>
-                    </v-row>
+                            </v-menu>
+                          </v-flex>
+                        </v-col>
+                        <v-col cols="12">
+                          <v-autocomplete
+                            v-model="provider.gender"
+                            :items="genderList"
+                            label="Gender"
+                            :rules="requiredRules"
+                            required
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="provider.phone"
+                            label="Phone Number"
+                            :rules="phoneRules"
+                            required
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="provider.email"
+                            label="Email Address"
+                            :rules="emailRules"
+                            required
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-btn
+                            depressed
+                            color="primary"
+                            @click="updateProvider"
+                            :disabled="!isUpdateProfileValid"
+                            :loading="saveLoading"
+                          >
+                            Update
+                          </v-btn>
+                        </v-col>
+                      </v-row>
                     </v-card>
                   </v-form>
                 </v-card-text>
@@ -153,7 +166,11 @@
                               <span class="text-h5">Add Address</span>
                             </v-card-title>
                             <v-card-text>
-                              <v-form ref="addAddressForm" v-model="validAddAddressForm" lazy-validation>
+                              <v-form
+                                ref="addAddressForm"
+                                v-model="validAddAddressForm"
+                                lazy-validation
+                              >
                                 <v-container>
                                   <v-row>
                                     <v-col cols="12" sm="12" md="12">
@@ -189,7 +206,7 @@
                               <v-spacer />
                               <v-btn
                                 depressed
-                                color="blue darken-1" 
+                                color="blue-grey"
                                 text
                                 @click="closeAddAddressDialog"
                               >
@@ -199,7 +216,6 @@
                                 depressed
                                 color="primary"
                                 @click="addAddress"
-                                :disabled="!isAddAddressValid"
                                 :loading="saveLoading"
                                 large
                               >
@@ -212,13 +228,22 @@
                     </v-row>
                   </template>
                   <template v-slot:[`item.actions`]="props">
-                    <v-dialog v-model="updatedAddress[props.item.id]" max-width="600px">
+                    <v-dialog
+                      v-model="updatedAddress[props.item.id]"
+                      max-width="600px"
+                    >
                       <v-card>
                         <v-card-title>
-                          <span class="text-h5">Address #{{ props.item.id }}</span>
+                          <span class="text-h5"
+                            >Address #{{ props.item.id }}</span
+                          >
                         </v-card-title>
                         <v-card-text>
-                          <v-form ref="updateAddressForm" v-model="validUpdateAddressForm" lazy-validation>
+                          <v-form
+                            ref="updateAddressForm"
+                            v-model="validUpdateAddressForm"
+                            lazy-validation
+                          >
                             <v-container>
                               <v-row>
                                 <v-col cols="12" sm="12" md="12">
@@ -227,7 +252,7 @@
                                     id="providerUpdateMap"
                                     label="Address"
                                     classname="form-control"
-                                    :value= "updatedAddressFull"
+                                    :value="updatedAddressFull"
                                     v-on:placechanged="getUpdateAddressData"
                                     country="us"
                                     :rules="requiredRules"
@@ -255,7 +280,7 @@
                           <v-spacer />
                           <v-btn
                             depressed
-                            color="blue darken-1" 
+                            color="blue-grey"
                             text
                             @click="closeUpdateAddressDialog(props.item.id)"
                           >
@@ -276,13 +301,16 @@
                     </v-dialog>
                     <v-btn
                       depressed
-                      color="primary"    
+                      color="primary"
                       @click.stop="setUpdateAddress(props.item)"
                       class="mr-2"
                     >
                       Update
                     </v-btn>
-                    <v-dialog v-model="deletedAddress[props.item.id]" max-width="400px">
+                    <v-dialog
+                      v-model="deletedAddress[props.item.id]"
+                      max-width="400px"
+                    >
                       <v-card>
                         <v-card-text>
                           <div class="text-h5 text-center py-4">
@@ -291,21 +319,26 @@
                             >?
                           </div>
                           <v-row>
-                            <v-col cols="12" sm="8">
+                            <v-col cols="12" sm="6">
                               <v-btn
                                 depressed
                                 color="error"
+                                block
                                 :loading="saveLoading"
                                 @click="deleteAddress()"
                               >
                                 Delete
                               </v-btn>
                             </v-col>
-                            <v-col cols="12" sm="4">
+                            <v-col cols="12" sm="6">
                               <v-btn
                                 depressed
-                                color="secondary"
-                                @click="$set(deletedAddress, props.item.id, false)"
+                                text
+                                block
+                                color="blue-grey"
+                                @click="
+                                  $set(deletedAddress, props.item.id, false)
+                                "
                               >
                                 Cancel
                               </v-btn>
@@ -341,10 +374,8 @@
                   <template v-slot:top>
                     <v-row align="center">
                       <v-col sm="6" md="2" lg="6" xl="1">
-
                         <v-dialog v-model="addServiceDialog" max-width="600px">
                           <template v-slot:activator="{ on, attrs }">
-
                             <v-btn
                               width="120px"
                               color="primary"
@@ -361,7 +392,11 @@
                             </v-card-title>
 
                             <v-card-text>
-                              <v-form ref="addServiceForm" v-model="validAddServiceForm" lazy-validation>
+                              <v-form
+                                ref="addServiceForm"
+                                v-model="validAddServiceForm"
+                                lazy-validation
+                              >
                                 <v-container>
                                   <v-row>
                                     <v-col cols="12" sm="12" md="12">
@@ -379,7 +414,9 @@
                                     </v-col>
                                     <v-col cols="12" sm="12" md="12">
                                       <v-select
-                                        v-model="serviceListByCity[newService.cityId]"
+                                        v-model="
+                                          serviceListByCity[newService.cityId]
+                                        "
                                         :items="serviceList"
                                         item-text="name"
                                         item-value="id"
@@ -396,7 +433,7 @@
                               <v-spacer />
                               <v-btn
                                 depressed
-                                color="blue darken-1" 
+                                color="blue-grey"
                                 text
                                 @click="closeAddServiceDialog"
                               >
@@ -419,17 +456,22 @@
                     </v-row>
                   </template>
                   <template v-slot:[`item.actions`]="props">
-                    <v-dialog v-model="deletedService[props.item.id]" max-width="400px">
+                    <v-dialog
+                      v-model="deletedService[props.item.id]"
+                      max-width="400px"
+                    >
                       <v-card>
                         <v-card-text>
                           <div class="text-h5 text-center py-4">
-                            Are you sure you want to delete 
-                            <strong>{{ deletedService.service }}</strong>?
+                            Are you sure you want to delete
+                            <strong>{{ deletedService.service }}</strong
+                            >?
                           </div>
                           <v-row>
-                            <v-col cols="12" sm="8">
+                            <v-col cols="12" sm="6">
                               <v-btn
                                 depressed
+                                block
                                 color="error"
                                 :loading="saveLoading"
                                 @click="deleteService()"
@@ -437,11 +479,15 @@
                                 Delete
                               </v-btn>
                             </v-col>
-                            <v-col cols="12" sm="4">
+                            <v-col cols="12" sm="6">
                               <v-btn
                                 depressed
-                                color="secondary"
-                                @click="$set(deletedService, props.item.id, false)"
+                                text
+                                block
+                                color="blue-grey"
+                                @click="
+                                  $set(deletedService, props.item.id, false)
+                                "
                               >
                                 Cancel
                               </v-btn>
@@ -469,16 +515,16 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
-import phone from 'phone';
-import email from 'email-validator';
-import VuetifyGoogleAutocomplete from 'vuetify-google-autocomplete';
+import phone from "phone";
+import email from "email-validator";
+import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
 import _ from "lodash";
 
 Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: 'AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw',
-  version: 'weekly'
+  apiKey: "AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw",
+  version: "weekly",
 });
 
 export default Vue.extend({
@@ -556,7 +602,7 @@ export default Vue.extend({
         zipCode: "",
         primary: false,
         longitude: 0,
-        latitude: 0
+        latitude: 0,
       },
       validUpdateAddressForm: false,
       updatedAddress: {},
@@ -571,25 +617,29 @@ export default Vue.extend({
       cityList: [],
       newService: {
         serviceIds: [],
-        ciyId: null
+        ciyId: null,
       },
       validUpdateServiceForm: false,
       updatedServiceId: null,
       deletedService: {},
       genderList: ["male", "female"],
-      requiredRules: [(v) => !!v || 'Required'],
+      requiredRules: [(v) => !!v || "Required"],
       phoneRules: [
-        (phoneNumber) => !!phoneNumber || 'Phone number is required',
-        (phoneNumber) => (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) || 'Phone number is invalid'
+        (phoneNumber) => !!phoneNumber || "Phone number is required",
+        (phoneNumber) =>
+          (phoneNumber && phone(phoneNumber, { country: "USA" }).isValid) ||
+          "Phone number is invalid",
       ],
       emailRules: [
-        (emailAddress) => !!emailAddress || 'Email is required',
-        (emailAddress) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid'
+        (emailAddress) => !!emailAddress || "Email is required",
+        (emailAddress) =>
+          (emailAddress && email.validate(emailAddress)) ||
+          "Email address is invalid",
       ],
-      provider: {}
-    }
+      provider: {},
+    };
   },
-  async created () {
+  async created() {
     this.loading = true;
     await this.getProviderDetail();
     await this.getServices();
@@ -617,21 +667,19 @@ export default Vue.extend({
         this.isLoading = false;
       }
     },
-    async updateProvider () {
+    async updateProvider() {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
-        const response = await api.updateProvider(
-          this.provider.id,
-          {
-            firstName: this.provider.firstName,
-            middleName: this.provider.middleName,
-            lastName: this.provider.lastName,
-            dob: this.provider.dob,
-            gender: this.provider.gender,
-            phone: this.provider.phone,
-            email: this.provider.email
-          });
+        const response = await api.updateProvider(this.provider.id, {
+          firstName: this.provider.firstName,
+          middleName: this.provider.middleName,
+          lastName: this.provider.lastName,
+          dob: this.provider.dob,
+          gender: this.provider.gender,
+          phone: this.provider.phone,
+          email: this.provider.email,
+        });
         if (response) {
           this.$root.snackbar.show({
             message: response.message,
@@ -647,7 +695,7 @@ export default Vue.extend({
         });
       }
     },
-    async getProviderServices () {
+    async getProviderServices() {
       try {
         const api = new OMSApi();
         const response = await api.getProviderServices(this.providerId);
@@ -659,9 +707,9 @@ export default Vue.extend({
               cityId: item.city.id,
               cityName: item.city.name,
               serviceId: item.service.id,
-              serviceName: item.service.name
-            })
-          })
+              serviceName: item.service.name,
+            });
+          });
           this.provider.services = services;
           this.populateServiceListByCity();
         }
@@ -673,18 +721,18 @@ export default Vue.extend({
         });
       }
     },
-    getNewAddressData (addressData, placeResultData) {
+    getNewAddressData(addressData, placeResultData) {
       this.newAddress.street = addressData.name;
-      this.newAddress.city = placeResultData.formatted_address.split(',')[1];
+      this.newAddress.city = placeResultData.formatted_address.split(",")[1];
       this.newAddress.state = addressData.administrative_area_level_1;
       this.newAddress.zipCode = addressData.postal_code;
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
     },
-    closeAddAddressDialog () {
+    closeAddAddressDialog() {
       this.addAddressDialog = false;
     },
-    async addAddress () {
+    async addAddress() {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -692,18 +740,18 @@ export default Vue.extend({
           ...this.newAddress,
           guardianId: null,
           patientId: null,
-          providerId: this.providerId
+          providerId: this.providerId,
         };
         const response = await api.createAddress(address);
         if (response) {
           this.provider.addresses.push({
             ...this.newAddress,
-            id: response.result.id
+            id: response.result.id,
           });
           this.$root.snackbar.show({
-          message: response.message,
-          type: "success",
-        });
+            message: response.message,
+            type: "success",
+          });
           this.saveLoading = false;
           this.closeAddAddressDialog();
         }
@@ -715,12 +763,12 @@ export default Vue.extend({
         });
       }
     },
-    closeUpdateAddressDialog (id) {
+    closeUpdateAddressDialog(id) {
       this.updatedAddress[id] = false;
     },
-    setUpdateAddress (props) {
+    setUpdateAddress(props) {
       this.updatedAddressId = props.id;
-      this.updatedAddressFull = `${ props.street }, ${ props.city }, ${ props.state } ${ props.zipCode }, USA`;
+      this.updatedAddressFull = `${props.street}, ${props.city}, ${props.state} ${props.zipCode}, USA`;
       this.updatedAddress.street = props.street;
       this.updatedAddress.apartment = props.apartment;
       this.updatedAddress.city = props.city;
@@ -731,15 +779,16 @@ export default Vue.extend({
       this.updatedAddress.primary = props.primary;
       this.$set(this.updatedAddress, props.id, true);
     },
-    getUpdateAddressData (addressData, placeResultData) {
+    getUpdateAddressData(addressData, placeResultData) {
       this.updatedAddress.street = addressData.name;
-      this.updatedAddress.city = placeResultData.formatted_address.split(',')[1];
+      this.updatedAddress.city =
+        placeResultData.formatted_address.split(",")[1];
       this.updatedAddress.state = addressData.administrative_area_level_1;
       this.updatedAddress.zipCode = addressData.postal_code;
       this.updatedAddress.longitude = addressData.longitude;
       this.updatedAddress.latitude = addressData.latitude;
     },
-    async updateAddress () {
+    async updateAddress() {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
@@ -751,17 +800,22 @@ export default Vue.extend({
           zipCode: this.updatedAddress.zipCode,
           primary: this.updatedAddress.primary,
           longitude: this.updatedAddress.longitude,
-          latitude: this.updatedAddress.latitude
+          latitude: this.updatedAddress.latitude,
         };
-        const response = await api.updateAddress(this.updatedAddressId, address);
+        const response = await api.updateAddress(
+          this.updatedAddressId,
+          address
+        );
         if (response) {
-          this.provider.addresses = this.provider.addresses.map(adrs => {
-            return adrs.id == this.updatedAddressId ? { ...address, id: this.updatedAddressId } : adrs; 
+          this.provider.addresses = this.provider.addresses.map((adrs) => {
+            return adrs.id == this.updatedAddressId
+              ? { ...address, id: this.updatedAddressId }
+              : adrs;
           });
           this.$root.snackbar.show({
-          message: response.message,
-          type: "success",
-        });
+            message: response.message,
+            type: "success",
+          });
           this.saveLoading = false;
           this.$set(this.updatedAddress, this.updatedAddressId, false);
         }
@@ -773,23 +827,25 @@ export default Vue.extend({
         });
       }
     },
-    setDeleteAddress (props) {
+    setDeleteAddress(props) {
       this.deletedAddress.id = props.id;
       this.$set(this.deletedAddress, props.id, true);
     },
-    async deleteAddress () {
+    async deleteAddress() {
       try {
         this.saveLoading = true;
         const api = new OMSApi();
         const response = await api.deleteAddress(this.deletedAddress.id);
         if (response) {
-           this.saveLoading = false;
-           this.provider.addresses = this.provider.addresses.filter(address => address.id !== this.deletedAddress.id);
-           this.$root.snackbar.show({
+          this.saveLoading = false;
+          this.provider.addresses = this.provider.addresses.filter(
+            (address) => address.id !== this.deletedAddress.id
+          );
+          this.$root.snackbar.show({
             message: response.message,
             type: "success",
-           });
-           this.$set(this.deletedAddress, this.deletedAddress.id, false);
+          });
+          this.$set(this.deletedAddress, this.deletedAddress.id, false);
         }
       } catch (error) {
         this.saveLoading = false;
@@ -799,10 +855,10 @@ export default Vue.extend({
         });
       }
     },
-    closeAddServiceDialog () {
+    closeAddServiceDialog() {
       this.addServiceDialog = false;
     },
-    async getServices () {
+    async getServices() {
       try {
         const api = new OMSApi();
         const response = await api.getServices();
@@ -817,7 +873,7 @@ export default Vue.extend({
         });
       }
     },
-    async getCities () {
+    async getCities() {
       try {
         const api = new OMSApi();
         const response = await api.getCities();
@@ -832,34 +888,39 @@ export default Vue.extend({
         });
       }
     },
-    populateServiceListByCity () {
+    populateServiceListByCity() {
       this.cityList.forEach((city) => {
-        this.serviceListByCity[city.id] = []; 
+        this.serviceListByCity[city.id] = [];
       });
-      if(this.provider.services) {
+      if (this.provider.services) {
         this.provider.services.forEach((service) => {
           this.serviceListByCity[service.cityId].push(service.serviceId);
         });
       }
       this.currentServiceListByCity = _.cloneDeep(this.serviceListByCity);
     },
-    async addService () {
+    async addService() {
       this.saveLoading = true;
       try {
         const api = new OMSApi();
         const cityIds = Object.keys(this.serviceListByCity);
-        await Promise.all(cityIds.map(async (cityId) => {
-          const services = _.difference(this.serviceListByCity[cityId], this.currentServiceListByCity[cityId]);
-          if (cityId && services.length > 0) {
-            const service = {
-              providerId: this.providerId,
-              services,
-              cityId: parseInt(cityId)
-            };
-            console.log('citi id', cityId, ' service :', services)
-            await api.createProviderService(service);
-          }
-        }));
+        await Promise.all(
+          cityIds.map(async (cityId) => {
+            const services = _.difference(
+              this.serviceListByCity[cityId],
+              this.currentServiceListByCity[cityId]
+            );
+            if (cityId && services.length > 0) {
+              const service = {
+                providerId: this.providerId,
+                services,
+                cityId: parseInt(cityId),
+              };
+              console.log("citi id", cityId, " service :", services);
+              await api.createProviderService(service);
+            }
+          })
+        );
 
         await this.getProviderServices();
         this.$root.snackbar.show({
@@ -876,24 +937,26 @@ export default Vue.extend({
         });
       }
     },
-    setDeleteService (props) {
+    setDeleteService(props) {
       this.deletedService.id = props.id;
       this.deletedService.service = props.service;
       this.$set(this.deletedService, props.id, true);
     },
-    async deleteService () {
+    async deleteService() {
       try {
         this.saveLoading = true;
         const api = new OMSApi();
-        const response = await api.deleteProviderService(this.deletedService.id);
+        const response = await api.deleteProviderService(
+          this.deletedService.id
+        );
         if (response) {
-           this.saveLoading = false;
-           await this.getProviderServices ();
-           this.$root.snackbar.show({
+          this.saveLoading = false;
+          await this.getProviderServices();
+          this.$root.snackbar.show({
             message: response.message,
             type: "success",
-           });
-           this.$set(this.deletedService, this.deletedService.id, false);
+          });
+          this.$set(this.deletedService, this.deletedService.id, false);
         }
       } catch (error) {
         this.saveLoading = false;
@@ -903,87 +966,93 @@ export default Vue.extend({
         });
       }
     },
-     save (date) {
-      this.$refs.datePicker.save(date)
+    save(date) {
+      this.$refs.datePicker.save(date);
     },
-    formatDate (date) {
+    formatDate(date) {
       if (!date) {
         return null;
       }
-      const [year, month, day] = date.split('-');
+      const [year, month, day] = date.split("-");
       return `${month}/${day}/${year}`;
     },
-    parseDate (date) {
+    parseDate(date) {
       if (!date) {
         return null;
       }
-      const [month, day, year] = date.split('/');
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    }
+      const [month, day, year] = date.split("/");
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    },
   },
   computed: {
-    isUpdateProfileValid () {
-      if(this.$refs.updateProfileForm) {
+    isUpdateProfileValid() {
+      if (this.$refs.updateProfileForm) {
         this.$refs.updateProfileForm.validate();
       }
-      return this.provider.firstName &&
+      return (
+        this.provider.firstName &&
         this.provider.lastName &&
         this.provider.dob &&
         this.provider.gender &&
         this.provider.phone &&
         this.provider.email &&
-        this.validUpdateProfileForm;
+        this.validUpdateProfileForm
+      );
     },
-    isAddAddressValid () {
-      if(this.$refs.addAddressForm) {
+    isAddAddressValid() {
+      if (this.$refs.addAddressForm) {
         this.$refs.addAddressForm.validate();
       }
-      return this.newAddress.street &&
+      return (
+        this.newAddress.street &&
         this.newAddress.city &&
         this.newAddress.state &&
         this.newAddress.zipCode &&
         this.newAddress.longitude &&
         this.newAddress.latitude &&
-        this.validAddAddressForm;  
+        this.validAddAddressForm
+      );
     },
-    isUpdateAddressValid () {
-      if(this.$refs.updateAddressForm) {
+    isUpdateAddressValid() {
+      if (this.$refs.updateAddressForm) {
         this.$refs.updateAddressForm.validate();
       }
-      return this.updatedAddress.street &&
+      return (
+        this.updatedAddress.street &&
         this.updatedAddress.city &&
         this.updatedAddress.state &&
         this.updatedAddress.zipCode &&
         this.updatedAddress.longitude &&
         this.updatedAddress.latitude &&
-        this.validUpdateAddressForm;  
+        this.validUpdateAddressForm
+      );
     },
-    isAddServiceValid () {
-      if(this.$refs.addServiceForm) {
+    isAddServiceValid() {
+      if (this.$refs.addServiceForm) {
         this.$refs.addServiceForm.validate();
       }
-      return this.newService.cityId && this.validAddServiceForm;  
+      return this.newService.cityId && this.validAddServiceForm;
     },
   },
   watch: {
-    addAddressDialog (newVal) {
+    addAddressDialog(newVal) {
       if (!newVal) {
         this.$refs.addAddressForm.reset();
       }
     },
-    addServiceDialog (newVal) {
+    addServiceDialog(newVal) {
       if (!newVal) {
         this.$refs.addServiceForm.reset();
       }
     },
-    datePicker (newValue) {
-      newValue && setTimeout(() => (this.activePicker = 'YEAR'))
+    datePicker(newValue) {
+      newValue && setTimeout(() => (this.activePicker = "YEAR"));
     },
-    'provider.dob' (newValue) {
-      if(newValue) {
+    "provider.dob"(newValue) {
+      if (newValue) {
         this.formattedDate = this.formatDate(this.provider.dob);
       }
-    }
-  }
-})
+    },
+  },
+});
 </script>

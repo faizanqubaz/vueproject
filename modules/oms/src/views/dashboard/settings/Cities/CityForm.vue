@@ -2,9 +2,9 @@
   <v-container fluid>
     <v-card>
       <v-tabs v-model="activeTab">
-        <v-tab>City Detail</v-tab>
-        <v-tab>Service Zip Codes</v-tab>
-        <v-tab>Service Time Slots</v-tab>
+        <v-tab>City</v-tab>
+        <v-tab>Zip Codes</v-tab>
+        <v-tab>Time Slots</v-tab>
         <v-tabs-items v-model="activeTab">
           <v-tab-item>
             <v-card-title>
@@ -46,7 +46,7 @@
                           />
                         </v-col>
                         <v-col cols="12">
-                          <v-switch 
+                          <v-switch
                             v-model="formValues.active"
                             label="Active"
                             color="primary"
