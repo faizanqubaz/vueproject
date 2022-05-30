@@ -81,6 +81,9 @@ const Appointment = {
     },
     setDateAndTime (state: any, dt:any) {
       state.dateAndTime = dt
+    },
+    setInsuranceInfo (state: any, insurance: string) {
+      state.insuranceInfo = insurance
     }
   },
 
@@ -169,6 +172,9 @@ const Appointment = {
     },
     dateAndTime (state: any) {
       return state.dateAndTime
+    },
+    insuranceInfo (state: any) {
+      return state.insuranceInfo
     }
   }
 }

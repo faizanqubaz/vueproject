@@ -11,11 +11,11 @@
         </p>
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 pt-8">
-        <wz-upload v-model="insuranceInfo.front">
+        <wz-upload v-model="insuranceFront">
           <h4>Add image</h4>
           <p class="font-normal text-gray-700 antialiased">Front of card</p>
         </wz-upload>
-        <wz-upload v-model="insuranceInfo.back">
+        <wz-upload v-model="insuranceBack">
           <h4>Add image</h4>
           <p class="font-normal text-gray-700 antialiased">Back of card</p>
         </wz-upload>
@@ -36,22 +36,31 @@
 
 <script lang="ts">
 import Vue from 'vue'
+
+interface InsuranceFile {
+  file: File[];
+  string: string;
+}
+
 export default Vue.extend({
   data () {
     return {
-      insuranceInfo: {
-        front: null,
-        back: null
-      }
+      insuranceFront: {} as InsuranceFile,
+      insuranceBack: {} as InsuranceFile
     }
   },
   computed: {
     isValid (): boolean {
-      return !!this.insuranceInfo.front && !!this.insuranceInfo.back
+      return !!this.insuranceFront.string && !!this.insuranceBack.string
     }
   },
   methods: {
     proceed () {
+      const insurance = {
+        front: this.insuranceFront.string,
+        back: this.insuranceBack.string
+      }
+      this.$store.commit('setInsuranceInfo', insurance)
       this.$router.push('/review-appointment')
     }
   }

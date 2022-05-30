@@ -6,9 +6,7 @@
       </div>
       <div class="pt-7">
         <h1 class="text-xl">Review Appointment</h1>
-        <p
-          class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased"
-        >
+        <p class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased">
           Please review your information
         </p>
       </div>
@@ -169,6 +167,7 @@ export default Vue.extend({
           scheduledEndTime: this.$store.getters.endTime,
           serviceId: this.$store.getters.serviceTypeId
         },
+        insurance: this.$store.getters.insuranceInfo,
         note: this.$store.getters.notes
       }
       try {
