@@ -153,7 +153,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    isDetailsValid () {
+    isDetailsValid (): boolean {
       return !!this.firstName &&
         !!this.lastName &&
         !!this.phoneNumber &&
