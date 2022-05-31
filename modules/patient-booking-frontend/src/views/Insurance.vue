@@ -56,12 +56,14 @@ export default Vue.extend({
   },
   methods: {
     proceed () {
-      const insurance = {
-        front: this.insuranceFront.string,
-        back: this.insuranceBack.string
+      if (this.isValid) {
+        const insurance = {
+          front: this.insuranceFront.string,
+          back: this.insuranceBack.string
+        }
+        this.$store.commit('setInsuranceInfo', insurance)
+        this.$router.push('/review-appointment')
       }
-      this.$store.commit('setInsuranceInfo', insurance)
-      this.$router.push('/review-appointment')
     }
   }
 })
