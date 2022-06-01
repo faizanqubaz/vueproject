@@ -33,14 +33,15 @@ const Appointment = {
       card: false
     },
     insuranceInfo: {
-      front: null,
-      back: null
+      front: '',
+      back: ''
     },
     cardInfo: {
-      number: '',
-      name: '',
-      expirationDate: '',
-      cvc: ''
+      lastFour: '',
+      token: '',
+      cvv: '',
+      expiration: '',
+      zipCode: ''
     },
     notes: '',
     dateAndTime: {
@@ -81,6 +82,12 @@ const Appointment = {
     },
     setDateAndTime (state: any, dt:any) {
       state.dateAndTime = dt
+    },
+    setInsuranceInfo (state: any, insurance: string) {
+      state.insuranceInfo = insurance
+    },
+    setCardInfo (state: any, card: any) {
+      state.cardInfo = card
     }
   },
 
@@ -160,6 +167,12 @@ const Appointment = {
     },
     dateAndTime (state: any) {
       return state.dateAndTime
+    },
+    insuranceInfo (state: any) {
+      return state.insuranceInfo
+    },
+    cardInfo (state: any) {
+      return state.cardInfo
     }
   }
 }

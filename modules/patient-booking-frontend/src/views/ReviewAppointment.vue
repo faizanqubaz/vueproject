@@ -169,6 +169,12 @@ export default Vue.extend({
           scheduledEndTime: this.$store.getters.endTime,
           serviceId: this.$store.getters.serviceId
         },
+        insurance: this.$store.getters.payment.insurance
+          ? this.$store.getters.insuranceInfo
+          : undefined,
+        payment: this.$store.getters.payment.card
+          ? this.$store.getters.cardInfo
+          : undefined,
         note: this.$store.getters.notes
       }
       try {

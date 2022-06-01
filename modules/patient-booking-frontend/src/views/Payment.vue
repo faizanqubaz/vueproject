@@ -37,7 +37,7 @@
         </div>
       </div>
       <div
-        class="pt-5 grid md:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-x-5 gap-y-3"
+        class="pt-5 grid md:grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-x-5 gap-y-3"
       >
         <div>
           <label>Expiration Date</label>
@@ -51,9 +51,9 @@
           </div>
         </div>
         <div>
-          <label>CVC</label>
+          <label>CVV</label>
           <div
-            class="flex items-center w-full border px-3 py-sm rounded cursor-text"
+            class="flex items-center w-full border px-2 py-sm rounded cursor-text"
             :class="[onFocus === 'cvv' ? 'border-primary' : 'border-stroke']"
             @click="$refs.cvvIfield.focusIfield(), onFocus = 'cvv'"
           >
@@ -69,9 +69,21 @@
             />
           </div>
         </div>
+        <div>
+          <label>Zip Code</label>
+          <div
+            class="flex items-center w-full border px-2 py-sm rounded cursor-text"
+            :class="[onFocus === 'zipCode' ? 'border-primary' : 'border-stroke']"
+            @click="$refs.zipCode.focus(), onFocus = 'zipCode'"
+          >
+            <wz-icon name="map-pin" color="darkGray" class="mr-2" />
+            <input maxlength="7" ref="zipCode" v-model="cardInfo.zipCode"
+            :style="renderInputStyle('exp')" placeholder="Zip Code" />
+          </div>
+        </div>
       </div>
       <div class="pt-8">
-        <wz-button color="primary" block :disabled="isSubmitting" @click="proceed">
+        <wz-button color="primary" block :disabled="isSubmitting || !isValid" @click="proceed">
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
@@ -108,8 +120,10 @@ export default Vue.extend({
         number: '',
         name: '',
         expirationDate: '',
-        cvc: ''
+        cvc: '',
+        zipCode: ''
       },
+      lastFour: '',
       ifieldAccount: {
         xKey: process.env.VUE_APP_CARDKNOX_KEY,
         xSoftwareName: 'welz-patient-booking-app',
@@ -129,22 +143,19 @@ export default Vue.extend({
     this.CVV_TYPE = CVV_TYPE
   },
   methods: {
-    proceed () {
-      this.handleSubmit()
-    },
     renderIfieldOptions (type) {
       return {
         enableLogging: false,
         autoFormat: true,
         autoFormatSeparator: ' ',
-        placeholder: type === 'card' ? 'Card Number' : 'CVC',
+        placeholder: type === 'card' ? 'Card Number' : 'CVV',
         iFieldstyle: this.renderInputStyle(type)
       }
     },
     renderInputStyle (type) {
       return {
-        width: '100%',
-        'max-width': '100%',
+        width: '90%',
+        'max-width': '90%',
         border: 'none',
         color: '#363636',
         padding: '0',
@@ -153,34 +164,14 @@ export default Vue.extend({
         margin: type === 'exp' ? '0' : '3px 0 0'
       }
     },
-    renderIfieldOptionsAlt (type) {
-      return {
-        enableLogging: false,
-        autoFormat: true,
-        autoFormatSeparator: ' ',
-        placeholder: type === 'card' ? 'Card Number' : 'CVC',
-        iFieldstyle: this.renderInputStyleAlt(type)
+    async proceed () {
+      if (this.isValid) {
+        this.isSubmitting = true
+        await this.submitToken(this.CARD_TYPE)
+        await this.submitToken(this.CVV_TYPE)
       }
     },
-    renderInputStyleAlt (type) {
-      return {
-        width: '100%',
-        'max-width': type === 'card' ? '95%' : '90%',
-        color: '#363636',
-        padding: type === 'exp' ? '12px 16px' : '14px 16px',
-        border: 'solid 1px rgb(203, 213, 224)',
-        'border-radius': '8px',
-        'font-size': '1rem',
-        'font-weight': '500',
-        overflow: 'none'
-      }
-    },
-    async handleSubmit () {
-      this.isSubmitting = true
-      await this.submit(this.CARD_TYPE)
-      await this.submit(this.CVV_TYPE)
-    },
-    async submit (type) {
+    async submitToken (type) {
       try {
         const ref = this.getRefFromType(type)
         await ref.getToken()
@@ -199,6 +190,9 @@ export default Vue.extend({
       }
     },
     handleTokenSuccess ({ data, type }) {
+      if (type === 'card') {
+        this.getLastFour(data.data.xToken)
+      }
       this.cardData = { ...this.cardData, [type]: data.data.xToken }
     },
     handleTokenError ({ data }) {
@@ -211,6 +205,12 @@ export default Vue.extend({
     },
     handleInputFocus ({ type }) {
       this.onFocus = type
+    },
+    getLastFour (token) {
+      const splitToken = token.split(';')
+      const cardNumber = splitToken[0]
+      const lastFour = cardNumber.substring(cardNumber.length - 4)
+      this.lastFour = lastFour
     }
   },
   components: {
@@ -220,12 +220,24 @@ export default Vue.extend({
     cardData: {
       handler () {
         if (this.cardData.card && this.cardData.cvv) {
-          console.log({ cardData: this.cardData })
+          const card = {
+            token: this.cardData.card,
+            cvv: this.cardData.cvv,
+            zipCode: this.cardInfo.zipCode,
+            expiration: this.cardInfo.expirationDate,
+            lastFour: this.lastFour
+          }
           this.isSubmitting = false
+          this.$store.commit('setCardInfo', card)
           this.$router.push('/review-appointment')
         }
       },
       deep: true
+    }
+  },
+  computed: {
+    isValid () {
+      return !!this.cardInfo.expirationDate && !!this.cardInfo.zipCode
     }
   }
 })
@@ -234,7 +246,7 @@ export default Vue.extend({
 <style scoped>
 iframe {
   height: 24px;
-  width: 100%;
+  width: 50%;
 }
 
 input {
