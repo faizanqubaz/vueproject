@@ -18,7 +18,7 @@ const Appointment = {
       timeZone: ''
     },
     service: {
-      id: 0,
+      groupId: 0,
       type: {
         id: 0,
         name: '',
@@ -57,13 +57,13 @@ const Appointment = {
     setPayment (state: any, payment: any) {
       state.payment = payment
     },
-    setServiceId (state: any, id:number) {
-      state.service.id = id
+    setGroupId (state: any, id: number) {
+      state.service.groupId = id
     },
-    setServiceType (state: any, type:any) {
-      state.service.type = type
+    setService (state: any, service: any) {
+      state.service.type = service
     },
-    clearServiceType (state: any) {
+    clearService (state: any) {
       state.service.type = {
         id: 0,
         name: '',
@@ -73,7 +73,7 @@ const Appointment = {
         notes: ''
       }
     },
-    setServiceTypeNotes (state: any, notes:string) {
+    setServiceNotes (state: any, notes: string) {
       state.service.type.notes = notes
     },
     setNotes (state: any, notes:string) {
@@ -81,9 +81,6 @@ const Appointment = {
     },
     setDateAndTime (state: any, dt:any) {
       state.dateAndTime = dt
-    },
-    setInsuranceInfo (state: any, insurance: string) {
-      state.insuranceInfo = insurance
     }
   },
 
@@ -124,32 +121,23 @@ const Appointment = {
     payment (state: any) {
       return state.payment
     },
-    serviceId (state: any) {
-      return state.service.id
+    groupId (state: any) {
+      return state.service.groupId
     },
-    serviceTypeId (state: any) {
+    serviceId (state: any) {
       return state.service.type.id
     },
-    serviceTypeName (state: any) {
+    serviceName (state: any) {
       return state.service.type.name
     },
-    serviceTypeDescription (state: any) {
-      return state.service.type.description
-    },
-    serviceTypePrice (state: any) {
+    servicePrice (state: any) {
       return state.service.type.price
     },
-    serviceTypeImage (state: any) {
-      return state.service.type.image
-    },
-    serviceTypeNotes (state: any) {
+    serviceNotes (state: any) {
       return state.service.type.notes
     },
     notes (state: any) {
       return state.notes
-    },
-    serviceType (state: any) {
-      return state.service.type
     },
     insurance (state: any) {
       return state.payment.insurance
@@ -172,9 +160,6 @@ const Appointment = {
     },
     dateAndTime (state: any) {
       return state.dateAndTime
-    },
-    insuranceInfo (state: any) {
-      return state.insuranceInfo
     }
   }
 }

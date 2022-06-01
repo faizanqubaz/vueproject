@@ -12,21 +12,21 @@
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-8">
         <wz-checkbox-card
-          v-for="serviceType in serviceTypes"
-          :key="serviceType.id"
-          v-model="serviceTypeId"
-          :itemKey="serviceType.id"
+          v-for="service in services"
+          :key="service.id"
+          v-model="serviceId"
+          :itemKey="service.id"
         >
           <template #content>
             <div class="content-center py-5" align="center">
               <img
-                :src="images[serviceType.id-1]"
-                :alt="`${serviceType.name}`"
+                :src="images[service.id-1]"
+                :alt="`${service.name}`"
                 class=""
               />
-              <h3 class="pt-4 font-normal">{{ serviceType.name }}</h3>
+              <h3 class="pt-4 font-normal">{{ service.name }}</h3>
               <p class="antialiased font-normal text-gray-500 pt-1">
-                {{ serviceType.description }}
+                {{ service.description }}
               </p>
             </div>
           </template>
@@ -54,7 +54,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { get, find } from 'lodash'
-import { ServiceType } from '../api/BookingApiClient'
+import { Service } from '../api/BookingApiClient'
 export default Vue.extend({
   data () {
     return {
@@ -63,28 +63,28 @@ export default Vue.extend({
         require('@/assets/pcr.png'),
         require('@/assets/rapid-pcr.png')
       ],
-      serviceTypes: [] as ServiceType[],
-      serviceTypeId: 0
+      services: [] as Service[],
+      serviceId: 0
     }
   },
   beforeMount () {
-    this.serviceTypes = get(find(this.$store.getters.serviceList, { id: this.$store.getters.serviceId }), 'services')
-    this.serviceTypeId = this.$store.getters.serviceTypeId
+    this.services = get(find(this.$store.getters.serviceList, { id: this.$store.getters.groupId }), 'services')
+    this.serviceId = this.$store.getters.serviceId
   },
   methods: {
     proceed () {
-      if (this.serviceTypeId !== this.$store.getters.serviceTypeId) {
-        const serviceType = find(this.serviceTypes, { id: this.serviceTypeId })
-        if (serviceType) {
-          const type = {
-            id: this.serviceTypeId,
-            name: serviceType.name,
-            description: serviceType.description,
-            price: serviceType.price,
-            image: this.images[this.serviceTypeId - 1],
+      if (this.serviceId !== this.$store.getters.serviceId) {
+        const service = find(this.services, { id: this.serviceId })
+        if (service) {
+          const aService = {
+            id: this.serviceId,
+            name: service.name,
+            description: service.description,
+            price: service.price,
+            image: this.images[this.serviceId - 1],
             notes: ''
           }
-          this.$store.commit('setServiceType', type)
+          this.$store.commit('setService', aService)
         }
       }
       if (this.isValid) {
@@ -94,7 +94,7 @@ export default Vue.extend({
   },
   computed: {
     isValid (): boolean {
-      return !!this.serviceTypeId
+      return !!this.serviceId
     },
     isInsurance () {
       return this.$store.getters.insurance

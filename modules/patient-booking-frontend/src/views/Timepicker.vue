@@ -105,7 +105,7 @@ export default Vue.extend({
         const bookingApiClient = new BookingApiClient()
         const fetchDate = moment(this.dateAndTime.date).toISOString()
         const response = await bookingApiClient.getServiceTimeSlots(fetchDate,
-          this.$store.getters.locationCityId, this.$store.getters.serviceTypeId)
+          this.$store.getters.locationCityId, this.$store.getters.serviceId)
         if (response.result.length > 0) {
           this.timeSlots = []
           this.dateAndTime.id = 0

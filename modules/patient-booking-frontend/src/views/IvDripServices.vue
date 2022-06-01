@@ -12,23 +12,23 @@
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 py-8">
         <wz-checkbox-card
-          :key="serviceType.id"
-          v-for="serviceType in serviceTypes"
-          v-model="serviceId"
-          :itemKey="serviceType.id"
+          :key="service.id"
+          v-for="service in services"
+          v-model="groupId"
+          :itemKey="service.id"
         >
           <template #content>
             <div class="content-center py-5" align="center">
               <img
-                :src="serviceType.image"
-                :alt="`${serviceType.text}`"
+                :src="service.image"
+                :alt="`${service.text}`"
                 class=""
               />
-              <h3 class="pt-4 font-normal">{{ serviceType.title }}</h3>
+              <h3 class="pt-4 font-normal">{{ service.title }}</h3>
               <p class="antialiased font-normal text-gray-500 pt-1">
-                {{ serviceType.text }}
+                {{ service.text }}
               </p>
-              <p class="font-normal text-primary pt-1">{{ serviceType.price }}</p>
+              <p class="font-normal text-primary pt-1">{{ service.price }}</p>
             </div>
           </template>
         </wz-checkbox-card>
@@ -57,8 +57,8 @@ import Vue from 'vue'
 export default Vue.extend({
   data () {
     return {
-      serviceId: 0,
-      serviceTypes: [
+      groupId: 0,
+      services: [
         {
           id: 1,
           image: require('@/assets/hangover-relief.png'),
@@ -85,12 +85,12 @@ export default Vue.extend({
   },
   computed: {
     isValid (): boolean {
-      return !!this.serviceId
+      return !!this.groupId
     }
   },
   methods: {
     proceed () {
-      this.serviceId = 5
+      this.groupId = 5
       this.$router.push('/notes')
     }
   }

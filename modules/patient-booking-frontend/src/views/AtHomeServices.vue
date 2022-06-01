@@ -107,27 +107,26 @@ export default Vue.extend({
     }
   },
   beforeMount () {
-    const serviceType = get(find(this.$store.getters.serviceList, { id: this.$store.getters.serviceId }), 'services')
-    // there is only one service under this group. That's why passing the index
-    const serviceTypeIndex = 0
-    if (serviceType[serviceTypeIndex].id !== this.$store.getters.serviceTypeId) {
-      const type = {
-        id: serviceType[serviceTypeIndex].id,
-        name: serviceType[serviceTypeIndex].name,
-        description: serviceType[serviceTypeIndex].description,
-        price: serviceType[serviceTypeIndex].price,
+    const service = get(find(this.$store.getters.serviceList, { id: this.$store.getters.groupId }), 'services')
+    const serviceIndex = 0
+    if (service[serviceIndex].id !== this.$store.getters.serviceId) {
+      const aService = {
+        id: service[serviceIndex].id,
+        name: service[serviceIndex].name,
+        description: service[serviceIndex].description,
+        price: service[serviceIndex].price,
         image: require('@/assets/at-home-care.png'),
         notes: ''
       }
-      this.$store.commit('setServiceType', type)
+      this.$store.commit('setService', aService)
     }
 
-    this.notes = this.$store.getters.serviceTypeNotes
+    this.notes = this.$store.getters.serviceNotes
   },
   methods: {
     proceed () {
-      if (this.notes !== this.$store.getters.serviceTypeNotes) {
-        this.$store.commit('setServiceTypeNotes', this.notes)
+      if (this.notes !== this.$store.getters.serviceNotes) {
+        this.$store.commit('setServiceNotes', this.notes)
       }
       if (this.isValid) {
         this.$router.push('/notes')

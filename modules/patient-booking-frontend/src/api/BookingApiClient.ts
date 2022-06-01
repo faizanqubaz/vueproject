@@ -36,7 +36,7 @@ export interface Appointment {
   note: string;
 }
 
-export interface ServiceType {
+export interface Service {
   id: number;
   name: string;
   description: string;
@@ -44,10 +44,10 @@ export interface ServiceType {
   active: boolean;
 }
 
-export interface ServiceGroupType {
+export interface ServiceGroup {
   id: number;
   name: string;
-  services: ServiceType[];
+  services: Service[];
 }
 
 export interface TimeSlot {
@@ -63,7 +63,7 @@ export interface ServiceResponseDetails {
   state: string;
   timeZone: string;
   active: boolean;
-  serviceGroups: ServiceGroupType[];
+  serviceGroups: ServiceGroup[];
 }
 
 export interface ServiceResponse {

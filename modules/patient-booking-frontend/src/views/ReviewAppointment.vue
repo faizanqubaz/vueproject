@@ -6,7 +6,9 @@
       </div>
       <div class="pt-7">
         <h1 class="text-xl">Review Appointment</h1>
-        <p class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased">
+        <p
+          class="pt-3 text-base lg:text-lg font-normal text-gray-700 antialiased"
+        >
           Please review your information
         </p>
       </div>
@@ -63,7 +65,7 @@
           <div class="grid grid-cols-12">
             <div class="">:</div>
             <div class="col-span-11">
-              <div class="">{{ $store.getters.serviceTypeName }}</div>
+              <div class="">{{ $store.getters.serviceName }}</div>
               <div class="" v-if="$store.getters.notes">
                 {{ $store.getters.notes }}
               </div>
@@ -73,7 +75,7 @@
           <div class="grid grid-cols-12" v-if="isInsurance">
             <div class="">:</div>
             <div class="col-span-11">
-              <div class="">${{ $store.getters.serviceTypePrice }}</div>
+              <div class="">${{ $store.getters.servicePrice }}</div>
             </div>
           </div>
         </div>
@@ -165,9 +167,8 @@ export default Vue.extend({
           date: moment(this.$store.getters.date).startOf('day').toISOString(),
           scheduledStartTime: this.$store.getters.startTime,
           scheduledEndTime: this.$store.getters.endTime,
-          serviceId: this.$store.getters.serviceTypeId
+          serviceId: this.$store.getters.serviceId
         },
-        insurance: this.$store.getters.insuranceInfo,
         note: this.$store.getters.notes
       }
       try {

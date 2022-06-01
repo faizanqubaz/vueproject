@@ -17,7 +17,7 @@
           v-for="service in services"
           :key="service.id"
           :color="colors[service.id-1]"
-          v-model="serviceId"
+          v-model="groupId"
           :itemKey="service.id"
         >
           <template>
@@ -47,7 +47,7 @@ import Vue from 'vue'
 export default Vue.extend({
   data () {
     return {
-      serviceId: 0,
+      groupId: 0,
       paths: [
         '/covid19-testing',
         '/at-home-care'
@@ -65,16 +65,16 @@ export default Vue.extend({
   },
   beforeMount () {
     this.services = this.$store.getters.serviceList
-    this.serviceId = this.$store.getters.serviceId
+    this.groupId = this.$store.getters.groupId
   },
   methods: {
     proceed () {
-      if (this.serviceId !== this.$store.getters.serviceId) {
-        this.$store.commit('setServiceId', this.serviceId)
-        this.$store.commit('clearServiceType')
+      if (this.groupId !== this.$store.getters.groupId) {
+        this.$store.commit('setGroupId', this.groupId)
+        this.$store.commit('clearService')
       }
 
-      const url = this.paths[this.serviceId - 1]
+      const url = this.paths[this.groupId - 1]
       if (this.isValid) {
         this.$router.push(url)
       }
@@ -82,7 +82,7 @@ export default Vue.extend({
   },
   computed: {
     isValid (): boolean {
-      return !!this.serviceId
+      return !!this.groupId
     }
   }
 })
