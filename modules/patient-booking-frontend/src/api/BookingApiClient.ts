@@ -83,7 +83,7 @@ export interface AppointmentResponse {
 
 export default class BookingApiClient extends HttpClient {
   constructor () {
-    super('https://booking-api-dev.welz.com/api/v1/')
+    super(process.env.VUE_APP_WELZ_BOOKING_API)
   }
 
   async getService (zipCode: string): Promise<ServiceResponse> {
