@@ -359,7 +359,7 @@ export interface GeneralResponse {
 
 export default class OMSApi extends HttpClient {
   constructor() {
-    super("https://oms-api-dev.welz.com/api/v1/");
+    super(process.env.VUE_APP_WELZ_OMS_API);
   }
 
   async getCities(): Promise<CitiesResponse> {
