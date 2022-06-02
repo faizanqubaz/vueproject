@@ -24,7 +24,7 @@
             <h2>{{ service.name }}</h2>
           </template>
           <template #image>
-          <img :src="images[service.id-1]" :alt="`${service.name}`" class="lg:h-40 md:h-40 sm:h-20" />
+          <img :src="service.image" :alt="`${service.name}`" class="lg:h-40 md:h-40 sm:h-20" />
           </template>
         </wz-service-card>
       </div>
@@ -55,10 +55,6 @@ export default Vue.extend({
       colors: [
         'pink-50',
         'green-50'
-      ],
-      images: [
-        require('@/assets/covid-19-testing.png'),
-        require('@/assets/urgent-care.png')
       ],
       services: []
     }

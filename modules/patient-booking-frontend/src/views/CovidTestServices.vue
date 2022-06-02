@@ -20,7 +20,7 @@
           <template #content>
             <div class="content-center py-5" align="center">
               <img
-                :src="images[service.id-1]"
+                :src="service.image"
                 :alt="`${service.name}`"
                 class=""
               />
@@ -58,11 +58,6 @@ import { Service } from '../api/BookingApiClient'
 export default Vue.extend({
   data () {
     return {
-      images: [
-        require('@/assets/rapid.png'),
-        require('@/assets/pcr.png'),
-        require('@/assets/rapid-pcr.png')
-      ],
       services: [] as Service[],
       serviceId: 0
     }
@@ -81,7 +76,7 @@ export default Vue.extend({
             name: service.name,
             description: service.description,
             price: service.price,
-            image: this.images[this.serviceId - 1],
+            image: service.image,
             notes: ''
           }
           this.$store.commit('setService', aService)

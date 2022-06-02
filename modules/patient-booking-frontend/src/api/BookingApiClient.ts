@@ -42,10 +42,12 @@ export interface Service {
   description: string;
   price: number;
   active: boolean;
+  image: string;
 }
 
 export interface ServiceGroup {
   id: number;
+  image: string;
   name: string;
   services: Service[];
 }
