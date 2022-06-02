@@ -116,7 +116,7 @@ export default Vue.extend({
               id: slot.id,
               startTime: slot.startTime,
               endTime: slot.endTime,
-              active: slot.enabled && this.isAvailable(this.dateAndTime.date, slot.startTime)
+              active: slot.enabled && this.isAvailable(fetchDate, slot.startTime)
             })
           })
         } else {
