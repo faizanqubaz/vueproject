@@ -160,7 +160,7 @@
         </template>
 
         <template v-slot:[`item.service`]="props">
-          <span style="white-space: nowrap">
+          <span style="white-space: nowrap" v-if="props.item.service">
             <v-icon :color="statusColor[props.item.service.active]">
               mdi-circle-medium
             </v-icon>
