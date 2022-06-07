@@ -587,7 +587,7 @@ export default Vue.extend({
       activeTab: null,
       loading: true,
       saveLoading: false,
-      providerId: this.$route.params.providerId,
+      providerId: parseInt(this.$route.params.providerId),
       activePicker: null,
       datePicker: false,
       formattedDate: null,
@@ -700,7 +700,7 @@ export default Vue.extend({
         const api = new OMSApi();
         const response = await api.getProviderServices(this.providerId);
         let services = [];
-        if (response.result.length > 0) {
+        if (response.result) {
           response.result.map((item) => {
             services.push({
               id: item.id,
@@ -710,7 +710,10 @@ export default Vue.extend({
               serviceName: item.service.name,
             });
           });
-          this.provider.services = services;
+          this.provider = {
+            ...this.provider,
+            services,
+          };
           this.populateServiceListByCity();
         }
       } catch (error) {
@@ -862,7 +865,7 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const response = await api.getServices();
-        if (response.result.data.length > 0) {
+        if (response.result.data) {
           this.serviceList = response.result.data;
         }
       } catch (error) {
@@ -877,7 +880,7 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const response = await api.getCities();
-        if (response.result.data.length > 0) {
+        if (response.result.data) {
           this.cityList = response.result.data;
         }
       } catch (error) {
@@ -950,6 +953,7 @@ export default Vue.extend({
           this.deletedService.id
         );
         if (response) {
+          console.log("deleted");
           this.saveLoading = false;
           await this.getProviderServices();
           this.$root.snackbar.show({

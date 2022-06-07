@@ -594,7 +594,7 @@ export default Vue.extend({
         this.saveLoading = false;
         this.closeAddDialog(true);
         this.$root.snackbar.show({
-          message: "Failed to added successfully",
+          message: "Service added successfully",
           type: "success",
         });
       } catch (error) {
