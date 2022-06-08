@@ -93,6 +93,27 @@ export interface Provider {
   email: string;
   authId: string;
 }
+export interface PayPeriods {
+  id: number;
+  startDate: string;
+  endDate: string;
+  payDate: string;
+}
+export interface PayPeriodsResponse {
+  message: string;
+  result: {
+    data: PayPeriods[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
+export interface PayPeriodPayload {
+  startDate: string;
+  endDate: string;
+  payDate: string;
+}
 export interface ProvidersResponse {
   message: string;
   result: {
@@ -730,11 +751,87 @@ export default class OMSApi extends HttpClient {
       return Promise.reject(error);
     }
   }
+
   async deleteService(id: number): Promise<ServicesResponse> {
     const url = "services/" + id.toString();
 
     try {
       const response: AxiosResponse<ServicesResponse> =
+        await this.instance.delete(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getPayPeriods(): Promise<PayPeriodsResponse> {
+    const url = "payout-periods";
+    try {
+      const response: AxiosResponse<PayPeriodsResponse> = await this.instance.get(
+        url
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async createPayPeriod(param: PayPeriodPayload): Promise<PayPeriodsResponse> {
+    console.log('payload', param)
+    const url = "payout-periods";
+    try {
+      const response: AxiosResponse<PayPeriodsResponse> =
+        await this.instance.post(url, param);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async updatePayPeriod(
+    id: number,
+    param: PayPeriodPayload
+  ): Promise<PayPeriodsResponse> {
+    const url = "payout-periods/" + id.toString();
+
+    try {
+      const response: AxiosResponse<PayPeriodsResponse> = await this.instance.put(
+        url,
+        param
+      );
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async deletePayPeriod(id: number): Promise<PayPeriodsResponse> {
+    const url = "payout-periods/" + id.toString();
+
+    try {
+      const response: AxiosResponse<PayPeriodsResponse> =
         await this.instance.delete(url);
       const { status } = response;
       if (status === 200) {

@@ -87,6 +87,12 @@ const routes: Array<RouteConfig> = [
           import("@/views/dashboard/settings/ServiceZipCodes.vue"),
         beforeEnter: authGuard,
       },
+      {
+        name: "Pay Periods",
+        path: "settings/pay-periods",
+        component: () => import("@/views/dashboard/settings/PayPeriods.vue"),
+        beforeEnter: authGuard,
+      },
     ],
   },
   {

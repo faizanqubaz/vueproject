@@ -121,6 +121,10 @@ export default Vue.extend({
             to: "providers",
             title: "Providers",
           },
+          {
+            to: "pay-periods",
+            title: "Pay Periods",
+          },
         ],
       },
     ],
