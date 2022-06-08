@@ -185,7 +185,6 @@ export default Vue.extend({
         this.snackbar.message = 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
       }
-      console.log(appointment)
     },
     formatDate (isoDate: string) {
       return moment(isoDate).format('dddd, MMMM Do YYYY')

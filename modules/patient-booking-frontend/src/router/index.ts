@@ -12,6 +12,7 @@ import Insurance from '../views/Insurance.vue'
 import Payment from '../views/Payment.vue'
 import ReviewAppointment from '../views/ReviewAppointment.vue'
 import Confirmation from '../views/Confirmation.vue'
+import store from '../store'
 
 Vue.use(VueRouter)
 
@@ -84,6 +85,13 @@ const routes: Array<RouteConfig> = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.path !== '/appointment' && (!store.getters.location.address || !store.getters.payment)) {
+    return next('/appointment')
+  }
+  return next()
 })
 
 export default router

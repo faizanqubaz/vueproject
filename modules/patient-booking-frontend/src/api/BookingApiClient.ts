@@ -80,7 +80,13 @@ export interface AppointmentTimeSlotResponse {
 
 export interface AppointmentResponse {
   message: string;
-  result: any[];
+  result: {
+    id: number,
+    date: string,
+    scheduledStartTime: string,
+    scheduledEndTime: string,
+    status: string
+  };
 }
 
 export default class BookingApiClient extends HttpClient {
