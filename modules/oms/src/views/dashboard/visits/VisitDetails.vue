@@ -316,13 +316,13 @@
                       id="patientEditMap"
                       classname="form-control"
                       placeholder="Address"
-                      v-on:placeAssignd="getNewAddressData"
+                      v-on:placechanged="getNewAddressData"
                       country="us"
                       :value="patientAddress.address"
                       required
                     />
                   </v-col>
-                  <v-col cols="12" md="9">
+                  <v-col cols="12">
                     <v-text-field
                       v-model="patientAddress.apartment"
                       placeholder="Apartment"
@@ -330,7 +330,7 @@
                       required
                     />
                   </v-col>
-                  <v-col cols="12" md="3">
+                  <v-col cols="12">
                     <v-switch
                       v-model="patientAddress.primary"
                       label="Primary"
@@ -698,17 +698,14 @@
                           hint="MM/DD/YYYY"
                           persistent-hint
                           v-bind="attrs"
-                          @blur="
-                            (dateVisit = parseDate(patientForm.dob)),
-                              (datePickerVisit = false)
-                          "
                           v-on="on"
+                          @input="dateVisitFormat('input')"
                         />
                       </template>
                       <v-date-picker
                         v-model="dateVisit"
                         no-title
-                        @input="datePickerVisit = false"
+                        @input="dateVisitFormat('click')"
                       ></v-date-picker>
                     </v-menu>
                   </v-col>
@@ -1272,6 +1269,7 @@ export default Vue.extend({
         this.cancelLoading = false;
       }
     },
+
     setEditPatient() {
       this.patientForm.firstName = this.visitDetails.patient.firstName;
       this.patientForm.lastName = this.visitDetails.patient.lastName;
@@ -1556,6 +1554,18 @@ export default Vue.extend({
         (state ? state + ", " : "") +
         (zipCode ? zipCode : "")
       );
+    },
+    dateVisitFormat(condition) {
+      if (
+        condition === "input" &&
+        moment(this.visitForm.date, "MM/DD/YYYY", true).isValid()
+      ) {
+        this.dateVisit = moment(this.visitForm.date).format("YYYY-MM-DD");
+      } else if (condition === "click") {
+        this.visitForm.date = this.dateFormat(this.dateVisit);
+      }
+
+      this.datePickerVisit = false;
     },
     formatDate(date) {
       if (!date) return null;

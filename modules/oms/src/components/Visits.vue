@@ -189,148 +189,304 @@
         </v-btn>
       </template>
     </v-snackbar>
+
     <v-dialog v-model="visitDialog" max-width="600px">
       <v-card>
-        <v-card-title>
-          <span class="text-h5">Add Visit</span>
-        </v-card-title>
-
-        <v-card-text>
-          <v-form ref="addForm" v-model="isAddFormValid" lazy-validation>
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    v-model="addPickerDate"
-                    :close-on-content-click="false"
-                    max-width="290"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="addFormValues.date"
-                        clearable
-                        label="Date"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        @click:clear="date = null"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="addFormValues.date"
-                      @input="addPickerDate = false"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    ref="pickerTime1"
-                    v-model="addPickerScheduledStartTime"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    :return-value.sync="addFormValues.scheduledStartTime"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="addFormValues.scheduledStartTime"
-                        label="Scheduled Start Time"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
+        <v-stepper v-model="stepNumber" class="stepper">
+          <v-stepper-header class="stepperHeader">
+            <v-stepper-step :complete="stepNumber > 1" step="1">
+              Address
+            </v-stepper-step>
+            <v-divider />
+            <v-stepper-step :complete="stepNumber > 2" step="2">
+              Patient
+            </v-stepper-step>
+            <v-divider />
+            <v-stepper-step :complete="stepNumber > 3" step="3">
+              Service
+            </v-stepper-step>
+            <v-divider />
+            <v-stepper-step step="4"> Visit </v-stepper-step>
+          </v-stepper-header>
+          <v-stepper-items>
+            <!-- step 1 -->
+            <v-stepper-content step="1">
+              <v-form ref="addForm" v-model="addressForm" lazy-validation>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="12" md="12">
+                      <vuetify-google-autocomplete
+                        ref="patientNewAddress"
+                        id="patientNewtMap"
+                        classname="form-control"
+                        placeholder="Address"
+                        v-on:placechanged="getNewAddressData"
+                        country="us"
+                        required
                       />
-                    </template>
-                    <v-time-picker
-                      v-if="addPickerScheduledStartTime"
-                      v-model="addFormValues.scheduledStartTime"
-                      full-width
-                      format="ampm"
-                      @click:minute="
-                        $refs.pickerTime1.save(addFormValues.scheduledStartTime)
-                      "
-                    />
-                  </v-menu>
-                </v-col>
-                <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    ref="pickerTime2"
-                    v-model="addPickerScheduledEndTime"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    :return-value.sync="addFormValues.scheduledEndTime"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
                       <v-text-field
-                        :value="addFormValues.scheduledEndTime"
-                        label="Scheduled End Time"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
+                        v-model="newAddress.apartment"
+                        placeholder="Apartment"
+                        label="Apartment"
+                        required
                       />
-                    </template>
-                    <v-time-picker
-                      v-if="addPickerScheduledEndTime"
-                      v-model="addFormValues.scheduledEndTime"
-                      full-width
-                      format="ampm"
-                      @click:minute="
-                        $refs.pickerTime2.save(addFormValues.scheduledEndTime)
-                      "
-                    />
-                  </v-menu>
-                </v-col>
-                <v-col cols="12" sm="12" md="12">
-                  <v-autocomplete
-                    v-model="addFormValues.serviceId"
-                    :items="serviceList"
-                    label="Service"
-                    item-text="name"
-                    item-value="id"
-                  />
-                </v-col>
-                <v-col cols="12" sm="12" md="12">
-                  <v-autocomplete
-                    v-model="addFormValues.patientId"
-                    :items="patientList"
-                    label="Patient"
-                    :item-text="getPatientItemText"
-                    item-value="id"
-                  />
-                </v-col>
-                <v-col cols="12" sm="12" md="12">
-                  <v-autocomplete
-                    v-model="addFormValues.addressId"
-                    :items="addressList"
-                    label="Address"
-                    item-text="street"
-                    item-value="id"
-                  />
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-form>
-        </v-card-text>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-switch
+                        v-model="newAddress.primary"
+                        label="Primary"
+                        color="success"
+                      />
+                    </v-col>
 
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="blue-grey" depressed text @click="closeAddDialog()">
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            :disabled="!isAddFormValid"
-            @click="submitVisitAdd"
-          >
-            Save
-          </v-btn>
-        </v-card-actions>
+                    <v-col cols="12" class="text-right">
+                      <v-btn
+                        color="blue-grey"
+                        depressed
+                        text
+                        @click="closeAddDialog()"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        color="primary"
+                        :loading="visitLoading"
+                        @click="addAddress"
+                      >
+                        Continue
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-stepper-content>
+            <!-- end step 1 -->
+            <!-- step 2 -->
+            <v-stepper-content step="2">
+              <v-form
+                ref="addPatientForm"
+                v-model="isAddPatientValid"
+                lazy-validation
+              >
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-text-field
+                        v-model="patientForm.firstName"
+                        placeholder="First Name"
+                        label="First Name"
+                        :rules="requiredRules"
+                        required
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-text-field
+                        v-model="patientForm.lastName"
+                        placeholder="Last Name"
+                        label="Last Name"
+                        :rules="requiredRules"
+                        required
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-menu
+                        v-model="addPickerDate"
+                        :close-on-content-click="false"
+                        max-width="290"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="patientForm.dob"
+                            label="Date of birth"
+                            hint="MM/DD/YYYY"
+                            persistent-hint
+                            :rules="requiredRules"
+                            v-bind="attrs"
+                            v-on="on"
+                            @input="dateVisitFormat('input')"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="dob"
+                          no-title
+                          @input="dateVisitFormat('click')"
+                        ></v-date-picker>
+                      </v-menu>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-text-field
+                        v-model="patientForm.phone"
+                        placeholder="Phone Number"
+                        label="Phone Number"
+                        :rules="phoneRules"
+                        required
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete
+                        v-model="patientForm.gender"
+                        :items="genderItems"
+                        item-text="label"
+                        item-value="value"
+                        :rules="requiredRules"
+                        label="Gender"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-text-field
+                        v-model="patientForm.email"
+                        placeholder="Email"
+                        label="Email"
+                        :rules="emailRules"
+                        required
+                      />
+                    </v-col>
+
+                    <v-col cols="12" class="text-right">
+                      <v-btn
+                        color="blue-grey"
+                        depressed
+                        text
+                        @click="closeAddDialog()"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        color="primary"
+                        :loading="visitLoading"
+                        @click="addPatient"
+                      >
+                        Continue
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-stepper-content>
+            <!-- end step 2 -->
+            <!-- step 3 -->
+            <v-stepper-content step="3">
+              <v-form
+                ref="addServiceForm"
+                v-model="isAddFormValid"
+                lazy-validation
+              >
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete
+                        v-model="addFormValues.serviceId"
+                        :items="serviceList"
+                        label="Service"
+                        item-text="name"
+                        :rules="requiredRules"
+                        return-object
+                      />
+                    </v-col>
+                    <v-col cols="12" class="text-right">
+                      <v-btn
+                        color="blue-grey"
+                        depressed
+                        text
+                        @click="closeAddDialog()"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        color="primary"
+                        :loading="visitLoading"
+                        @click="addService"
+                      >
+                        Continue
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-stepper-content>
+            <!-- end step 3 -->
+            <!-- step 4 -->
+            <v-stepper-content step="4">
+              <v-form ref="addForm" v-model="isAddFormValid" lazy-validation>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-menu
+                        v-model="visitDatePicker"
+                        :close-on-content-click="false"
+                        max-width="290"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            :value="visitDate"
+                            hint="MM/DD/YYYY"
+                            label="Visit Date"
+                            :rules="requiredRules"
+                            persistent-hint
+                            v-bind="attrs"
+                            v-on="on"
+                            @input="dateVisitFormat('input')"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="visitDatePickerVal"
+                          no-title
+                          @input="dateVisitFormat('click')"
+                        ></v-date-picker>
+                      </v-menu>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-radio-group v-model="visitTime" class="ma-0">
+                        <v-row>
+                          <v-col
+                            cols="6"
+                            v-for="(time, index) in availableDates"
+                            :key="index"
+                          >
+                            <v-radio
+                              :label="
+                                formatTimeCustom(time.startTime) +
+                                ' - ' +
+                                formatTimeCustom(time.endTime)
+                              "
+                              :value="time.startTime + ' - ' + time.endTime"
+                            ></v-radio>
+                          </v-col>
+                        </v-row>
+                      </v-radio-group>
+                    </v-col>
+                    <v-col cols="12" class="text-right">
+                      <v-btn
+                        color="blue-grey"
+                        depressed
+                        text
+                        @click="closeAddDialog()"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        color="primary"
+                        :loading="isSubmitting"
+                        @click="addVisit"
+                      >
+                        Save
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-stepper-content>
+            <!-- end step 4 -->
+          </v-stepper-items>
+        </v-stepper>
       </v-card>
     </v-dialog>
   </v-container>
@@ -339,8 +495,15 @@
 <script>
 import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
+import email from "email-validator";
+import phone from "phone";
 import moment from "moment";
 import { VisitStatuses } from "@/utils";
+import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
+Vue.use(VuetifyGoogleAutocomplete, {
+  apiKey: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_KEY,
+  version: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_VERSION,
+});
 
 export default Vue.extend({
   props: {
@@ -378,16 +541,25 @@ export default Vue.extend({
         totalRecords: null,
       },
       serviceList: [],
-      patientList: [],
       providerList: [],
-      addressList: [],
       statusList: VisitStatuses,
       visitDialog: false,
-      addFormValues: {},
+      addFormValues: {
+        serviceId: null,
+        addressId: 282,
+        patientId: 186,
+      },
+      patientForm: {
+        firstName: null,
+        lastName: null,
+        dob: null,
+        gender: null,
+        phone: null,
+        email: null,
+      },
       isAddFormValid: false,
+      isAddPatientValid: false,
       addPickerDate: false,
-      addPickerScheduledStartTime: false,
-      addPickerScheduledEndTime: false,
       isLoading: false,
       isLoadingFilter: false,
       isSubmitting: false,
@@ -399,13 +571,52 @@ export default Vue.extend({
         message: null,
         active: false,
       },
+      stepNumber: 1,
+      address: null,
+      addressForm: false,
+      newAddress: {
+        street: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        primary: false,
+        longitude: 0,
+        latitude: 0,
+        apartment: "",
+      },
+      visitLoading: false,
+      stateCheck: null,
+      serviceTimeSlots: null,
+      visitDatePicker: false,
+      visitDate: null,
+      visitTime: null,
+      genderItems: [
+        { label: "Male", value: "male" },
+        { label: "Female", value: "female" },
+        { label: "Other", value: "other" },
+      ],
+      availableDates: null,
+      requiredRules: [(v) => !!v || "Required"],
+      phoneRules: [
+        (phoneNumber) => !!phoneNumber || "Phone number is required",
+        (phoneNumber) =>
+          (phoneNumber && phone(phoneNumber, { country: "USA" }).isValid) ||
+          "Phone number is invalid",
+      ],
+      emailRules: [
+        (emailAddress) => !!emailAddress || "Email is required",
+        (emailAddress) =>
+          (emailAddress && email.validate(emailAddress)) ||
+          "Email address is invalid",
+      ],
+      dob: null,
+      visitDatePickerVal: null,
     };
   },
   async created() {
     await this.getServices();
-    await this.getPatients();
     await this.getProviders();
-    await this.getAddresses();
+    await this.getServiceTimeSlots();
   },
   methods: {
     async getVisits() {
@@ -451,17 +662,17 @@ export default Vue.extend({
         this.isLoadingFilter = false;
       }
     },
-    async getPatients() {
+    async getServiceTimeSlots() {
       try {
-        // this.isLoadingFilter = true;
+        this.isLoadingFilter = true;
         const api = new OMSApi();
-        const res = await api.getPatients();
+        const res = await api.getServiceTimeSlots();
         if (res.result) {
-          this.patientList = res.result.data;
+          this.serviceTimeSlots = res.result.data;
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get patients list";
+        this.snackbar.message = "Failed to get services time slots";
         this.snackbar.active = true;
       } finally {
         this.isLoadingFilter = false;
@@ -480,33 +691,25 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.snackbar.message = "Failed to get providers list";
-        this.snackbar.active = true;
+        // this.snackbar.message = "Failed to get providers list";
+        // this.snackbar.active = true;
       } finally {
         this.isLoadingFilter = false;
       }
     },
-    async getAddresses() {
-      try {
-        this.isLoadingFilter = true;
-        const api = new OMSApi();
-        const res = await api.getAddresses();
-        if (res.result) {
-          this.addressList = res.result.data;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbar.message = "Failed to get addresses list";
-        this.snackbar.active = true;
-      } finally {
-        this.isLoadingFilter = false;
-      }
-    },
-    async submitVisitAdd() {
+    async addVisit() {
       try {
         this.isSubmitting = true;
         const api = new OMSApi();
-        const res = await api.postVisit(this.addFormValues);
+        let params = {
+          date: moment(this.visitDate).format("YYYY-MM-DD"),
+          scheduledStartTime: this.visitTime.split(" - ")[0],
+          scheduledEndTime: this.visitTime.split(" - ")[1],
+          serviceId: this.addFormValues.serviceId.id,
+          patientId: this.addFormValues.patientId,
+          addressId: this.addFormValues.addressId,
+        };
+        const res = await api.postVisit(params);
         if (res) {
           this.getVisits();
           this.closeAddDialog();
@@ -520,6 +723,108 @@ export default Vue.extend({
       } finally {
         this.isSubmitting = false;
       }
+    },
+    async checkAddress() {
+      this.visitLoading = true;
+      try {
+        const api = new OMSApi();
+        const response = await api.getServiceByZipcode(this.newAddress.zipCode);
+        if (response.result.serviceGroups.length === 0) {
+          this.newAddress.street = null;
+          this.newAddress.city = null;
+          this.newAddress.state = null;
+          this.newAddress.zipCode = null;
+          this.newAddress.longitude = null;
+          this.newAddress.latitude = null;
+          this.$root.snackbar.show({
+            message:
+              "Sorry! We do not have services in your location at this moment",
+            type: "error",
+          });
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Sorry, something went wrong. Please try again",
+          type: "error",
+        });
+      } finally {
+        this.visitLoading = false;
+      }
+    },
+    getNewAddressData(addressData, placeResultData) {
+      this.newAddress.street = addressData.name;
+      this.newAddress.city = placeResultData.formatted_address.split(", ")[1];
+      this.newAddress.state = addressData.administrative_area_level_1;
+      this.newAddress.zipCode = addressData.postal_code;
+      this.newAddress.longitude = addressData.longitude;
+      this.newAddress.latitude = addressData.latitude;
+      this.stateCheck = this.serviceTimeSlots.filter((res) => {
+        return res.city.state == this.newAddress.city;
+      });
+      this.checkAddress();
+    },
+    async addAddress() {
+      if (!this.newAddress.street) {
+        return;
+      }
+      this.visitLoading = true;
+      try {
+        const api = new OMSApi();
+        const response = await api.createAddress(this.newAddress);
+        if (response) {
+          this.addFormValues.addressId = response.result.id;
+          this.stepNumber = 2;
+        }
+      } catch (error) {
+        this.saveLoading = false;
+        this.$root.snackbar.show({
+          message: "Failed to add address",
+          type: "error",
+        });
+      } finally {
+        this.visitLoading = false;
+      }
+    },
+    async addPatient() {
+      if (!this.$refs.addPatientForm.validate()) {
+        return;
+      }
+      this.visitLoading = true;
+      try {
+        const api = new OMSApi();
+        const phone = "+1" + this.patientForm.phone;
+        const patientForm = {
+          ...this.patientForm,
+          phone,
+          dob: moment(this.patientForm.dob).format("YYYY-MM-DD"),
+        };
+        const response = await api.addPatients(patientForm);
+        if (response) {
+          this.addFormValues.patientId = response.result.id;
+          this.stepNumber = 3;
+        }
+      } catch (error) {
+        this.saveLoading = false;
+        this.$root.snackbar.show({
+          message: "Failed to add patient",
+          type: "error",
+        });
+      } finally {
+        this.visitLoading = false;
+      }
+    },
+    addService() {
+      // this.addFormValues.serviceId.id
+      if (!this.$refs.addServiceForm.validate()) {
+        return;
+      }
+      this.serviceTimeSlots = this.serviceTimeSlots.filter((res) => {
+        return res.service.id == this.addFormValues.serviceId.id;
+      });
+      // this.stateCheck.filter((res) => {
+      //   return res.service.id == this.addFormValues.serviceId.id;
+      // });
+      this.stepNumber = 4;
     },
     closeAddDialog() {
       this.visitDialog = false;
@@ -577,6 +882,30 @@ export default Vue.extend({
       );
       return isFilterActive;
     },
+    dateVisitFormat(condition) {
+      if (
+        condition === "input" &&
+        moment(this.patientForm.dob, "MM/DD/YYYY", true).isValid()
+      ) {
+        this.dob = moment(this.patientForm.dob).format("YYYY-MM-DD");
+      } else if (condition === "click") {
+        this.patientForm.dob = this.dateFormat(this.dob);
+      }
+
+      if (
+        condition === "input" &&
+        moment(this.visitDate, "MM/DD/YYYY", true).isValid()
+      ) {
+        this.visitDatePickerVal = moment(this.visitDate).format("YYYY-MM-DD");
+      } else if (condition === "click") {
+        this.visitDate = this.dateFormat(this.visitDatePickerVal);
+      }
+      this.addPickerDate = false;
+      this.visitDatePicker = false;
+    },
+    dateFormat(date) {
+      return moment(date).format("MM/DD/YYYY");
+    },
   },
   watch: {
     options: {
@@ -584,6 +913,13 @@ export default Vue.extend({
         this.getVisits();
       },
       deep: true,
+    },
+    visitDate(val) {
+      let newDate = moment(val).day();
+      let newService = this.serviceTimeSlots.filter((res) => {
+        return res.dayOfWeek == newDate;
+      });
+      this.availableDates = newService;
     },
   },
 });
@@ -597,5 +933,14 @@ export default Vue.extend({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.stepper {
+  overflow: visible;
+}
+.stepperHeader {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
 }
 </style>

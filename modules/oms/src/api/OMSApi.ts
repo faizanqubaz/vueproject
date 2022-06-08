@@ -1,5 +1,5 @@
 import HttpClient from "./HttpClient";
-import { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import qs from "query-string";
 import { pickBy, identity } from "lodash";
 export interface City {
@@ -182,16 +182,16 @@ export interface Address {
 }
 export interface AddressCreatePayload {
   street: string;
-  apartment: string;
+  apartment?: string;
   city: string;
   state: string;
   zipCode: string;
   longitude: number;
   latitude: number;
   primary: boolean;
-  guardianId: number;
-  patientId: number;
-  providerId: number;
+  guardianId?: number;
+  patientId?: number;
+  providerId?: number;
 }
 export interface AddressCreateResponse {
   message: string;
@@ -378,9 +378,40 @@ export interface GeneralResponse {
   result: any;
 }
 
+export interface ServiceResponseDetails {
+  id: number;
+  name: string;
+  state: string;
+  timeZone: string;
+  active: boolean;
+  serviceGroups: ServiceGroup[];
+}
+
+export interface ServiceResponse {
+  message: string;
+  result: ServiceResponseDetails;
+}
+
 export default class OMSApi extends HttpClient {
   constructor() {
     super(process.env.VUE_APP_WELZ_OMS_API);
+  }
+
+  async getServiceByZipcode(zipCode: string): Promise<ServiceResponse> {
+    const url =
+      process.env.VUE_APP_WELZ_BOOKING_API + "services?zipCode=" + zipCode;
+    try {
+      const response: AxiosResponse<ServiceResponse> = await axios.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   async getCities(): Promise<CitiesResponse> {
@@ -1122,6 +1153,23 @@ export default class OMSApi extends HttpClient {
     }
   }
 
+  async addPatients(payload: PatientPayload): Promise<PatientsResponse> {
+    const url = "patients";
+    try {
+      const response: AxiosResponse<PatientsResponse> =
+        await this.instance.post(url, payload);
+      const { status } = response;
+      if (status === 201) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async updatetPatients(
     id: number,
     payload: PatientPayload
@@ -1162,8 +1210,7 @@ export default class OMSApi extends HttpClient {
   async getServiceTimeSlots(
     params: ServiceParams
   ): Promise<ServiceTimeSlotsResponse> {
-    const urlParams = qs.stringify(pickBy(params, identity));
-    const url = `service-time-slots?${urlParams}`;
+    const url = "service-time-slots?limit=150";
     try {
       const response: AxiosResponse<ServiceTimeSlotsResponse> =
         await this.instance.get(url);
