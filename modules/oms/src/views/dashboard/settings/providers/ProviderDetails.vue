@@ -174,15 +174,9 @@
                                 <v-container>
                                   <v-row>
                                     <v-col cols="12" sm="12" md="12">
-                                      <vuetify-google-autocomplete
-                                        ref="providerNewAddress"
-                                        id="providerNewMap"
-                                        classname="form-control"
-                                        placeholder="Address"
-                                        v-on:placechanged="getNewAddressData"
-                                        country="us"
-                                        :rules="requiredRules"
-                                        required
+                                      <google-autocomplete
+                                        v-model="autocompleteAddress"
+                                        label="Address"
                                       />
                                     </v-col>
                                     <v-col cols="12" sm="12" md="12">
@@ -247,16 +241,10 @@
                             <v-container>
                               <v-row>
                                 <v-col cols="12" sm="12" md="12">
-                                  <vuetify-google-autocomplete
-                                    ref="providerUpdateAddress"
-                                    id="providerUpdateMap"
+                                  <google-autocomplete
+                                    :tempVal="updatedAddressFull"
+                                    v-model="autocompleteAddress"
                                     label="Address"
-                                    classname="form-control"
-                                    :value="updatedAddressFull"
-                                    v-on:placechanged="getUpdateAddressData"
-                                    country="us"
-                                    :rules="requiredRules"
-                                    required
                                   />
                                 </v-col>
                                 <v-col cols="12">
@@ -519,13 +507,8 @@ import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
 import phone from "phone";
 import email from "email-validator";
-import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
 import _ from "lodash";
-
-Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: "AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw",
-  version: "weekly",
-});
+import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 
 export default Vue.extend({
   data() {
@@ -594,7 +577,19 @@ export default Vue.extend({
       validUpdateProfileForm: false,
       addAddressDialog: false,
       validAddAddressForm: false,
+      autocompleteAddress: {
+        address: "",
+        street: "",
+        apartment: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        primary: false,
+        longitude: 0,
+        latitude: 0,
+      },
       newAddress: {
+        address: "",
         street: "",
         apartment: "",
         city: "",
@@ -724,14 +719,6 @@ export default Vue.extend({
         });
       }
     },
-    getNewAddressData(addressData, placeResultData) {
-      this.newAddress.street = addressData.name;
-      this.newAddress.city = placeResultData.formatted_address.split(",")[1];
-      this.newAddress.state = addressData.administrative_area_level_1;
-      this.newAddress.zipCode = addressData.postal_code;
-      this.newAddress.longitude = addressData.longitude;
-      this.newAddress.latitude = addressData.latitude;
-    },
     closeAddAddressDialog() {
       this.addAddressDialog = false;
     },
@@ -740,7 +727,9 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const address = {
-          ...this.newAddress,
+          ...this.autocompleteAddress,
+          apartment: this.newAddress.apartment,
+          primary: this.newAddress.primary || false,
           guardianId: null,
           patientId: null,
           providerId: this.providerId,
@@ -748,7 +737,7 @@ export default Vue.extend({
         const response = await api.createAddress(address);
         if (response) {
           this.provider.addresses.push({
-            ...this.newAddress,
+            ...response.result,
             id: response.result.id,
           });
           this.$root.snackbar.show({
@@ -772,13 +761,13 @@ export default Vue.extend({
     setUpdateAddress(props) {
       this.updatedAddressId = props.id;
       this.updatedAddressFull = `${props.street}, ${props.city}, ${props.state} ${props.zipCode}, USA`;
-      this.updatedAddress.street = props.street;
+      this.autocompleteAddress.street = props.street;
+      this.autocompleteAddress.city = props.city;
+      this.autocompleteAddress.state = props.state;
+      this.autocompleteAddress.zipCode = props.zipCode;
+      this.autocompleteAddress.longitude = props.longitude;
+      this.autocompleteAddress.latitude = props.latitude;
       this.updatedAddress.apartment = props.apartment;
-      this.updatedAddress.city = props.city;
-      this.updatedAddress.state = props.state;
-      this.updatedAddress.zipCode = props.zipCode;
-      this.updatedAddress.longitude = props.longitude;
-      this.updatedAddress.latitude = props.latitude;
       this.updatedAddress.primary = props.primary;
       this.$set(this.updatedAddress, props.id, true);
     },
@@ -796,14 +785,9 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const address = {
-          street: this.updatedAddress.street,
+          ...this.autocompleteAddress,
           apartment: this.updatedAddress.apartment,
-          city: this.updatedAddress.city,
-          state: this.updatedAddress.state,
-          zipCode: this.updatedAddress.zipCode,
           primary: this.updatedAddress.primary,
-          longitude: this.updatedAddress.longitude,
-          latitude: this.updatedAddress.latitude,
         };
         const response = await api.updateAddress(
           this.updatedAddressId,
@@ -919,7 +903,6 @@ export default Vue.extend({
                 services,
                 cityId: parseInt(cityId),
               };
-              console.log("citi id", cityId, " service :", services);
               await api.createProviderService(service);
             }
           })
@@ -1021,15 +1004,7 @@ export default Vue.extend({
       if (this.$refs.updateAddressForm) {
         this.$refs.updateAddressForm.validate();
       }
-      return (
-        this.updatedAddress.street &&
-        this.updatedAddress.city &&
-        this.updatedAddress.state &&
-        this.updatedAddress.zipCode &&
-        this.updatedAddress.longitude &&
-        this.updatedAddress.latitude &&
-        this.validUpdateAddressForm
-      );
+      return this.autocompleteAddress.street && this.validUpdateAddressForm;
     },
     isAddServiceValid() {
       if (this.$refs.addServiceForm) {
@@ -1058,5 +1033,6 @@ export default Vue.extend({
       }
     },
   },
+  components: { GoogleAutocomplete },
 });
 </script>

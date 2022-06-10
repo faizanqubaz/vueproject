@@ -215,14 +215,9 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <vuetify-google-autocomplete
-                        ref="patientNewAddress"
-                        id="patientNewtMap"
-                        classname="form-control"
-                        placeholder="Address"
-                        v-on:placechanged="getNewAddressData"
-                        country="us"
-                        required
+                      <google-autocomplete
+                        v-model="autocompleteAddress"
+                        label="Address"
                       />
                       <v-text-field
                         v-model="newAddress.apartment"
@@ -498,14 +493,15 @@ import OMSApi from "@/api/OMSApi";
 import email from "email-validator";
 import phone from "phone";
 import moment from "moment";
+
+import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import { VisitStatuses } from "@/utils";
-import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
-Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_KEY,
-  version: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_VERSION,
-});
 
 export default Vue.extend({
+  name: "visits-page",
+  components: {
+    GoogleAutocomplete,
+  },
   props: {
     page: null,
   },
@@ -584,6 +580,7 @@ export default Vue.extend({
         latitude: 0,
         apartment: "",
       },
+      autocompleteAddress: {},
       visitLoading: false,
       stateCheck: null,
       serviceTimeSlots: null,
@@ -751,11 +748,11 @@ export default Vue.extend({
         this.visitLoading = false;
       }
     },
-    getNewAddressData(addressData, placeResultData) {
-      this.newAddress.street = addressData.name;
-      this.newAddress.city = placeResultData.formatted_address.split(", ")[1];
-      this.newAddress.state = addressData.administrative_area_level_1;
-      this.newAddress.zipCode = addressData.postal_code;
+    getNewAddressData(addressData) {
+      this.newAddress.street = addressData.street;
+      this.newAddress.city = addressData.city;
+      this.newAddress.state = addressData.state;
+      this.newAddress.zipCode = addressData.zipCode;
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
       this.stateCheck = this.serviceTimeSlots.filter((res) => {
@@ -920,6 +917,9 @@ export default Vue.extend({
         return res.dayOfWeek == newDate;
       });
       this.availableDates = newService;
+    },
+    autocompleteAddress(val) {
+      this.getNewAddressData(val);
     },
   },
 });

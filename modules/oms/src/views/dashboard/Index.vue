@@ -18,6 +18,17 @@ export default Vue.extend({
       expandOnHover: true,
     };
   },
+  metaInfo() {
+    return {
+      script: [
+        {
+          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_KEY}&libraries=places`,
+          async: true,
+          defer: true,
+        },
+      ],
+    };
+  },
   mounted() {
     this.$root.snackbar = this.$refs.snackbar;
   },

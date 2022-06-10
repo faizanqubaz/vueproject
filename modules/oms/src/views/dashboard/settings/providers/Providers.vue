@@ -174,15 +174,9 @@
                             <v-container>
                               <v-row>
                                 <v-col cols="12" sm="12" md="12">
-                                  <vuetify-google-autocomplete
-                                    ref="providerNewAddress"
-                                    id="providerNewMap"
-                                    classname="form-control"
-                                    placeholder="Address"
-                                    v-on:placechanged="getNewAddressData"
-                                    country="us"
-                                    :rules="requiredRules"
-                                    required
+                                  <google-autocomplete
+                                    v-model="autocompleteAddress"
+                                    label="Address"
                                   />
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12">
@@ -357,12 +351,7 @@ import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
 import phone from "phone";
 import email from "email-validator";
-import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
-
-Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: "AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw",
-  version: "weekly",
-});
+import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 
 export default Vue.extend({
   data() {
@@ -399,6 +388,7 @@ export default Vue.extend({
         },
       ],
       validProviderAddressForm: false,
+      autocompleteAddress: {},
       newAddress: {
         street: "",
         apartment: "",
@@ -549,7 +539,9 @@ export default Vue.extend({
       try {
         const api = new OMSApi();
         const address = {
-          ...this.newAddress,
+          ...this.autocompleteAddress,
+          apartment: this.newAddress.apartment,
+          primary: this.newAddress.primary || false,
           guardianId: null,
           patientId: null,
           providerId: this.newProviderId,
@@ -716,6 +708,7 @@ export default Vue.extend({
       }
     },
   },
+  components: { GoogleAutocomplete },
 });
 </script>
 

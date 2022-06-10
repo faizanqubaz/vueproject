@@ -5,6 +5,11 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 import { Auth0Plugin } from "./auth";
+import VueMeta from 'vue-meta'
+
+Vue.use(VueMeta, {
+  refreshOnceOnNavigation: true
+})
 
 Vue.use(Auth0Plugin, {
   domain: process.env.VUE_APP_WELZ_AUTH0_DOMAIN,

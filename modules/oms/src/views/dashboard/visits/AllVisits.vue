@@ -3,9 +3,11 @@
 </template>
 
 <script>
-import Visits from "@/components/Visits.vue";
 export default {
-  components: { Visits },
+  name: "all-visits-page",
+  components: {
+    Visits: () => import("./Visits.vue"),
+  },
 };
 </script>
 
