@@ -4,5 +4,10 @@ module.exports = {
       entry: './src/main.ts',
       title: 'Welz'
     }
+  },
+  pwa: {
+    workboxOptions: {
+      skipWaiting: true
+    }
   }
 }
