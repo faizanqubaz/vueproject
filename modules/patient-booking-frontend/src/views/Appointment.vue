@@ -115,7 +115,7 @@ export default Vue.extend({
     return {
       script: [
         {
-          src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDna1EPIoMPadg3lEqLIzfsam1o0kN3zvw&libraries=places',
+          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.VUE_APP_WELZ_BOOKING_GOOGLE_AUTH_KEY}&libraries=places`,
           async: true,
           defer: true,
           callback: () => this.initMap()
