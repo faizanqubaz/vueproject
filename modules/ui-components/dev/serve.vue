@@ -38,6 +38,7 @@ export default Vue.extend({
       date: null
     }
   },
+  
   watch: {
     rad(e) {
       console.log('ni rad', e)
@@ -49,9 +50,18 @@ export default Vue.extend({
 <template>
   <div id="app" class="bg-lightGray">
     <div class="max-w-screen-md mx-auto py-10">
-      <!-- <wz-loader borderStyle
-      
-      '="dashed" size="24" /> -->
+      <wz-menu >
+        <template #activator=" { on }">
+            <div class="text-primary cursor-pointer" v-on="on">Button</div>
+        </template>
+        <template>
+          <div class="bg-red">Lorem, ipsum dolor.</div>
+          <div class="">Lorem, ipsum dolor.</div>
+          <div class="">Lorem, ipsum dolor.</div>
+          <div class="">Lorem, ipsum dolor.</div>
+        </template>
+
+      </wz-menu>
       <div class="grid grid-cols-2 gap-4 my-4">
         <wz-service-card color="gray-300" v-model="service" itemKey="satu">
           <template>
