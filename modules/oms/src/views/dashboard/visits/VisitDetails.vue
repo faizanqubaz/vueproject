@@ -5,6 +5,7 @@
         Loading
       </v-progress-circular>
     </v-overlay>
+
     <!-- patient -->
     <v-row v-if="visitDetails">
       <v-col class="pb-0">
@@ -311,15 +312,10 @@
               >
                 <v-row>
                   <v-col cols="12">
-                    <vuetify-google-autocomplete
-                      ref="patientEditAddress"
-                      id="patientEditMap"
-                      classname="form-control"
-                      placeholder="Address"
-                      v-on:placechanged="getNewAddressData"
-                      country="us"
-                      :value="patientAddress.address"
-                      required
+                    <google-autocomplete
+                      :tempVal="patientAddress.address"
+                      v-model="autocompleteAddress"
+                      label="Address"
                     />
                   </v-col>
                   <v-col cols="12">
@@ -866,10 +862,6 @@
                               : "--"
                           }}
                         </v-col>
-                      </v-row>
-                    </v-col>
-                    <v-col>
-                      <v-row>
                         <v-col cols="5" class="pb-0">Notes</v-col>
                         <v-col cols="7" class="pb-0">
                           <span class="mr-2">:</span>
@@ -880,6 +872,31 @@
                           }}
                         </v-col>
                       </v-row>
+                    </v-col>
+                    <v-col
+                      v-if="
+                        visitDetails &&
+                        visitDetails.status !== 'booked' &&
+                        visitDetails.status !== 'assigned'
+                      "
+                    >
+                      <gmap-map
+                        :center="visitDetailCoordinates"
+                        :zoom="12"
+                        style="width: 100%; height: 300px"
+                        ref="visitMap"
+                      >
+                        <directions-renderer
+                          v-if="providerCoordinates"
+                          travelMode="DRIVING"
+                          :origin="visitDetailCoordinates"
+                          :destination="providerCoordinates"
+                        />
+                        <gmap-marker
+                          v-else
+                          :position="visitDetailCoordinates"
+                        />
+                      </gmap-map>
                     </v-col>
                   </v-row>
                 </v-card-text>
@@ -1009,22 +1026,24 @@ import moment from "moment";
 import "moment-timezone";
 import phone from "phone";
 import email from "email-validator";
-import VuetifyGoogleAutocomplete from "vuetify-google-autocomplete";
+import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
+import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
 import { States, VisitStatuses } from "@/utils";
 
-Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_KEY,
-  version: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_VERSION,
-});
-
 export default Vue.extend({
+  components: {
+    GoogleAutocomplete,
+    DirectionsRenderer,
+  },
   async created() {
     await this.getVisitDetails(this.$router.currentRoute.params.id);
     await this.getProviders();
     await this.getServices();
+    await this.getProviderCoordinates();
   },
   data() {
     return {
+      timer: null,
       visitDetails: null,
       loading: false,
       cancelDialog: false,
@@ -1099,6 +1118,7 @@ export default Vue.extend({
         longitude: 0,
         latitude: 0,
       },
+      autocompleteAddress: {},
       timeZoneAddress: null,
       timeZone: null,
       timeZoneSwitch: false,
@@ -1123,6 +1143,11 @@ export default Vue.extend({
         },
       ],
       search: "",
+      visitDetailCoordinates: {
+        lat: 0,
+        lng: 0,
+      },
+      providerCoordinates: null,
     };
   },
   watch: {
@@ -1151,8 +1176,50 @@ export default Vue.extend({
       }
       this.setEditVisit();
     },
+    providerCoordinates(val) {
+      if (val) {
+        const bounds = new window.google.maps.LatLngBounds();
+        const arrMarkers = [this.visitDetailCoordinates, val];
+        for (let m of arrMarkers) {
+          bounds.extend(m);
+        }
+        this.$refs.visitMap.fitBounds(bounds);
+      }
+    },
+    autocompleteAddress(val) {
+      this.getNewAddressData(val);
+    },
   },
   methods: {
+    setProviderCoordinatesTimer() {
+      if (
+        this.visitDetails.status !== "booked" &&
+        this.visitDetails.status !== "assigned"
+      ) {
+        this.timer = setInterval(() => {
+          this.getProviderCoordinates();
+        }, 5000);
+      }
+    },
+    async getProviderCoordinates() {
+      try {
+        const api = new OMSApi();
+        const params = {
+          visit: this.visitDetails.id,
+          provider: this.visitDetails.provider && this.visitDetails.provider.id,
+        };
+        const response = await api.getProviderCoordinates(params);
+        if (response.result.data.length) {
+          const resultLength = response.result.data.length;
+          this.providerCoordinates = {
+            lat: response.result.data[resultLength - 1].latitude,
+            lng: response.result.data[resultLength - 1].longitude,
+          };
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async getProviders() {
       this.loading = true;
       try {
@@ -1234,8 +1301,13 @@ export default Vue.extend({
             this.timeZone && this.timeZone.length > 0
               ? this.timeZone[0].timeZone
               : null;
+          this.visitDetailCoordinates = {
+            lat: res.result.address.latitude,
+            lng: res.result.address.longitude,
+          };
           this.setEditPatient();
           this.setEditVisit();
+          this.setProviderCoordinatesTimer();
         }
       } catch (error) {
         this.$root.snackbar.show({
@@ -1500,11 +1572,11 @@ export default Vue.extend({
         this.isUpdatePatient = false;
       }
     },
-    getNewAddressData(addressData, placeResultData) {
-      this.newAddress.street = addressData.name;
-      this.newAddress.city = placeResultData.formatted_address.split(",")[1];
-      this.newAddress.state = addressData.administrative_area_level_1;
-      this.newAddress.zipCode = addressData.postal_code;
+    getNewAddressData(addressData) {
+      this.newAddress.street = addressData.street;
+      this.newAddress.city = addressData.city;
+      this.newAddress.state = addressData.state;
+      this.newAddress.zipCode = addressData.zipCode;
       this.newAddress.longitude = addressData.longitude;
       this.newAddress.latitude = addressData.latitude;
     },
@@ -1578,6 +1650,9 @@ export default Vue.extend({
       const [month, day, year] = date.split("/");
       return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
     },
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
 });
 </script>

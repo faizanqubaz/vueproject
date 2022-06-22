@@ -936,7 +936,6 @@ export default Vue.extend({
           this.deletedService.id
         );
         if (response) {
-          console.log("deleted");
           this.saveLoading = false;
           await this.getProviderServices();
           this.$root.snackbar.show({

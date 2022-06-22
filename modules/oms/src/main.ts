@@ -5,11 +5,20 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 import { Auth0Plugin } from "./auth";
-import VueMeta from 'vue-meta'
+import VueMeta from "vue-meta";
+import * as VueGoogleMaps from "vue2-google-maps";
 
 Vue.use(VueMeta, {
-  refreshOnceOnNavigation: true
-})
+  refreshOnceOnNavigation: true,
+});
+
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: process.env.VUE_APP_WELZ_OMS_GOOGLE_AUTH_KEY,
+    libraries: "places",
+  },
+  installComponents: true,
+});
 
 Vue.use(Auth0Plugin, {
   domain: process.env.VUE_APP_WELZ_AUTH0_DOMAIN,

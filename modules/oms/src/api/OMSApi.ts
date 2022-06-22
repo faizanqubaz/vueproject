@@ -391,6 +391,20 @@ export interface ServiceResponse {
   message: string;
   result: ServiceResponseDetails;
 }
+export interface ProviderCoordinatesParams {
+  visit: number;
+  provider: number;
+}
+export interface ProviderCoordinatesResponse {
+  message: string;
+  result: ProviderCoordinatesResponseDetail;
+}
+export interface ProviderCoordinatesResponseDetail {
+  id: number;
+  longitude: string;
+  latitude: string;
+  timestamp: string;
+}
 
 export default class OMSApi extends HttpClient {
   constructor() {
@@ -613,6 +627,26 @@ export default class OMSApi extends HttpClient {
     }
   }
 
+  async getProviderCoordinates(
+    params: ProviderCoordinatesParams
+  ): Promise<ProviderCoordinatesResponse> {
+    const urlParams = qs.stringify(pickBy(params, identity));
+    const url = `provider-coordinates?${urlParams}`;
+    try {
+      const response: AxiosResponse<ProviderCoordinatesResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async createAddress(
     address: AddressCreatePayload
   ): Promise<AddressCreateResponse> {
@@ -804,9 +838,8 @@ export default class OMSApi extends HttpClient {
   async getPayPeriods(): Promise<PayPeriodsResponse> {
     const url = "payout-periods";
     try {
-      const response: AxiosResponse<PayPeriodsResponse> = await this.instance.get(
-        url
-      );
+      const response: AxiosResponse<PayPeriodsResponse> =
+        await this.instance.get(url);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
@@ -820,7 +853,6 @@ export default class OMSApi extends HttpClient {
   }
 
   async createPayPeriod(param: PayPeriodPayload): Promise<PayPeriodsResponse> {
-    console.log('payload', param)
     const url = "payout-periods";
     try {
       const response: AxiosResponse<PayPeriodsResponse> =
@@ -843,10 +875,8 @@ export default class OMSApi extends HttpClient {
     const url = "payout-periods/" + id.toString();
 
     try {
-      const response: AxiosResponse<PayPeriodsResponse> = await this.instance.put(
-        url,
-        param
-      );
+      const response: AxiosResponse<PayPeriodsResponse> =
+        await this.instance.put(url, param);
       const { status } = response;
       if (status === 200) {
         const { data } = response;
