@@ -284,33 +284,10 @@
                       />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-menu
-                        v-model="addPickerDate"
-                        :close-on-content-click="false"
-                        max-width="290"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="patientForm.dob"
-                            label="Date of birth"
-                            hint="MM/DD/YYYY"
-                            persistent-hint
-                            :rules="requiredRules"
-                            v-bind="attrs"
-                            v-on="on"
-                            @input="dateVisitFormat('input')"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="dob"
-                          no-title
-                          @input="dateVisitFormat('click')"
-                        ></v-date-picker>
-                      </v-menu>
+                      <date-picker
+                        v-model="patientForm.dob"
+                        label="Date of birth"
+                      />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-text-field
@@ -410,33 +387,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-menu
-                        v-model="visitDatePicker"
-                        :close-on-content-click="false"
-                        max-width="290"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            :value="visitDate"
-                            hint="MM/DD/YYYY"
-                            label="Visit Date"
-                            :rules="requiredRules"
-                            persistent-hint
-                            v-bind="attrs"
-                            v-on="on"
-                            @input="dateVisitFormat('input')"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="visitDatePickerVal"
-                          no-title
-                          @input="dateVisitFormat('click')"
-                        ></v-date-picker>
-                      </v-menu>
+                      <date-picker v-model="visitDate" label="Visit Date" />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-radio-group v-model="visitTime" class="ma-0">
@@ -493,14 +444,15 @@ import OMSApi from "@/api/OMSApi";
 import email from "email-validator";
 import phone from "phone";
 import moment from "moment";
-
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import { VisitStatuses } from "@/utils";
+import DatePicker from "@/components/DatePicker.vue";
 
 export default Vue.extend({
   name: "visits-page",
   components: {
     GoogleAutocomplete,
+    DatePicker,
   },
   props: {
     page: null,
@@ -584,7 +536,6 @@ export default Vue.extend({
       visitLoading: false,
       stateCheck: null,
       serviceTimeSlots: null,
-      visitDatePicker: false,
       visitDate: null,
       visitTime: null,
       genderItems: [
@@ -606,8 +557,6 @@ export default Vue.extend({
           (emailAddress && email.validate(emailAddress)) ||
           "Email address is invalid",
       ],
-      dob: null,
-      visitDatePickerVal: null,
     };
   },
   async created() {
@@ -878,27 +827,6 @@ export default Vue.extend({
         (key) => this.listParams[key] !== null
       );
       return isFilterActive;
-    },
-    dateVisitFormat(condition) {
-      if (
-        condition === "input" &&
-        moment(this.patientForm.dob, "MM/DD/YYYY", true).isValid()
-      ) {
-        this.dob = moment(this.patientForm.dob).format("YYYY-MM-DD");
-      } else if (condition === "click") {
-        this.patientForm.dob = this.dateFormat(this.dob);
-      }
-
-      if (
-        condition === "input" &&
-        moment(this.visitDate, "MM/DD/YYYY", true).isValid()
-      ) {
-        this.visitDatePickerVal = moment(this.visitDate).format("YYYY-MM-DD");
-      } else if (condition === "click") {
-        this.visitDate = this.dateFormat(this.visitDatePickerVal);
-      }
-      this.addPickerDate = false;
-      this.visitDatePicker = false;
     },
     dateFormat(date) {
       return moment(date).format("MM/DD/YYYY");

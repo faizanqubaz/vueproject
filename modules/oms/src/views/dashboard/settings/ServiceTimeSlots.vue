@@ -128,50 +128,13 @@
                   />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    v-model="pickerStartDate"
-                    :close-on-content-click="false"
-                    max-width="290"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="formValues.startDate"
-                        clearable
-                        label="Start Date"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        @click:clear="startDate = null"
-                      />
-                    </template>
-                    <v-date-picker
-                      v-model="formValues.startDate"
-                      @input="pickerStartDate = startDate"
-                    />
-                  </v-menu>
+                  <date-picker
+                    v-model="formValues.startDate"
+                    label="Start Date"
+                  />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    v-model="pickerEndDate"
-                    :close-on-content-click="false"
-                    max-width="290"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="formValues.endDate"
-                        clearable
-                        label="End Date"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        @click:clear="endDate = null"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="formValues.endDate"
-                      @input="pickerEndDate = endDate"
-                    />
-                  </v-menu>
+                  <date-picker v-model="formValues.endDate" label="End Date" />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
                   <v-text-field
@@ -273,8 +236,12 @@ import Vue from "vue";
 import moment from "moment";
 import OMSApi from "@/api/OMSApi";
 import { DaysOfWeek, HoursOfDay } from "@/utils";
+import DatePicker from "@/components/DatePicker.vue";
 
 export default Vue.extend({
+  components: {
+    DatePicker,
+  },
   data() {
     return {
       headers: [
@@ -312,8 +279,6 @@ export default Vue.extend({
       deleteValues: {},
       deleteId: null,
       isFormValid: false,
-      pickerStartDate: false,
-      pickerEndDate: false,
       isLoading: false,
       isSubmitting: false,
       statusColor: {
@@ -467,10 +432,8 @@ export default Vue.extend({
         this.formValues.endTime = props.endTime;
         this.formValues.capacity = props.capacity;
         this.formValues.enabled = props.enabled;
-        this.formValues.startDate =
-          props.startDate && this.formatDate(props.startDate);
-        this.formValues.endDate =
-          props.endDate && this.formatDate(props.endDate);
+        this.formValues.startDate = props.startDate;
+        this.formValues.endDate = props.endDate;
         this.formValues.serviceId = props.service.id;
         this.formValues.cityId = props.city.id;
         this.formId = props.id;

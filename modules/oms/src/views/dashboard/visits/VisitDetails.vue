@@ -224,35 +224,10 @@
                     />
                   </v-col>
                   <v-col cols="12" md="4">
-                    <v-menu
-                      v-model="datePicker"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="patientForm.dob"
-                          label="Date of Birth"
-                          hint="MM/DD/YYYY"
-                          persistent-hint
-                          v-bind="attrs"
-                          @blur="
-                            (date = parseDate(patientForm.dob)),
-                              (datePicker = false)
-                          "
-                          v-on="on"
-                        />
-                      </template>
-                      <v-date-picker
-                        v-model="date"
-                        no-title
-                        @input="datePicker = false"
-                      ></v-date-picker>
-                    </v-menu>
+                    <date-picker
+                      v-model="patientForm.dob"
+                      label="Date of Birth"
+                    />
                   </v-col>
                   <v-col cols="12" md="4">
                     <v-autocomplete
@@ -678,32 +653,7 @@
               >
                 <v-row>
                   <v-col cols="12" md="4">
-                    <v-menu
-                      v-model="datePickerVisit"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="visitForm.date"
-                          label="Date"
-                          hint="MM/DD/YYYY"
-                          persistent-hint
-                          v-bind="attrs"
-                          v-on="on"
-                          @input="dateVisitFormat('input')"
-                        />
-                      </template>
-                      <v-date-picker
-                        v-model="dateVisit"
-                        no-title
-                        @input="dateVisitFormat('click')"
-                      ></v-date-picker>
-                    </v-menu>
+                    <date-picker v-model="visitForm.date" />
                   </v-col>
                   <v-col cols="12" md="4">
                     <v-text-field
@@ -1029,9 +979,11 @@ import email from "email-validator";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
 import { States, VisitStatuses } from "@/utils";
+import DatePicker from "@/components/DatePicker.vue";
 
 export default Vue.extend({
   components: {
+    DatePicker,
     GoogleAutocomplete,
     DirectionsRenderer,
   },
@@ -1087,10 +1039,6 @@ export default Vue.extend({
         memo: null,
       },
       patientNote: false,
-      datePicker: false,
-      datePickerVisit: false,
-      date: null,
-      dateVisit: null,
       visitForm: {
         date: null,
         scheduledStartTime: null,
@@ -1151,9 +1099,6 @@ export default Vue.extend({
     };
   },
   watch: {
-    date() {
-      this.patientForm.dob = this.formatDate(this.date);
-    },
     patientDialog(val) {
       if (!val && !this.patientNoteData.memo && !this.patientNoteData.id) {
         this.patientNote = false;
@@ -1627,18 +1572,7 @@ export default Vue.extend({
         (zipCode ? zipCode : "")
       );
     },
-    dateVisitFormat(condition) {
-      if (
-        condition === "input" &&
-        moment(this.visitForm.date, "MM/DD/YYYY", true).isValid()
-      ) {
-        this.dateVisit = moment(this.visitForm.date).format("YYYY-MM-DD");
-      } else if (condition === "click") {
-        this.visitForm.date = this.dateFormat(this.dateVisit);
-      }
 
-      this.datePickerVisit = false;
-    },
     formatDate(date) {
       if (!date) return null;
 

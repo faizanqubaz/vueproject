@@ -51,45 +51,11 @@
                         </v-col>
                         <v-col cols="12">
                           <v-flex>
-                            <v-menu
-                              ref="datePicker"
-                              v-model="datePicker"
-                              :close-on-content-click="false"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="auto"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="formattedDate"
-                                  label="Date of Birth"
-                                  hint="MM/DD/YYYY"
-                                  persistent-hint
-                                  v-bind="attrs"
-                                  @blur="
-                                    provider.dob = parseDate(formattedDate)
-                                  "
-                                  v-on="on"
-                                  :rules="requiredRules"
-                                  required
-                                />
-                              </template>
-                              <v-date-picker
-                                v-model="provider.dob"
-                                no-title
-                                :active-picker.sync="activePicker"
-                                :max="
-                                  new Date(
-                                    Date.now() -
-                                      new Date().getTimezoneOffset() * 60000
-                                  )
-                                    .toISOString()
-                                    .substr(0, 10)
-                                "
-                                min="1920-01-01"
-                                @change="save"
-                              />
-                            </v-menu>
+                            <date-picker
+                              v-if="provider.dob"
+                              v-model="provider.dob"
+                              label="Date of birth"
+                            />
                           </v-flex>
                         </v-col>
                         <v-col cols="12">
@@ -509,8 +475,11 @@ import phone from "phone";
 import email from "email-validator";
 import _ from "lodash";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
+import DatePicker from "@/components/DatePicker.vue";
+import moment from "moment";
 
 export default Vue.extend({
+  components: { GoogleAutocomplete, DatePicker },
   data() {
     return {
       addressHeaders: [
@@ -572,8 +541,6 @@ export default Vue.extend({
       saveLoading: false,
       providerId: parseInt(this.$route.params.providerId),
       activePicker: null,
-      datePicker: false,
-      formattedDate: null,
       validUpdateProfileForm: false,
       addAddressDialog: false,
       validAddAddressForm: false,
@@ -631,7 +598,16 @@ export default Vue.extend({
           (emailAddress && email.validate(emailAddress)) ||
           "Email address is invalid",
       ],
-      provider: {},
+      provider: {
+        firstName: null,
+        middleName: null,
+        lastName: null,
+        dob: null,
+        gender: null,
+        phone: null,
+        email: null,
+        addresses: null,
+      },
     };
   },
   async created() {
@@ -650,7 +626,11 @@ export default Vue.extend({
         const providerId = this.$route.params.providerId;
         const response = await api.getProviderById(providerId);
         if (response.result) {
-          this.provider = response.result;
+          this.provider = {
+            ...response.result,
+            dob: this.formatDate(response.result.dob)
+          };
+          console.log(this.provider);
         }
       } catch (error) {
         this.$root.snackbar.show({
@@ -670,7 +650,7 @@ export default Vue.extend({
           firstName: this.provider.firstName,
           middleName: this.provider.middleName,
           lastName: this.provider.lastName,
-          dob: this.provider.dob,
+          dob:  moment(this.provider.dob).format(),
           gender: this.provider.gender,
           phone: this.provider.phone,
           email: this.provider.email,
@@ -952,15 +932,9 @@ export default Vue.extend({
         });
       }
     },
-    save(date) {
-      this.$refs.datePicker.save(date);
-    },
     formatDate(date) {
-      if (!date) {
-        return null;
-      }
-      const [year, month, day] = date.split("-");
-      return `${month}/${day}/${year}`;
+      console.log("ini date");
+      return moment(date).format("MM/DD/YYYY");
     },
     parseDate(date) {
       if (!date) {
@@ -1023,15 +997,6 @@ export default Vue.extend({
         this.$refs.addServiceForm.reset();
       }
     },
-    datePicker(newValue) {
-      newValue && setTimeout(() => (this.activePicker = "YEAR"));
-    },
-    "provider.dob"(newValue) {
-      if (newValue) {
-        this.formattedDate = this.formatDate(this.provider.dob);
-      }
-    },
   },
-  components: { GoogleAutocomplete },
 });
 </script>

@@ -69,51 +69,10 @@
                                   />
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12">
-                                  <v-flex>
-                                    <v-menu
-                                      ref="datePicker"
-                                      v-model="datePicker"
-                                      :close-on-content-click="false"
-                                      transition="scale-transition"
-                                      offset-y
-                                      min-width="auto"
-                                    >
-                                      <template
-                                        v-slot:activator="{ on, attrs }"
-                                      >
-                                        <v-text-field
-                                          v-model="formattedDate"
-                                          label="Date of Birth"
-                                          hint="MM/DD/YYYY"
-                                          persistent-hint
-                                          v-bind="attrs"
-                                          @blur="
-                                            newProvider.dob =
-                                              parseDate(formattedDate)
-                                          "
-                                          v-on="on"
-                                          :rules="requiredRules"
-                                          required
-                                        />
-                                      </template>
-                                      <v-date-picker
-                                        v-model="newProvider.dob"
-                                        no-title
-                                        :active-picker.sync="activePicker"
-                                        :max="
-                                          new Date(
-                                            Date.now() -
-                                              new Date().getTimezoneOffset() *
-                                                60000
-                                          )
-                                            .toISOString()
-                                            .substr(0, 10)
-                                        "
-                                        min="1920-01-01"
-                                        @change="save"
-                                      />
-                                    </v-menu>
-                                  </v-flex>
+                                  <date-picker
+                                    v-model="newProvider.dob"
+                                    label="Date of birth"
+                                  />
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12">
                                   <v-autocomplete
@@ -352,8 +311,10 @@ import OMSApi from "@/api/OMSApi";
 import phone from "phone";
 import email from "email-validator";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
+import DatePicker from "@/components/DatePicker.vue";
 
 export default Vue.extend({
+  components: { GoogleAutocomplete, DatePicker },
   data() {
     return {
       stepNumber: 1,
@@ -423,8 +384,6 @@ export default Vue.extend({
       },
       genderList: ["male", "female"],
       activePicker: null,
-      datePicker: false,
-      formattedDate: null,
       requiredRules: [(v) => !!v || "Required"],
       phoneRules: [
         (phoneNumber) => !!phoneNumber || "Phone number is required",
@@ -635,9 +594,6 @@ export default Vue.extend({
         });
       }
     },
-    save(date) {
-      this.$refs.datePicker.save(date);
-    },
     formatDate(date) {
       if (!date) {
         return null;
@@ -699,16 +655,7 @@ export default Vue.extend({
         this.$refs.providerServiceForm.reset();
       }
     },
-    datePicker(newValue) {
-      newValue && setTimeout(() => (this.activePicker = "YEAR"));
-    },
-    "newProvider.dob"(newValue) {
-      if (newValue) {
-        this.formattedDate = this.formatDate(this.newProvider.dob);
-      }
-    },
   },
-  components: { GoogleAutocomplete },
 });
 </script>
 

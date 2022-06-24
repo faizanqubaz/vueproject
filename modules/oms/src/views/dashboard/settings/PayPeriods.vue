@@ -16,11 +16,7 @@
         <template v-slot:top>
           <v-row align="center">
             <v-col sm="6" md="2" lg="6" xl="1">
-              <v-btn
-                width="120px"
-                color="primary"
-                @click.stop="openFormDialog"
-              >
+              <v-btn width="120px" color="primary" @click.stop="openFormDialog">
                 Add
               </v-btn>
             </v-col>
@@ -75,73 +71,22 @@
             <v-container>
               <v-row>
                 <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    v-model="startDate"
-                    :close-on-content-click="false"
-                    max-width="290"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="addFormValues.startDate | formatDate"
-                        clearable
-                        label="Start Date"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        @click:clear="date = null"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="addFormValues.startDate"
-                      @input="startDate = false"
-                    ></v-date-picker>
-                  </v-menu>
+                  <date-picker
+                    v-model="addFormValues.startDate"
+                    label="Start Date"
+                  />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
-                 <v-menu
-                    v-model="endDate"
-                    :close-on-content-click="false"
-                    max-width="290"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="addFormValues.endDate | formatDate"
-                        clearable
-                        label="End Date"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        @click:clear="date = null"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="addFormValues.endDate"
-                      @input="endDate = false"
-                    ></v-date-picker>
-                  </v-menu>
+                  <date-picker
+                    v-model="addFormValues.endDate"
+                    label="End Date"
+                  />
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
-                  <v-menu
-                    v-model="payDate"
-                    :close-on-content-click="false"
-                    max-width="290"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="addFormValues.payDate | formatDate"
-                        clearable
-                        label="Pay Date"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        @click:clear="date = null"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="addFormValues.payDate"
-                      @input="payDate = false"
-                    ></v-date-picker>
-                  </v-menu>
+                  <date-picker
+                    v-model="addFormValues.payDate"
+                    label="Pay Date"
+                  />
                 </v-col>
               </v-row>
             </v-container>
@@ -206,8 +151,12 @@ import Vue from "vue";
 import moment from "moment";
 import OMSApi from "@/api/OMSApi";
 import { FormRules } from "@/utils";
+import DatePicker from "@/components/DatePicker.vue";
 
 export default Vue.extend({
+  components: {
+    DatePicker,
+  },
   data() {
     return {
       activeTab: null,
@@ -224,10 +173,11 @@ export default Vue.extend({
           sortable: false,
         },
       ],
-      addFormValues: {},
-      startDate: false,
-      endDate: false,
-      payDate: false,
+      addFormValues: {
+        startDate: null,
+        endDate: null,
+        payDate: null,
+      },
       payPeriodList: [],
       formDialog: false,
       formId: null,
@@ -245,7 +195,7 @@ export default Vue.extend({
   },
   filters: {
     formatDate(date) {
-      return date ? moment(date).format('MM/DD/YYYY') : ''
+      return date ? moment(date).format("MM/DD/YYYY") : "";
     },
   },
   methods: {
@@ -274,7 +224,7 @@ export default Vue.extend({
         const payload = {
           startDate: moment(this.addFormValues.startDate).format(),
           endDate: moment(this.addFormValues.endDate).format(),
-          payDate: moment(this.addFormValues.payDate).format()
+          payDate: moment(this.addFormValues.payDate).format(),
         };
         const res = await api.createPayPeriod(payload);
         if (res) {
@@ -302,7 +252,7 @@ export default Vue.extend({
         const payload = {
           startDate: moment(this.addFormValues.startDate).format(),
           endDate: moment(this.addFormValues.endDate).format(),
-          payDate: moment(this.addFormValues.payDate).format()
+          payDate: moment(this.addFormValues.payDate).format(),
         };
         const res = await api.updatePayPeriod(this.formId, payload);
         if (res) {
@@ -360,14 +310,18 @@ export default Vue.extend({
       this.formDialog = true;
       this.formId = null;
       if (props.id) {
-        this.addFormValues.startDate = moment(props.startDate).format("YYYY-MM-DD");
-        this.addFormValues.endDate = moment(props.endDate).format("YYYY-MM-DD");
-        this.addFormValues.payDate = moment(props.payDate).format("YYYY-MM-DD");
+        this.addFormValues.startDate = moment(props.startDate).format(
+          "MM/DD/YYYY"
+        );
+        this.addFormValues.endDate = moment(props.endDate).format("MM/DD/YYYY");
+        this.addFormValues.payDate = moment(props.payDate).format("MM/DD/YYYY");
         this.formId = props.id;
       }
     },
     closeFormDialog() {
-      this.addFormValues = {}
+      this.addFormValues.startDate = null;
+      this.addFormValues.endDate = null;
+      this.addFormValues.payDate = null;
       this.formDialog = false;
     },
     openDeleteDialog(props) {
