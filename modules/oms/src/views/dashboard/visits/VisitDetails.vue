@@ -1121,16 +1121,6 @@ export default Vue.extend({
       }
       this.setEditVisit();
     },
-    providerCoordinates(val) {
-      if (val) {
-        const bounds = new window.google.maps.LatLngBounds();
-        const arrMarkers = [this.visitDetailCoordinates, val];
-        for (let m of arrMarkers) {
-          bounds.extend(m);
-        }
-        this.$refs.visitMap.fitBounds(bounds);
-      }
-    },
     autocompleteAddress(val) {
       this.getNewAddressData(val);
     },
@@ -1191,7 +1181,7 @@ export default Vue.extend({
           this.getVisitDetails(this.$router.currentRoute.params.id);
           if (this.visitDetails.provider) {
             this.$root.snackbar.show({
-              message: "Provider Assignd",
+              message: "Provider Assigned",
               type: "success",
             });
           } else {
