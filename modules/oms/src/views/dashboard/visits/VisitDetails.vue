@@ -927,9 +927,19 @@
     <!-- end provider -->
 
     <div class="text-center" v-if="visitDetails">
-      <v-btn plain class="mb-6" @click="cancelDialog = true" color="error"
-        >Cancel Visit</v-btn
+      <v-btn
+        v-show="
+          visitDetails &&
+          visitDetails.status != 'canceled' &&
+          visitDetails.status != 'completed'
+        "
+        plain
+        class="mb-6"
+        @click="cancelDialog = true"
+        color="error"
       >
+        Cancel Visit
+      </v-btn>
       <!-- cancel dialog -->
       <v-dialog v-model="cancelDialog" max-width="400px">
         <v-card>
