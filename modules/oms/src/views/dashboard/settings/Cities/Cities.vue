@@ -116,43 +116,6 @@
             Details
           </v-btn>
 
-          <v-dialog v-model="deleteDialog[props.item.id]" max-width="400px">
-            <v-card>
-              <v-card-text>
-                <div class="text-h5 text-center py-4">
-                  Are you sure you want to delete
-                  <strong>{{ deleteDialog.name }}</strong>
-                  ?
-                </div>
-
-                <v-row>
-                  <v-col cols="12" sm="6">
-                    <v-btn
-                      :loading="isSubmitting"
-                      depressed
-                      block
-                      color="error"
-                      @click="deleteCity"
-                    >
-                      Delete
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-btn
-                      depressed
-                      block
-                      text
-                      color="blue-grey"
-                      @click="$set(deleteDialog, props.item.id, false)"
-                    >
-                      Cancel
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
-
           <v-btn depressed @click.stop="setDelete(props.item)" color="error">
             Delete
           </v-btn>
@@ -174,6 +137,21 @@
         </template>
       </v-data-table>
     </v-card>
+
+    <confirmation
+      :loading="isSubmitting"
+      @delete="deleteCity"
+      :preventText="deleteDialog.name"
+      v-model="deleteDialogModel"
+    >
+      <template>
+        <div class="text-h5 text-center py-4">
+          Are you sure you want to delete
+          <strong>{{ deleteDialog.name }}</strong>
+          ?
+        </div>
+      </template>
+    </confirmation>
   </v-container>
 </template>
 
@@ -182,8 +160,12 @@ import Vue from "vue";
 import momentTz from "moment-timezone";
 import OMSApi from "@/api/OMSApi";
 import { States } from "@/utils";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
+  components: {
+    Confirmation,
+  },
   data() {
     return {
       headers: [
@@ -221,7 +203,11 @@ export default Vue.extend({
       searchText: null,
       formDialog: false,
       formValues: {},
-      deleteDialog: {},
+      deleteDialog: {
+        name: null,
+        id: null,
+      },
+      deleteDialogModel: false,
       isFormValid: false,
       isLoading: false,
       isSubmitting: false,
@@ -284,7 +270,7 @@ export default Vue.extend({
         const response = await api.deleteCity(this.deleteDialog.id);
         if (response) {
           this.getCities();
-          this.$set(this.deleteDialog, this.deleteDialog.id, false);
+          this.deleteDialogModel = false;
           this.$root.snackbar.show({
             message: response.message,
             type: "success",
@@ -309,7 +295,7 @@ export default Vue.extend({
     setDelete(props) {
       this.deleteDialog.name = props.name;
       this.deleteDialog.id = props.id;
-      this.$set(this.deleteDialog, props.id, true);
+      this.deleteDialogModel = true;
     },
   },
 

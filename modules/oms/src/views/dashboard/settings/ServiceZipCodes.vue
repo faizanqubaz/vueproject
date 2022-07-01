@@ -188,42 +188,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="deleteDialog" max-width="400px">
-      <v-card>
-        <v-card-text>
-          <div class="text-h5 text-center py-4">
-            Are you sure you want to delete
-            <strong>{{ deleteValues.zipCode }}</strong>
-            ?
-          </div>
 
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-btn
-                :loading="isSubmitting"
-                depressed
-                block
-                color="error"
-                @click="submitDelete"
-              >
-                Delete
-              </v-btn>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-btn
-                depressed
-                block
-                text
-                color="blue-grey"
-                @click="closeDeleteDialog"
-              >
-                Cancel
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    <confirmation
+      :loading="isSubmitting"
+      @delete="submitDelete"
+      :preventText="deleteValues.zipCode"
+      v-model="deleteDialog"
+    >
+      <template>
+        <div class="text-h5 text-center py-4">
+          Are you sure you want to delete
+          <strong>{{ deleteValues.zipCode }}</strong>
+          ?
+        </div>
+      </template>
+    </confirmation>
   </v-container>
 </template>
 
@@ -232,8 +211,12 @@ import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
 import Papa from "papaparse";
 import { FormRules } from "@/utils";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
+  components: {
+    Confirmation,
+  },
   data() {
     return {
       headers: [
@@ -411,7 +394,7 @@ export default Vue.extend({
         const res = await api.deleteServiceZipCode(this.deleteId);
         if (res) {
           this.getServiceZipCodes();
-          this.closeDeleteDialog();
+          this.deleteDialog = false;
           this.$root.snackbar.show({
             message: res.message,
             type: "success",
@@ -492,9 +475,6 @@ export default Vue.extend({
       this.deleteDialog = true;
       this.deleteId = props.id;
       this.deleteValues.zipCode = props.zipCode;
-    },
-    closeDeleteDialog() {
-      this.deleteDialog = false;
     },
   },
   watch: {

@@ -261,46 +261,7 @@
                     >
                       Update
                     </v-btn>
-                    <v-dialog
-                      v-model="deletedAddress[props.item.id]"
-                      max-width="400px"
-                    >
-                      <v-card>
-                        <v-card-text>
-                          <div class="text-h5 text-center py-4">
-                            Are you sure you want to delete Address #
-                            <strong>{{ props.item.id }}</strong
-                            >?
-                          </div>
-                          <v-row>
-                            <v-col cols="12" sm="6">
-                              <v-btn
-                                depressed
-                                color="error"
-                                block
-                                :loading="saveLoading"
-                                @click="deleteAddress()"
-                              >
-                                Delete
-                              </v-btn>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                              <v-btn
-                                depressed
-                                text
-                                block
-                                color="blue-grey"
-                                @click="
-                                  $set(deletedAddress, props.item.id, false)
-                                "
-                              >
-                                Cancel
-                              </v-btn>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-dialog>
+
                     <v-btn
                       depressed
                       color="error"
@@ -410,46 +371,6 @@
                     </v-row>
                   </template>
                   <template v-slot:[`item.actions`]="props">
-                    <v-dialog
-                      v-model="deletedService[props.item.id]"
-                      max-width="400px"
-                    >
-                      <v-card>
-                        <v-card-text>
-                          <div class="text-h5 text-center py-4">
-                            Are you sure you want to delete
-                            <strong>{{ deletedService.service }}</strong
-                            >?
-                          </div>
-                          <v-row>
-                            <v-col cols="12" sm="6">
-                              <v-btn
-                                depressed
-                                block
-                                color="error"
-                                :loading="saveLoading"
-                                @click="deleteService()"
-                              >
-                                Delete
-                              </v-btn>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                              <v-btn
-                                depressed
-                                text
-                                block
-                                color="blue-grey"
-                                @click="
-                                  $set(deletedService, props.item.id, false)
-                                "
-                              >
-                                Cancel
-                              </v-btn>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-dialog>
                     <v-btn
                       depressed
                       color="error"
@@ -465,6 +386,20 @@
         </v-card>
       </template>
     </v-card>
+    <confirmation
+      :loading="saveLoading"
+      @delete="setDelete"
+      :preventText="deleteData.text"
+      v-model="deleteData.active"
+    >
+      <template>
+        <div class="text-h5 text-center py-4">
+          Are you sure you want to delete
+          <strong>{{ deleteData.text }}</strong
+          >?
+        </div>
+      </template>
+    </confirmation>
   </v-container>
 </template>
 
@@ -477,9 +412,14 @@ import _ from "lodash";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
-  components: { GoogleAutocomplete, DatePicker },
+  components: {
+    GoogleAutocomplete,
+    DatePicker,
+    Confirmation,
+  },
   data() {
     return {
       addressHeaders: [
@@ -608,6 +548,12 @@ export default Vue.extend({
         email: null,
         addresses: null,
       },
+      deleteData: {
+        actions: null,
+        service: null,
+        active: false,
+        text: null,
+      },
     };
   },
   async created() {
@@ -628,9 +574,8 @@ export default Vue.extend({
         if (response.result) {
           this.provider = {
             ...response.result,
-            dob: this.formatDate(response.result.dob)
+            dob: this.formatDate(response.result.dob),
           };
-          console.log(this.provider);
         }
       } catch (error) {
         this.$root.snackbar.show({
@@ -650,7 +595,7 @@ export default Vue.extend({
           firstName: this.provider.firstName,
           middleName: this.provider.middleName,
           lastName: this.provider.lastName,
-          dob:  moment(this.provider.dob).format(),
+          dob: moment(this.provider.dob).format(),
           gender: this.provider.gender,
           phone: this.provider.phone,
           email: this.provider.email,
@@ -738,6 +683,14 @@ export default Vue.extend({
     closeUpdateAddressDialog(id) {
       this.updatedAddress[id] = false;
     },
+    setDelete() {
+      if (this.deleteData.actions === "address") {
+        this.deleteAddress();
+      }
+      if (this.deleteData.actions === "services") {
+        this.deleteService();
+      }
+    },
     setUpdateAddress(props) {
       this.updatedAddressId = props.id;
       this.updatedAddressFull = `${props.street}, ${props.city}, ${props.state} ${props.zipCode}, USA`;
@@ -796,7 +749,9 @@ export default Vue.extend({
     },
     setDeleteAddress(props) {
       this.deletedAddress.id = props.id;
-      this.$set(this.deletedAddress, props.id, true);
+      this.deleteData.text = "#" + props.id;
+      this.deleteData.actions = "address";
+      this.deleteData.active = true;
     },
     async deleteAddress() {
       try {
@@ -812,7 +767,7 @@ export default Vue.extend({
             message: response.message,
             type: "success",
           });
-          this.$set(this.deletedAddress, this.deletedAddress.id, false);
+          this.deleteData.active = false;
         }
       } catch (error) {
         this.saveLoading = false;
@@ -904,9 +859,12 @@ export default Vue.extend({
       }
     },
     setDeleteService(props) {
+      console.log("Hereee", props);
       this.deletedService.id = props.id;
-      this.deletedService.service = props.service;
-      this.$set(this.deletedService, props.id, true);
+      this.deletedService.service = props.serviceName;
+      this.deleteData.text = props.serviceName;
+      this.deleteData.actions = "services";
+      this.deleteData.active = true;
     },
     async deleteService() {
       try {
@@ -922,7 +880,7 @@ export default Vue.extend({
             message: response.message,
             type: "success",
           });
-          this.$set(this.deletedService, this.deletedService.id, false);
+          this.deleteData.active = false;
         }
       } catch (error) {
         this.saveLoading = false;
@@ -933,7 +891,6 @@ export default Vue.extend({
       }
     },
     formatDate(date) {
-      console.log("ini date");
       return moment(date).format("MM/DD/YYYY");
     },
     parseDate(date) {

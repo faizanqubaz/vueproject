@@ -19,7 +19,7 @@ export default MapElementFactory({
   },
 
   afterCreate(directionsRenderer) {
-    let directionsService = new window.google.maps.DirectionsService();
+    let directionsService = new window.google.maps.DirectionsService()
 
     this.$watch(
       () => [this.origin, this.destination, this.travelMode],

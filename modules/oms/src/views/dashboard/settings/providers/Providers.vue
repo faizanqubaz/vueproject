@@ -261,47 +261,28 @@
           >
             Details
           </v-btn>
-          <v-dialog v-model="deletedProvider[props.item.id]" max-width="400px">
-            <v-card>
-              <v-card-text>
-                <div class="text-h5 text-center py-4">
-                  Are you sure you want to delete
-                  <strong>{{ deletedProvider.firstName }}</strong
-                  >?
-                </div>
-                <v-row>
-                  <v-col cols="12" sm="6">
-                    <v-btn
-                      depressed
-                      block
-                      color="error"
-                      :loading="saveLoading"
-                      @click="deleteProvider"
-                    >
-                      Delete
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-btn
-                      depressed
-                      block
-                      text
-                      color="blue-grey"
-                      @click="$set(deletedProvider, props.item.id, false)"
-                    >
-                      Cancel
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+
           <v-btn depressed color="error" @click.stop="setDelete(props.item)">
             Delete
           </v-btn>
         </template>
       </v-data-table>
     </v-card>
+
+    <confirmation
+      :loading="saveLoading"
+      @delete="deleteProvider"
+      :preventText="deletedProvider.firstName"
+      v-model="deletedProviderModel"
+    >
+      <template>
+        <div class="text-h5 text-center py-4">
+          Are you sure you want to delete
+          <strong>{{ deletedProvider.firstName }}</strong
+          >?
+        </div>
+      </template>
+    </confirmation>
   </v-container>
 </template>
 
@@ -312,9 +293,14 @@ import phone from "phone";
 import email from "email-validator";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DatePicker from "@/components/DatePicker.vue";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
-  components: { GoogleAutocomplete, DatePicker },
+  components: {
+    GoogleAutocomplete,
+    DatePicker,
+    Confirmation,
+  },
   data() {
     return {
       stepNumber: 1,
@@ -398,7 +384,11 @@ export default Vue.extend({
           "Email address is invalid",
       ],
       search: "",
-      deletedProvider: {},
+      deletedProvider: {
+        firstName: null,
+        id: null,
+      },
+      deletedProviderModel: false,
     };
   },
   async created() {
@@ -568,7 +558,7 @@ export default Vue.extend({
     setDelete(props) {
       this.deletedProvider.firstName = props.firstName;
       this.deletedProvider.id = props.id;
-      this.$set(this.deletedProvider, props.id, true);
+      this.deletedProviderModel = true;
     },
     async deleteProvider() {
       try {
@@ -581,7 +571,7 @@ export default Vue.extend({
             message: response.message,
             type: "success",
           });
-          this.$set(this.deletedProvider, this.deletedProvider.id, false);
+          this.deletedProviderModel = false;
           this.loading = true;
           await this.getProviders();
           this.loading = false;

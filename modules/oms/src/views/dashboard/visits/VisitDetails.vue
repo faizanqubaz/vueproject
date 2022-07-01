@@ -940,41 +940,20 @@
       >
         Cancel Visit
       </v-btn>
-      <!-- cancel dialog -->
-      <v-dialog v-model="cancelDialog" max-width="400px">
-        <v-card>
-          <v-card-text>
-            <div class="text-h5 text-center py-4">
-              Are you sure you want to Cancel
-              <strong>{{ visitDetails.patient.firstName }}</strong> visit?
-            </div>
 
-            <v-row>
-              <v-col cols="12" sm="6">
-                <v-btn
-                  :loading="cancelLoading"
-                  depressed
-                  block
-                  color="error"
-                  @click="cancelVisits(visitDetails.id)"
-                  >Cancel
-                </v-btn>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-btn
-                  depressed
-                  block
-                  text
-                  color="blue-grey"
-                  @click="cancelDialog = false"
-                >
-                  Close
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
+      <confirmation
+        :loading="cancelLoading"
+        @delete="cancelVisits(visitDetails.id)"
+        :preventText="visitDetails.patient.firstName"
+        v-model="cancelDialog"
+      >
+        <template>
+          <div class="text-h5 text-center py-4">
+            Are you sure you want to Cancel
+            <strong>{{ visitDetails.patient.firstName }}</strong> visit?
+          </div>
+        </template>
+      </confirmation>
     </div>
   </v-container>
 </template>
@@ -990,12 +969,14 @@ import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
 import { States, VisitStatuses } from "@/utils";
 import DatePicker from "@/components/DatePicker.vue";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
   components: {
     DatePicker,
     GoogleAutocomplete,
     DirectionsRenderer,
+    Confirmation,
   },
   async created() {
     await this.getVisitDetails(this.$router.currentRoute.params.id);

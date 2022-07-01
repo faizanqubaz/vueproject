@@ -66,7 +66,7 @@
                 <v-btn
                   depressed
                   color="error"
-                  @click.stop="openDeleteDialog(props.item)"
+                  @click="openDeleteDialog(props.item)"
                 >
                   Delete
                 </v-btn>
@@ -160,41 +160,21 @@
         </v-form>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="deleteDialog" max-width="400px">
-      <v-card>
-        <v-card-text>
-          <div class="text-h5 text-center py-4">
-            Are you sure you want to delete
-            <strong>{{ deleteValues.name }}</strong>
-            ?
-          </div>
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-btn
-                :loading="isSubmitting"
-                depressed
-                block
-                color="error"
-                @click="submitServiceDelete"
-              >
-                Delete
-              </v-btn>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-btn
-                depressed
-                block
-                text
-                color="blue-grey"
-                @click="closeDeleteDialog"
-              >
-                Cancel
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+
+    <confirmation
+      :loading="isSubmitting"
+      @delete="submitServiceDelete"
+      :preventText="deleteValues"
+      v-model="deleteDialog"
+    >
+      <template>
+        <div class="text-h5 text-center py-4">
+          Are you sure you want to delete
+          <strong>{{ deleteValues }}</strong>
+          ?
+        </div>
+      </template>
+    </confirmation>
   </v-container>
 </template>
 
@@ -202,6 +182,7 @@
 import Vue from "vue";
 import OMSApi from "@/api/OMSApi";
 import { FormRules } from "@/utils";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
   data() {
@@ -229,7 +210,7 @@ export default Vue.extend({
       formValues: {},
       formId: null,
       deleteDialog: false,
-      deleteValues: {},
+      deleteValues: null,
       deleteId: null,
       isFormValid: false,
       inputRules: FormRules,
@@ -347,7 +328,7 @@ export default Vue.extend({
         const res = await api.deleteService(this.deleteId);
         if (res) {
           this.getServices();
-          this.closeDeleteDialog();
+          this.deleteDialog = false;
           this.$root.snackbar.show({
             message: res.message,
             type: "success",
@@ -390,12 +371,9 @@ export default Vue.extend({
       this.formDialog = false;
     },
     openDeleteDialog(props) {
-      this.deleteDialog = true;
+      this.deleteValues = props.name;
       this.deleteId = props.id;
-      this.deleteValues.name = props.name;
-    },
-    closeDeleteDialog() {
-      this.deleteDialog = false;
+      this.deleteDialog = true;
     },
     renderFormatUSD(string) {
       return string ? `$ ${string}` : "0";
@@ -410,6 +388,7 @@ export default Vue.extend({
   },
   components: {
     ServiceGroups: () => import("./ServiceGroups.vue"),
+    Confirmation,
   },
 });
 </script>

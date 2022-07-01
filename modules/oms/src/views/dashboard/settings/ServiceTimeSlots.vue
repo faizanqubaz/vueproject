@@ -193,41 +193,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="deleteDialog" max-width="400px">
-      <v-card>
-        <v-card-text>
-          <div class="text-h5 text-center py-4">
-            Are you sure you want to delete
-            <strong>this time slot</strong>?
-          </div>
 
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-btn
-                :loading="isSubmitting"
-                depressed
-                block
-                color="error"
-                @click="submitDelete"
-              >
-                Delete
-              </v-btn>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-btn
-                depressed
-                block
-                text
-                color="blue-grey"
-                @click="closeDeleteDialog"
-              >
-                Cancel
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    <confirmation
+      :loading="isSubmitting"
+      @delete="submitDelete"
+      preventText="delete"
+      v-model="deleteDialog"
+    >
+      <template>
+        <div class="text-h5 text-center py-4">
+          Are you sure you want to delete this timeslot ?
+        </div>
+      </template>
+    </confirmation>
   </v-container>
 </template>
 
@@ -237,10 +215,12 @@ import moment from "moment";
 import OMSApi from "@/api/OMSApi";
 import { DaysOfWeek, HoursOfDay } from "@/utils";
 import DatePicker from "@/components/DatePicker.vue";
+import Confirmation from "@/components/Confirmation.vue";
 
 export default Vue.extend({
   components: {
     DatePicker,
+    Confirmation,
   },
   data() {
     return {
@@ -448,7 +428,7 @@ export default Vue.extend({
         const res = await api.deleteServiceTimeSlot(this.deleteId);
         if (res) {
           this.getServiceTimeSlots();
-          this.closeDeleteDialog();
+          this.deleteDialog = false;
           this.$root.snackbar.show({
             message: res.message,
             type: "success",
@@ -476,9 +456,6 @@ export default Vue.extend({
     openDeleteDialog(props) {
       this.deleteDialog = true;
       this.deleteId = props.id;
-    },
-    closeDeleteDialog() {
-      this.deleteDialog = false;
     },
   },
   watch: {
