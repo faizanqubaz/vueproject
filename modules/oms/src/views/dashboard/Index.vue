@@ -29,6 +29,12 @@ export default Vue.extend({
       ],
     };
   },
+  watch: {
+    expandOnHover(val) {
+      this.$store.commit("SET_DRAWER", val);
+    },
+  },
+
   mounted() {
     this.$root.snackbar = this.$refs.snackbar;
   },
