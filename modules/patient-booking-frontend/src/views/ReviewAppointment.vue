@@ -143,6 +143,7 @@ export default Vue.extend({
   },
   methods: {
     async createAppointment () {
+      this.$store.commit('setLoading', true)
       const appointment = {
         patient: {
           firstName: this.$store.getters.firstName,
@@ -184,6 +185,8 @@ export default Vue.extend({
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
+      } finally {
+        this.$store.commit('setLoading', false)
       }
     },
     formatDate (isoDate: string) {

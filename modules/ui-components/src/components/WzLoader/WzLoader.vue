@@ -5,7 +5,7 @@
       class="rounded-full animate-spin"
       :class="
         'border-' +
-        style +
+        borderStyle +
         ' w-' +
         size +
         ' h-' +
@@ -22,7 +22,7 @@
 <script>
 export default {
   props: {
-    style: {
+    borderStyle: {
       type: String,
       default: 'dotted'
     },

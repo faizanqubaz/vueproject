@@ -9,59 +9,62 @@
           <h1 class="text-xl">Pick a time that works for you</h1>
         </div>
         <div class="pt-3 flex justify-end">
-          <wz-date-picker
-            v-model="dateAndTime.date"
-            :minDate="new Date()"
-          >
+          <wz-date-picker v-model="dateAndTime.date" :minDate="new Date()">
             <p class="text-darkGray ml-0 md:ml-5">{{ printDate }}</p>
           </wz-date-picker>
         </div>
       </div>
-      <div class="grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 py-7">
-        <wz-checkbox-card
-          v-for="slot in timeSlots"
-          :key="slot.id"
-          :itemKey="slot.id"
-          v-model="dateAndTime.id"
-          align="center"
-          class=""
-          :disabled= "!slot.active"
+      <div class="">
+        <div
+          class="grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 py-7"
         >
-          <template #icon>
-            <wz-icon name="clock" />
-          </template>
-          <template #content>
-            {{ formatTimeSlot(slot.startTime, slot.endTime) }}
-          </template>
-        </wz-checkbox-card>
-      </div>
-      <div class="pt-0">
-        <wz-button color="primary"
-          block
-          :disabled="!isValid"
-          @click="proceed"
-        >
-          <p class="text-white">Proceed</p>
-        </wz-button>
-      </div>
-      <div class="pt-4 pb-4 items-center">
-        <wz-button type="button" block text @click="$router.back()">
-          <p class="text-darkGray">← Go back</p>
-        </wz-button>
+          <wz-checkbox-card
+            v-for="slot in timeSlots"
+            :key="slot.id"
+            :itemKey="slot.id"
+            v-model="dateAndTime.id"
+            align="center"
+            class=""
+            :disabled="!slot.active"
+          >
+            <template #icon>
+              <wz-icon name="clock" />
+            </template>
+            <template #content>
+              {{ formatTimeSlot(slot.startTime, slot.endTime) }}
+            </template>
+          </wz-checkbox-card>
+        </div>
+        <div class="pt-0">
+          <wz-button
+            color="primary"
+            block
+            :disabled="!isValid"
+            @click="proceed"
+          >
+            <p class="text-white">Proceed</p>
+          </wz-button>
+        </div>
+        <div class="pt-4 pb-4 items-center">
+          <wz-button type="button" block text @click="$router.back()">
+            <p class="text-darkGray">← Go back</p>
+          </wz-button>
+        </div>
       </div>
     </div>
-     <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
-        <template>
-          <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
-        </template>
-        <template #action>
-          <wz-button
-            text
-            @click="snackbar.open= false"
-            color="red"
-            class="text-red mr-4"
-            >Close</wz-button>
-        </template>
+    <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
+      <template>
+        <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
+      </template>
+      <template #action>
+        <wz-button
+          text
+          @click="snackbar.open = false"
+          color="red"
+          class="text-red mr-4"
+          >Close</wz-button
+        >
+      </template>
     </wz-snackbars>
   </div>
 </template>
@@ -74,10 +77,10 @@ import 'moment-timezone'
 import { find, cloneDeep } from 'lodash'
 
 interface SlotType {
-  startTime: string;
-  endTime: string;
-  active: boolean;
-  id: number;
+  startTime: string
+  endTime: string
+  active: boolean
+  id: number
 }
 
 export default Vue.extend({
@@ -102,10 +105,14 @@ export default Vue.extend({
   methods: {
     async fetchAppointment () {
       try {
+        this.$store.commit('setLoading', true)
         const bookingApiClient = new BookingApiClient()
         const fetchDate = moment(this.dateAndTime.date).toISOString()
-        const response = await bookingApiClient.getServiceTimeSlots(fetchDate,
-          this.$store.getters.locationCityId, this.$store.getters.serviceId)
+        const response = await bookingApiClient.getServiceTimeSlots(
+          fetchDate,
+          this.$store.getters.locationCityId,
+          this.$store.getters.serviceId
+        )
         if (response.result.length > 0) {
           this.timeSlots = []
           this.dateAndTime.id = 0
@@ -116,20 +123,27 @@ export default Vue.extend({
               id: slot.id,
               startTime: slot.startTime,
               endTime: slot.endTime,
-              active: slot.enabled && this.isAvailable(fetchDate, slot.startTime)
+              active:
+                slot.enabled && this.isAvailable(fetchDate, slot.startTime)
             })
           })
         } else {
-          this.snackbar.message = 'Sorry! We do not have any available time slots.'
+          this.snackbar.message =
+            'Sorry! We do not have any available time slots.'
           this.snackbar.open = true
         }
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
+      } finally {
+        this.$store.commit('setLoading', false)
       }
     },
     formatTimeSlot (startTime: string, endTime: string) {
-      return `${moment(startTime, 'HH:mm:ss').format('h A')} - ${moment(endTime, 'HH:mm:ss').format('h A')}`
+      return `${moment(startTime, 'HH:mm:ss').format('h A')} - ${moment(
+        endTime,
+        'HH:mm:ss'
+      ).format('h A')}`
     },
     proceed () {
       this.$store.commit('setDateAndTime', this.dateAndTime)
@@ -138,13 +152,21 @@ export default Vue.extend({
       }
     },
     isAvailable (fetchDate: string, startTime: string) {
-      const startMoment = moment(`${fetchDate} ${startTime}`, 'YYYY-MM-DD ha').tz(this.timezone)
+      const startMoment = moment(
+        `${fetchDate} ${startTime}`,
+        'YYYY-MM-DD ha'
+      ).tz(this.timezone)
       return moment().isBefore(startMoment)
     }
   },
   computed: {
     isValid (): boolean {
-      return !!this.dateAndTime.date && !!this.dateAndTime.id && !!this.dateAndTime.startTime && !!this.dateAndTime.endTime
+      return (
+        !!this.dateAndTime.date &&
+        !!this.dateAndTime.id &&
+        !!this.dateAndTime.startTime &&
+        !!this.dateAndTime.endTime
+      )
     },
     printDate (): string {
       return moment(this.dateAndTime.date).format('MMMM DD YYYY')

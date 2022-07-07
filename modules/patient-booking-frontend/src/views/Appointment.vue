@@ -5,10 +5,10 @@
         <wz-progress width="1/8" />
       </div>
       <div class="pt-7">
-        <h1 class="text-xl">
-          Care, wherever you are
-        </h1>
-        <p class="pt-5 text-base lg:text-lg font-normal text-gray-700 antialiased">
+        <h1 class="text-xl">Care, wherever you are</h1>
+        <p
+          class="pt-5 text-base lg:text-lg font-normal text-gray-700 antialiased"
+        >
           We bring the urgent care directly to you. It’s as easy as using Amazon
         </p>
       </div>
@@ -54,28 +54,30 @@
           </div>
         </div>
         <div class="pt-6">
-          <wz-button color="primary"
+          <wz-button
+            color="primary"
             block
             :disabled="!isValid"
             @click="proceed"
-            >
+          >
             <p class="text-white">Proceed</p>
           </wz-button>
         </div>
       </div>
     </div>
-   <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
-        <template>
-          <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
-        </template>
-        <template #action>
-          <wz-button
-            text
-            @click="snackbar.open= false"
-            color="red"
-            class="text-red mr-4"
-            >Close</wz-button>
-        </template>
+    <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
+      <template>
+        <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
+      </template>
+      <template #action>
+        <wz-button
+          text
+          @click="snackbar.open = false"
+          color="red"
+          class="text-red mr-4"
+          >Close</wz-button
+        >
+      </template>
     </wz-snackbars>
   </div>
 </template>
@@ -147,6 +149,7 @@ export default Vue.extend({
     },
     async proceed () {
       try {
+        this.$store.commit('setLoading', true)
         const bookingApiClient = new BookingApiClient()
         const response = await bookingApiClient.getService(this.location.zipCode)
         if (response.result.serviceGroups.length > 0) {
@@ -182,6 +185,8 @@ export default Vue.extend({
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong. Please try again'
         this.snackbar.open = true
+      } finally {
+        this.$store.commit('setLoading', false)
       }
     }
   },

@@ -49,7 +49,8 @@ const Appointment = {
       endTime: '',
       date: '',
       id: 0
-    }
+    },
+    loading: false
   }),
   mutations: {
     setLocation (state: any, location: any) {
@@ -63,6 +64,9 @@ const Appointment = {
     },
     setService (state: any, service: any) {
       state.service.type = service
+    },
+    setLoading (state: any, loading: boolean) {
+      state.loading = loading
     },
     clearService (state: any) {
       state.service.type = {
@@ -92,6 +96,9 @@ const Appointment = {
   },
 
   getters: {
+    loading (state: any) {
+      return state.loading
+    },
     location (state: any) {
       return state.location
     },
