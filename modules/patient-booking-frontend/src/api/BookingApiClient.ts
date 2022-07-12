@@ -73,6 +73,17 @@ export interface ServiceResponse {
   result: ServiceResponseDetails;
 }
 
+export interface Symptom {
+  id: number;
+  description: string;
+  icon: string;
+}
+
+export interface SymptomsResponse {
+  message: string;
+  result: Symptom[];
+}
+
 export interface AppointmentTimeSlotResponse {
   message: string;
   result: TimeSlot[];
@@ -98,6 +109,22 @@ export default class BookingApiClient extends HttpClient {
     const url = 'services?zipCode=' + zipCode
     try {
       const response: AxiosResponse<ServiceResponse> = await this.instance.get(url)
+      const { status } = response
+      if (status === 200) {
+        const { data } = response
+        return data
+      } else {
+        return Promise.reject(new Error())
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  async getSymptoms (serviceId: number): Promise<SymptomsResponse> {
+    const url = 'symptoms?service=' + serviceId
+    try {
+      const response: AxiosResponse<SymptomsResponse> = await this.instance.get(url)
       const { status } = response
       if (status === 200) {
         const { data } = response

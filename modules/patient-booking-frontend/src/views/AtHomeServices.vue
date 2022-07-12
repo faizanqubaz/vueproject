@@ -15,14 +15,14 @@
           v-for="symptom in symptoms"
           :key="symptom.id"
           v-model="notes"
-          :itemKey="symptom.name"
+          :itemKey="symptom.description"
           align="center"
         >
           <template #icon>
-            <wz-icon :name="symptom.icon" />
+            <img :src="symptom.icon" alt="">
           </template>
           <template #content>
-            <h3 class="font-normal">{{ symptom.name }}</h3>
+            <h3 class="font-normal">{{ symptom.description }}</h3>
           </template>
         </wz-checkbox-card>
       </div>
@@ -47,67 +47,19 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import BookingApiClient, { Symptom } from '../api/BookingApiClient'
 import { get, find } from 'lodash'
 export default Vue.extend({
   data () {
     return {
       notes: '',
-      symptoms: [
-        {
-          id: 1,
-          icon: 'flu',
-          name: 'Flu and fever'
-        },
-        {
-          id: 2,
-          icon: 'MuscularIssue',
-          name: 'Muscular and joint pain'
-        },
-        {
-          id: 3,
-          icon: 'Cough',
-          name: 'Cough, cold, sinus'
-        },
-        {
-          id: 4,
-          icon: 'MinorInjury',
-          name: 'Minor injury'
-        },
-        {
-          id: 5,
-          icon: 'HeadInjury',
-          name: 'Head or ear issue'
-        },
-        {
-          id: 6,
-          icon: 'GenitalIssue',
-          name: 'Genital or urinary issue'
-        },
-        {
-          id: 7,
-          icon: 'EyeIssue',
-          name: 'Eye issue'
-        },
-        {
-          id: 8,
-          icon: 'StomachIssue',
-          name: 'Stomach issue'
-        },
-        {
-          id: 9,
-          icon: 'StomachIssue',
-          name: 'Skin condition'
-        },
-        {
-          id: 10,
-          icon: 'ExistingCondition',
-          name: 'Existing condition'
-        }
-      ]
+      serviceId: 0,
+      symptoms: [] as Symptom[]
     }
   },
   beforeMount () {
     const service = get(find(this.$store.getters.serviceList, { id: this.$store.getters.groupId }), 'services')
+    this.serviceId = this.$store.getters.serviceId
     const serviceIndex = 0
     if (service[serviceIndex].id !== this.$store.getters.serviceId) {
       const aService = {
@@ -118,10 +70,12 @@ export default Vue.extend({
         image: require('@/assets/at-home-care.png'),
         notes: ''
       }
+      this.serviceId = service[serviceIndex].id
       this.$store.commit('setService', aService)
     }
 
     this.notes = this.$store.getters.serviceNotes
+    this.getSymptoms()
   },
   methods: {
     proceed () {
@@ -130,6 +84,20 @@ export default Vue.extend({
       }
       if (this.isValid) {
         this.$router.push('/notes')
+      }
+    },
+    async getSymptoms () {
+      try {
+        this.$store.commit('setLoading', true)
+        const bookingApiClient = new BookingApiClient()
+        const response = await bookingApiClient.getSymptoms(this.serviceId)
+        if (response.result) {
+          this.symptoms = response.result
+        }
+      } catch (error) {
+        console.info(error)
+      } finally {
+        this.$store.commit('setLoading', false)
       }
     }
   },
