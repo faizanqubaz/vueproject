@@ -168,8 +168,10 @@ export default Vue.extend({
       isSubmitting: false,
     };
   },
-  created() {
-    this.getPayPeriods();
+  async created() {
+    this.$store.commit("SET_LOADING", true);
+    await this.getPayPeriods();
+    this.$store.commit("SET_LOADING", false);
   },
   filters: {
     formatDate(date) {

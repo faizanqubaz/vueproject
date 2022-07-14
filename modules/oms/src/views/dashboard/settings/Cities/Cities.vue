@@ -214,9 +214,9 @@ export default Vue.extend({
     };
   },
   async created() {
-    this.isLoading = true;
+    this.$store.commit("SET_LOADING", true);
     await this.getCities();
-    this.isLoading = false;
+    this.$store.commit("SET_LOADING", false);
   },
   methods: {
     async getCities() {

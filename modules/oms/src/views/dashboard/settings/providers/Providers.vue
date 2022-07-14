@@ -392,12 +392,12 @@ export default Vue.extend({
     };
   },
   async created() {
-    this.loading = true;
+    this.$store.commit("SET_LOADING", true);
     await this.getProviders();
     await this.getServices();
     await this.getCities();
     this.populateServiceListByCity();
-    this.loading = false;
+    this.$store.commit("SET_LOADING", false);
   },
   methods: {
     async getProviders() {

@@ -1,11 +1,5 @@
 <template>
   <v-container fluid>
-    <v-overlay absolute :opacity="0.5" :value="loading">
-      <v-progress-circular indeterminate size="64">
-        Loading
-      </v-progress-circular>
-    </v-overlay>
-
     <!-- patient -->
     <v-row v-if="visitDetails">
       <v-col class="pb-0">
@@ -979,10 +973,12 @@ export default Vue.extend({
     Confirmation,
   },
   async created() {
+    this.$store.commit("SET_LOADING", true);
     await this.getVisitDetails(this.$router.currentRoute.params.id);
     await this.getProviders();
     await this.getServices();
     await this.getProviderCoordinates();
+    this.$store.commit("SET_LOADING", false);
   },
   data() {
     return {

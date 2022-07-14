@@ -560,9 +560,11 @@ export default Vue.extend({
     };
   },
   async created() {
+    this.$store.commit("SET_LOADING", true);
     await this.getServices();
     await this.getProviders();
     await this.getServiceTimeSlots();
+    this.$store.commit("SET_LOADING", false);
   },
   methods: {
     async getVisits() {
@@ -840,6 +842,8 @@ export default Vue.extend({
       deep: true,
     },
     visitDate(val) {
+      console.log("val", val);
+      console.log("val", this.serviceTimeSlots);
       let newDate = moment(val).day();
       let newService = this.serviceTimeSlots.filter((res) => {
         return res.dayOfWeek == newDate;

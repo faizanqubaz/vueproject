@@ -61,11 +61,14 @@ export default Vue.extend({
     };
   },
   async created() {
+    this.$store.commit("SET_LOADING", true);
     Promise.all(
       ["total", "booked", "completed", "canceled"].map(
         async (get) => await this.getVisitCount(get)
       )
-    );
+    ).then(() => {
+      this.$store.commit("SET_LOADING", false);
+    });
   },
   methods: {
     async getVisitCount(status) {

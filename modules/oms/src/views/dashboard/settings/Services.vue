@@ -218,9 +218,11 @@ export default Vue.extend({
       isSubmitting: false,
     };
   },
-  created() {
-    this.getServices();
-    this.getServiceGroups();
+  async created() {
+    this.$store.commit("SET_LOADING", true);
+    await this.getServices();
+    await this.getServiceGroups();
+    this.$store.commit("SET_LOADING", false);
   },
   methods: {
     async getServices() {

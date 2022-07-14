@@ -3,11 +3,6 @@
     <v-card>
       <template>
         <v-card>
-          <v-overlay absolute :opacity="0.5" :value="loading">
-            <v-progress-circular indeterminate size="64">
-              Loading
-            </v-progress-circular>
-          </v-overlay>
           <v-tabs v-model="activeTab">
             <v-tab>Provider</v-tab>
             <v-tab>Addresses</v-tab>
@@ -557,12 +552,14 @@ export default Vue.extend({
     };
   },
   async created() {
+    this.$store.commit("SET_LOADING", true);
     this.loading = true;
     await this.getProviderDetail();
     await this.getServices();
     await this.getCities();
     await this.getProviderServices();
     this.loading = false;
+    this.$store.commit("SET_LOADING", false);
   },
   methods: {
     async getProviderDetail() {

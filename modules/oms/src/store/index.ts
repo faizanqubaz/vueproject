@@ -8,6 +8,7 @@ export default new Vuex.Store({
     barColor: "rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)",
     drawer: true,
     updatePatientDialog: false,
+    loading: false,
   },
   mutations: {
     SET_DRAWER(state, payload) {
@@ -18,6 +19,9 @@ export default new Vuex.Store({
     },
     SET_UPDATE_PATIENT_DIALOG(state, payload) {
       state.updatePatientDialog = payload;
+    },
+    SET_LOADING(state, payload) {
+      state.loading = payload;
     },
   },
   actions: {},

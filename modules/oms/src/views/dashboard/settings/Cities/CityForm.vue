@@ -11,11 +11,6 @@
               <span class="text-h5"> Update City </span>
             </v-card-title>
             <v-card-text>
-              <v-overlay absolute :opacity="0.5" :value="isLoading">
-                <v-progress-circular indeterminate size="64">
-                  Loading...
-                </v-progress-circular>
-              </v-overlay>
               <v-form ref="updateForm" v-model="isFormValid" lazy-validation>
                 <v-row>
                   <v-col md="6" sm="12">
@@ -116,9 +111,9 @@ export default Vue.extend({
   },
   async created() {
     if (this.$route.params.cityId) {
-      this.isLoading = true;
+      this.$store.commit("SET_LOADING", true);
       await this.getCityDetail();
-      this.isLoading = false;
+      this.$store.commit("SET_LOADING", false);
     }
   },
   methods: {
