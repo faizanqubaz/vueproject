@@ -71,8 +71,8 @@
               </div>
             </div>
           </div>
-          <div class="font-semibold" v-if="isInsurance">Total</div>
-          <div class="grid grid-cols-12" v-if="isInsurance">
+          <div class="font-semibold" v-if="isPaymentCard">Total</div>
+          <div class="grid grid-cols-12" v-if="isPaymentCard">
             <div class="">:</div>
             <div class="col-span-11">
               <div class="">${{ $store.getters.servicePrice }}</div>
@@ -203,8 +203,8 @@ export default Vue.extend({
     }
   },
   computed: {
-    isInsurance (): boolean {
-      return this.$store.getters.insurance
+    isPaymentCard (): boolean {
+      return this.$store.getters.payment.card
     }
   }
 })
