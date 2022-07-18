@@ -16,15 +16,16 @@ export default MapElementFactory({
     origin: { type: [Object, Array] },
     destination: { type: [Object, Array] },
     travelMode: { type: String },
+    refreshCount: { type: Number },
   },
 
   afterCreate(directionsRenderer) {
-    let directionsService = new window.google.maps.DirectionsService()
+    let directionsService = new window.google.maps.DirectionsService();
 
     this.$watch(
-      () => [this.origin, this.destination, this.travelMode],
+      () => [this.origin, this.destination, this.travelMode, this.refreshCount],
       () => {
-        let { origin, destination, travelMode } = this;
+        let { origin, destination, travelMode, refreshCount } = this;
         if (!origin || !destination || !travelMode) return;
         directionsService.route(
           {
@@ -39,6 +40,10 @@ export default MapElementFactory({
                   `Google Maps ${status}` || "Failed to display directions",
                 type: "error",
               });
+            }
+            // set preserveViewport to true when provider coordinates are refreshed more than 3 times
+            if (refreshCount >= 3) {
+              directionsRenderer.setOptions({ preserveViewport: true });
             }
             directionsRenderer.setDirections(response);
           }

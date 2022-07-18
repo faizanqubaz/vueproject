@@ -833,8 +833,9 @@
                         <directions-renderer
                           v-if="providerCoordinates"
                           travelMode="DRIVING"
-                          :origin="visitDetailCoordinates"
-                          :destination="providerCoordinates"
+                          :origin="providerCoordinates"
+                          :destination="visitDetailCoordinates"
+                          :refreshCount="refreshCount"
                         />
                         <gmap-marker
                           v-else
@@ -1083,6 +1084,7 @@ export default Vue.extend({
         lng: 0,
       },
       providerCoordinates: null,
+      refreshCount: 0,
     };
   },
   watch: {
@@ -1137,6 +1139,7 @@ export default Vue.extend({
             lat: response.result.data[resultLength - 1].latitude,
             lng: response.result.data[resultLength - 1].longitude,
           };
+          this.refreshCount = this.refreshCount + 1;
         }
       } catch (error) {
         console.error(error);
