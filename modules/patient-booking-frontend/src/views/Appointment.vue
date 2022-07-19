@@ -236,7 +236,7 @@ export default Vue.extend({
               (component) => {
                 if (component.types.includes('postal_code')) {
                   this.location.zipCode = component.long_name
-                } else if (component.types.includes('neighborhood')) {
+                } else if (component.types.includes('sublocality_level_1')) {
                   this.location.city = component.long_name
                 } else if (component.types.includes('administrative_area_level_1')) {
                   this.location.state = component.long_name
