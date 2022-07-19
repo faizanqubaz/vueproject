@@ -180,7 +180,8 @@ export default Vue.extend({
       }
       try {
         const bookingApiClient = new BookingApiClient()
-        await bookingApiClient.createAppointment(appointment)
+        const response = await bookingApiClient.createAppointment(appointment)
+        this.$store.commit('setVisitId', response.result.id)
         this.$router.push('/confirmation')
       } catch (error) {
         this.snackbar.message = 'Sorry, something went wrong, please try again.'

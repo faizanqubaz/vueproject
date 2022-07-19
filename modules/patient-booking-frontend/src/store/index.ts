@@ -243,32 +243,46 @@ const store = new Vuex.Store({
   },
   state: {
     isLoggedIn: false,
+    password: '',
     serviceList: [],
-    timeSlots: []
+    timeSlots: [],
+    visitId: 0
   },
   mutations: {
-    login (state: any) {
-      state.isLoggedIn = true
+    login (state: any, value: boolean) {
+      state.isLoggedIn = value
     },
     logout (state: any) {
       state.isLoggedIn = false
+    },
+    setPassword (state: any, password: string) {
+      state.password = password
     },
     setServiceList (state: any, serviceList: any) {
       state.serviceList = serviceList
     },
     setTimeSlots (state: any, timeSlots: any) {
       state.timeSlots = timeSlots
+    },
+    setVisitId (state: any, visitId: number) {
+      state.visitId = visitId
     }
   },
   getters: {
     isAuthenticated (state: any) {
       return state.isLoggedIn
     },
+    password (state: any) {
+      return state.password
+    },
     serviceList (state: any) {
       return state.serviceList
     },
     timeSlots (state: any) {
       return state.timeSlots
+    },
+    visitId (state: any) {
+      return state.visitId
     }
   }
 })

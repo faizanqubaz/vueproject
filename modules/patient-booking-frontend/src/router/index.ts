@@ -12,7 +12,11 @@ import Insurance from '../views/Insurance.vue'
 import Payment from '../views/Payment.vue'
 import ReviewAppointment from '../views/ReviewAppointment.vue'
 import Confirmation from '../views/Confirmation.vue'
+import Main from '../views/dashboard/Main.vue'
+import Results from '../views/dashboard/Results.vue'
+import Upcoming from '../views/dashboard/Upcoming.vue'
 import store from '../store'
+import { authGuard } from '@/auth/authGuard'
 
 Vue.use(VueRouter)
 
@@ -78,17 +82,43 @@ const routes: Array<RouteConfig> = [
     component: Confirmation
   },
   {
+    path: '/dashboard',
+    name: 'Main',
+    component: Main,
+    beforeEnter: authGuard
+  },
+  {
+    path: '/results',
+    name: 'Results',
+    component: Results,
+    beforeEnter: authGuard
+  },
+  {
+    path: '/upcoming',
+    name: 'Upcoming',
+    component: Upcoming,
+    beforeEnter: authGuard
+  },
+  {
+    path: '/login',
+    redirect: '/dashboard'
+  },
+  {
     path: '*',
     redirect: '/appointment'
   }
 ]
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.path !== '/appointment' && (!store.getters.location.address || !store.getters.payment)) {
+  const ignoreRoutes = ['/login', '/dashboard', '/upcoming', '/results']
+  if (ignoreRoutes.includes(to.path)) {
+    return next()
+  } else if (to.path !== '/appointment' && (!store.getters.location.address || !store.getters.payment)) {
     return next('/appointment')
   }
   return next()

@@ -21,21 +21,21 @@
         <wz-input
           icon="user"
           label="First Name"
-          v-model="$store.getters.firstName"
+          v-model="firstName"
           type="text"
           :error="false"
           errorMessage="" />
         <wz-input
           icon="user"
           label="Last Name"
-          v-model="$store.getters.lastName"
+          v-model="lastName"
           type="text"
           :error="false"
           errorMessage="" />
         <wz-input
           icon="email"
           label="Email"
-          v-model="$store.getters.email"
+          v-model="email"
           type="text"
           :error="false"
           errorMessage="" />
@@ -59,34 +59,82 @@
           color="primary"
           block
           :disabled="!isValid"
-          @click="create"
+          @click="createAccount"
         >
           <p class="text-white">Create Account</p>
         </wz-button>
       </div>
     </div>
+    <wz-snackbars v-model="snackbar.open" color="fontPrimary" :timeout="6000">
+      <template>
+        <div class="w-80 pl-4 text-white">{{ snackbar.message }}</div>
+      </template>
+      <template #action>
+        <wz-button
+          text
+          @click="snackbar.open = false"
+          color="red"
+          class="text-red mr-4"
+          > Close
+        </wz-button>
+      </template>
+    </wz-snackbars>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import BookingApiClient from '../api/BookingApiClient'
 export default Vue.extend({
   data () {
     return {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
       checked: true,
       valid: false,
-      password: '',
-      consent: false
+      consent: false,
+      snackbar: {
+        open: false,
+        message: ''
+      }
+    }
+  },
+  beforeMount () {
+    this.firstName = this.$store.getters.firstName
+    this.lastName = this.$store.getters.lastName
+    this.email = this.$store.getters.email
+    this.valid = !!this.firstName && !!this.lastName && !!this.email && !!this.password && !!this.consent
+  },
+  methods: {
+    async createAccount () {
+      this.$store.commit('setFirstName', this.firstName)
+      this.$store.commit('setLastName', this.lastName)
+      this.$store.commit('setEmail', this.email)
+      this.$store.commit('setPassword', this.password)
+      const account = {
+        visitId: this.$store.getters.visitId,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        dob: this.$store.getters.dob,
+        email: this.email,
+        password: this.password
+      }
+      try {
+        const bookingApiClient = new BookingApiClient()
+        await bookingApiClient.createAccount(account)
+        this.$router.push('/login')
+      } catch (error) {
+        this.snackbar.message = error.response && error.response.data && error.response.data.error
+          ? error.response.data.error : 'Sorry, something went wrong, please try again.'
+        this.snackbar.open = true
+      }
     }
   },
   computed: {
     isValid (): boolean {
-      return !!this.password && this.consent
-    }
-  },
-  methods: {
-    create () {
-      console.log('Need to be implemented')
+      return !!this.firstName && !!this.lastName && !!this.email && !!this.password && !!this.consent
     }
   }
 })

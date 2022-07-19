@@ -23,6 +23,15 @@ export interface Patient {
     address: Address;
 }
 
+export interface Account {
+  visitId: number;
+  firstName: string;
+  lastName: string;
+  dob: string;
+  email: string;
+  password: string;
+}
+
 export interface Visit {
   date: string;
   scheduledStartTime: string;
@@ -100,6 +109,11 @@ export interface AppointmentResponse {
   };
 }
 
+export interface AccountResponse {
+  message: string;
+  result: any[];
+}
+
 export default class BookingApiClient extends HttpClient {
   constructor () {
     super(process.env.VUE_APP_WELZ_BOOKING_API)
@@ -157,6 +171,22 @@ export default class BookingApiClient extends HttpClient {
     const url = '/appointments'
     try {
       const response: AxiosResponse<AppointmentResponse> = await this.instance.post(url, appointment)
+      const { status } = response
+      if (status === 201) {
+        const { data } = response
+        return data
+      } else {
+        return Promise.reject(new Error())
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  async createAccount (account: Account): Promise<AccountResponse> {
+    const url = '/accounts'
+    try {
+      const response: AxiosResponse<AccountResponse> = await this.instance.post(url, account)
       const { status } = response
       if (status === 201) {
         const { data } = response
