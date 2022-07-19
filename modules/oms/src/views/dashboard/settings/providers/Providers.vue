@@ -475,14 +475,6 @@ export default Vue.extend({
         });
       }
     },
-    getNewAddressData(addressData, placeResultData) {
-      this.newAddress.street = addressData.name;
-      this.newAddress.city = placeResultData.formatted_address.split(",")[1];
-      this.newAddress.state = addressData.administrative_area_level_1;
-      this.newAddress.zipCode = addressData.postal_code;
-      this.newAddress.longitude = addressData.longitude;
-      this.newAddress.latitude = addressData.latitude;
-    },
     async addAddress() {
       this.saveLoading = true;
       try {

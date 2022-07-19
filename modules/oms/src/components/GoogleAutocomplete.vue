@@ -90,7 +90,7 @@ export default {
             forEach(place.address_components, (component) => {
               if (component.types.includes("postal_code")) {
                 mapData.zipCode = component.long_name;
-              } else if (component.types.includes("neighborhood")) {
+              } else if (component.types.includes("sublocality_level_1")) {
                 mapData.city = component.long_name;
               } else if (
                 component.types.includes("administrative_area_level_1")

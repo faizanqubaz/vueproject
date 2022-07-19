@@ -650,7 +650,7 @@ export default Vue.extend({
         const api = new OMSApi();
         const address = {
           ...this.autocompleteAddress,
-          apartment: this.newAddress.apartment,
+          apartment: this.newAddress.apartment ? this.newAddress.apartment : "",
           primary: this.newAddress.primary || false,
           guardianId: null,
           patientId: null,
@@ -678,6 +678,8 @@ export default Vue.extend({
       }
     },
     closeUpdateAddressDialog(id) {
+      this.autocompleteAddress = {}
+      this.newAddress = {}
       this.updatedAddress[id] = false;
     },
     setDelete() {
@@ -700,15 +702,6 @@ export default Vue.extend({
       this.updatedAddress.apartment = props.apartment;
       this.updatedAddress.primary = props.primary;
       this.$set(this.updatedAddress, props.id, true);
-    },
-    getUpdateAddressData(addressData, placeResultData) {
-      this.updatedAddress.street = addressData.name;
-      this.updatedAddress.city =
-        placeResultData.formatted_address.split(",")[1];
-      this.updatedAddress.state = addressData.administrative_area_level_1;
-      this.updatedAddress.zipCode = addressData.postal_code;
-      this.updatedAddress.longitude = addressData.longitude;
-      this.updatedAddress.latitude = addressData.latitude;
     },
     async updateAddress() {
       this.saveLoading = true;
@@ -950,7 +943,7 @@ export default Vue.extend({
       if (!newVal) {
         this.$refs.addServiceForm.reset();
       }
-    },
+    }
   },
 });
 </script>
