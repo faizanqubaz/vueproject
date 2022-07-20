@@ -747,8 +747,8 @@
                     <v-col
                       v-if="
                         hover &&
-                        visitDetails.status != 'canceled' &&
-                        visitDetails.status != 'completed'
+                        (visitDetails.status === 'booked' ||
+                          visitDetails.status === 'assigned')
                       "
                     >
                       <div class="text-right">
@@ -859,7 +859,7 @@
             <v-toolbar dark color="primary">
               <v-toolbar-title
                 >{{
-                  visitDetails.provider ? "Assign" : "Add"
+                  visitDetails.provider ? "Reassign" : "Assign"
                 }}
                 Provider</v-toolbar-title
               >
@@ -869,7 +869,23 @@
               </v-btn>
             </v-toolbar>
           </v-card-title>
-          <v-card-text class="pt-4">
+          <v-card-text>
+            <v-card-title>
+              <span class="primary--text">Provider</span>
+              <v-spacer />
+              <div class="text-right">
+                <v-btn
+                  :loading="isLoadingUnassign"
+                  v-show="visitDetails.provider"
+                  depressed
+                  color="error"
+                  class="ml-2"
+                  @click="unassignProvider()"
+                >
+                  Unassign
+                </v-btn>
+              </div>
+            </v-card-title>
             <v-data-table
               :headers="headers"
               :footer-props="{
@@ -880,23 +896,18 @@
               :loading="loading"
               loading-text="Loading Providers..."
               item-key="_id"
-              class="elevation-1 pa-3"
               mobile-breakpoint="0"
             >
               <template v-slot:top>
-                <v-row align="center">
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="search"
-                      prepend-icon="mdi-magnify"
-                      label="Search"
-                      single-line
-                      hide-details
-                      clearable
-                      class="pa-0 ma-0"
-                    />
-                  </v-col>
-                </v-row>
+                <v-text-field
+                  v-model="search"
+                  prepend-icon="mdi-magnify"
+                  label="Search"
+                  single-line
+                  hide-details
+                  clearable
+                  class="pa-0 ma-0"
+                />
               </template>
               <template v-slot:[`item.name`]="props">
                 <span>
@@ -905,13 +916,25 @@
               </template>
               <template v-slot:[`item.actions`]="props">
                 <v-btn
-                  :loading="isUpdatePatient"
+                  v-if="
+                    visitDetails.provider &&
+                    visitDetails.provider.id === props.item.id
+                  "
+                  :loading="isLoadingAssign === props.item.id"
                   depressed
                   color="primary"
-                  @click="saveProvider(props.item)"
-                  class="mr-2"
+                  disabled
                 >
-                  {{ visitDetails.provider ? "Assign" : "Add" }}
+                  Assigned
+                </v-btn>
+                <v-btn
+                  v-else
+                  :loading="isLoadingAssign === props.item.id"
+                  depressed
+                  color="primary"
+                  @click="assignProvider(props.item)"
+                >
+                  {{ visitDetails.provider ? "Reassign" : "Assign" }}
                 </v-btn>
               </template>
             </v-data-table>
@@ -1075,6 +1098,8 @@ export default Vue.extend({
         {
           text: "Actions",
           value: "actions",
+          align: "center",
+          width: "148px",
           sortable: false,
         },
       ],
@@ -1085,6 +1110,8 @@ export default Vue.extend({
       },
       providerCoordinates: null,
       refreshCount: 0,
+      isLoadingUnassign: false,
+      isLoadingAssign: null,
     };
   },
   watch: {
@@ -1157,6 +1184,56 @@ export default Vue.extend({
         console.error(error);
       } finally {
         this.loading = false;
+      }
+    },
+    async assignProvider(props) {
+      try {
+        this.isLoadingAssign = props.id;
+        const api = new OMSApi();
+        const payload = {
+          providerId: props.id,
+        };
+        const response = await api.assignVisit(this.visitDetails.id, payload);
+        if (response) {
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          this.$root.snackbar.show({
+            message: "Provider Assigned",
+            type: "success",
+          });
+          this.providerDialog = false;
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to assign provider",
+          type: "error",
+        });
+      } finally {
+        this.isLoadingAssign = null;
+      }
+    },
+    async unassignProvider() {
+      try {
+        this.isLoadingUnassign = true;
+        const api = new OMSApi();
+        const payload = {
+          providerId: this.visitDetails.provider.id,
+        };
+        const response = await api.unassignVisit(this.visitDetails.id, payload);
+        if (response) {
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          this.$root.snackbar.show({
+            message: "Provider Unassigned",
+            type: "success",
+          });
+          this.providerDialog = false;
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to unassign provider",
+          type: "error",
+        });
+      } finally {
+        this.isLoadingUnassign = false;
       }
     },
     async saveProvider(props) {
