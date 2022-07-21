@@ -356,6 +356,69 @@
     </v-row>
     <!-- end patient -->
 
+    <v-row v-show="patientCard.token">
+      <v-col class="py-0">
+        <v-card class="mb-6 pb-10">
+          <v-row>
+            <v-col>
+              <v-card-title>
+                <v-row align="center" style="height: 64px">
+                  <v-col
+                    >
+                    <span class="primary--text">Payment</span>
+                  </v-col>
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col sm="12" md="6">
+                    <v-row v-show="patientCard.token">
+                      <v-col cols="5" class="pb-0">Card Number</v-col>
+                      <v-col cols="7" class="pb-0">
+                        <v-row>
+                          <v-col class="pr-0" cols="1"> : </v-col>
+                          <v-col class="pl-0" cols="10">
+                            {{ patientCard.cardNumber }}
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols="5" class="pb-0">Card Type</v-col>
+                      <v-col cols="7" class="pb-0">
+                        <v-row>
+                          <v-col class="pr-0" cols="1">:</v-col>
+                          <v-col class="pl-0" cols="10">
+                            {{ patientCard.cardType }}
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols="5" class="pb-0">Expiration</v-col>
+                      <v-col cols="7" class="pb-0">
+                        <v-row>
+                          <v-col class="pr-0" cols="1">:</v-col>
+                          <v-col class="pl-0" cols="10">
+                            {{ patientCard.expiration }}
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols="5" class="pb-0">Zip Code</v-col>
+                      <v-col cols="7" class="pb-0">
+                        <v-row>
+                          <v-col class="pr-0" cols="1">:</v-col>
+                          <v-col class="pl-0" cols="10">
+                            {{ patientCard.zipCode }}
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <!-- visit -->
     <v-row v-if="visitDetails">
       <v-col class="py-0">
@@ -985,7 +1048,7 @@ import phone from "phone";
 import email from "email-validator";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
-import { States, VisitStatuses } from "@/utils";
+import { EllipsisMiddle, States, VisitStatuses } from "@/utils";
 import DatePicker from "@/components/DatePicker.vue";
 import Confirmation from "@/components/Confirmation.vue";
 
@@ -1002,6 +1065,7 @@ export default Vue.extend({
     await this.getProviders();
     await this.getServices();
     await this.getProviderCoordinates();
+    await this.getPatientCard();
     this.$store.commit("SET_LOADING", false);
   },
   data() {
@@ -1050,6 +1114,9 @@ export default Vue.extend({
         memo: null,
       },
       patientNote: false,
+      patientCard: {},
+      showToken: false,
+      showCVV: false,
       visitForm: {
         date: null,
         scheduledStartTime: null,
@@ -1343,7 +1410,45 @@ export default Vue.extend({
         this.cancelLoading = false;
       }
     },
-
+    async getPatientCard() {
+      this.loading = true;
+      try {
+        const api = new OMSApi();
+        const response = await api.getPatientCard(this.visitDetails.patient.id);
+        // const response = {
+        //   message: "",
+        //   result: {
+        //     token:
+        //       "9000000000009123;sut_02_1_cc_visa_01_20220629T141052Z_7200_hf-jrfg-2_3f09a495b75049058b3758f2b8b3a4b0_10b5b74ca7abfd59163b3fc7ff27989c35de7208eae1af0b108cf1f18033a354",
+        //     cvv: "000;sut_02_1_cvv_01_20220629T141052Z_7200_hf-jrfg-2_0f5074d38c8c4855aec4b44a19e3b0fb_a9d8ecf9b564d47a8fb4d55dcb7c75692229e430b079b7ce8ae9df6364bf8945",
+        //     zipCode: "55175",
+        //     expiration: "12/2024",
+        //     lastFour: "9123",
+        //   },
+        // };
+        this.patientCard = {
+          cardNumber: `xxxx xxxx xxxx ${response.result.lastFour}`,
+          cardType: this.getPatientCardType(response.result.token),
+          ...response.result,
+        };
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    getPatientCardType(token) {
+      const parsed = token.split(";");
+      const type = parsed[1];
+      switch (true) {
+        case type.includes("mastercard"):
+          return "Master Card";
+        case type.includes("visa"):
+          return "Visa";
+        default:
+          return "Unknown";
+      }
+    },
     setEditPatient() {
       this.patientForm.firstName = this.visitDetails.patient.firstName;
       this.patientForm.lastName = this.visitDetails.patient.lastName;
@@ -1640,6 +1745,9 @@ export default Vue.extend({
       if (!date) return null;
       const [month, day, year] = date.split("/");
       return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    },
+    ellipsisString(string) {
+      return EllipsisMiddle(string);
     },
   },
   beforeDestroy() {

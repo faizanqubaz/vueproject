@@ -155,6 +155,26 @@ export interface PatientsResponse {
     totalRecords: number;
   }[];
 }
+
+export interface PatientCard {
+  id: number;
+  token: string;
+  cvv: string;
+  lastFour: string;
+  expiration: string;
+  zipCode: string;
+}
+
+export interface PatientCardResponse {
+  message: string;
+  result: {
+    data: Patient[];
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalRecords: number;
+  }[];
+}
 export interface PatientsDetailsResponse {
   message: string;
   result: Patient;
@@ -1221,6 +1241,23 @@ export default class OMSApi extends HttpClient {
     }
   }
 
+  async getPatientCard(id: number): Promise<PatientCardResponse> {
+    const url = `patients/${id}/card`;
+    try {
+      const response: AxiosResponse<PatientCardResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async addPatients(payload: PatientPayload): Promise<PatientsResponse> {
     const url = "patients";
     try {
@@ -1275,9 +1312,7 @@ export default class OMSApi extends HttpClient {
     }
   }
 
-  async getServiceTimeSlots(
-    params: ServiceParams
-  ): Promise<ServiceTimeSlotsResponse> {
+  async getServiceTimeSlots(): Promise<ServiceTimeSlotsResponse> {
     const url = "service-time-slots?limit=150";
     try {
       const response: AxiosResponse<ServiceTimeSlotsResponse> =

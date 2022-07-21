@@ -1,5 +1,11 @@
-import Vue from "vue";
 import phone from "phone";
+
+export const EllipsisMiddle = (str: string): string => {
+  if (str && str.length > 35) {
+    return str.substr(0, 15) + "..." + str.substr(str.length - 10, str.length);
+  }
+  return str;
+};
 
 export const FormRules = {
   required: [(v: string): string | boolean => !!v || "This field is required"],
