@@ -246,7 +246,7 @@
                       <v-btn
                         color="primary"
                         :loading="visitLoading"
-                        @click="addAddress"
+                        @click="newAddress.street ? (stepNumber = 2) : ''"
                       >
                         Continue
                       </v-btn>
@@ -330,7 +330,11 @@
                       <v-btn
                         color="primary"
                         :loading="visitLoading"
-                        @click="addPatient"
+                        @click="
+                          $refs.addPatientForm.validate()
+                            ? (stepNumber = 3)
+                            : ''
+                        "
                       >
                         Continue
                       </v-btn>
@@ -639,8 +643,6 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        // this.snackbar.message = "Failed to get providers list";
-        // this.snackbar.active = true;
       } finally {
         this.isLoadingFilter = false;
       }
@@ -648,6 +650,10 @@ export default Vue.extend({
     async addVisit() {
       try {
         this.isSubmitting = true;
+        this.$store.commit("SET_LOADING", true);
+        await this.addAddress();
+        await this.addPatient();
+
         const api = new OMSApi();
         let params = {
           date: moment(this.visitDate).format("YYYY-MM-DD"),
@@ -670,6 +676,7 @@ export default Vue.extend({
         this.snackbar.active = true;
       } finally {
         this.isSubmitting = false;
+        this.$store.commit("SET_LOADING", false);
       }
     },
     async checkAddress() {
@@ -712,16 +719,12 @@ export default Vue.extend({
       this.checkAddress();
     },
     async addAddress() {
-      if (!this.newAddress.street) {
-        return;
-      }
-      this.visitLoading = true;
       try {
         const api = new OMSApi();
         const response = await api.createAddress(this.newAddress);
         if (response) {
           this.addFormValues.addressId = response.result.id;
-          this.stepNumber = 2;
+          // this.stepNumber = 2;
         }
       } catch (error) {
         this.saveLoading = false;
@@ -729,15 +732,9 @@ export default Vue.extend({
           message: "Failed to add address",
           type: "error",
         });
-      } finally {
-        this.visitLoading = false;
       }
     },
     async addPatient() {
-      if (!this.$refs.addPatientForm.validate()) {
-        return;
-      }
-      this.visitLoading = true;
       try {
         const api = new OMSApi();
         const phone = "+1" + this.patientForm.phone;
@@ -749,7 +746,6 @@ export default Vue.extend({
         const response = await api.addPatients(patientForm);
         if (response) {
           this.addFormValues.patientId = response.result.id;
-          this.stepNumber = 3;
         }
       } catch (error) {
         this.saveLoading = false;
@@ -757,21 +753,15 @@ export default Vue.extend({
           message: "Failed to add patient",
           type: "error",
         });
-      } finally {
-        this.visitLoading = false;
       }
     },
     addService() {
-      // this.addFormValues.serviceId.id
       if (!this.$refs.addServiceForm.validate()) {
         return;
       }
       this.serviceTimeSlots = this.serviceTimeSlots.filter((res) => {
         return res.service.id == this.addFormValues.serviceId.id;
       });
-      // this.stateCheck.filter((res) => {
-      //   return res.service.id == this.addFormValues.serviceId.id;
-      // });
       this.stepNumber = 4;
     },
     closeAddDialog() {
