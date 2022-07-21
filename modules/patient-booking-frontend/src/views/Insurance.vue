@@ -51,7 +51,7 @@ export default Vue.extend({
   },
   computed: {
     isValid (): boolean {
-      return !!this.insuranceFront.string && !!this.insuranceBack.string
+      return !!this.insuranceFront.file && !!this.insuranceBack.file
     }
   },
   methods: {
