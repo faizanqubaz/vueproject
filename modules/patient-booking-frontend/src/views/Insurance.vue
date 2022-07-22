@@ -36,6 +36,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { isEmpty } from 'lodash'
 
 interface InsuranceFile {
   file: File[];
@@ -51,7 +52,7 @@ export default Vue.extend({
   },
   computed: {
     isValid (): boolean {
-      return !!this.insuranceFront.file && !!this.insuranceBack.file
+      return this.insuranceFront && !isEmpty(this.insuranceFront.file) && this.insuranceBack && !isEmpty(this.insuranceBack.file)
     }
   },
   methods: {
