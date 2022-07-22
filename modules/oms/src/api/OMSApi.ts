@@ -164,16 +164,18 @@ export interface PatientCard {
   expiration: string;
   zipCode: string;
 }
-
 export interface PatientCardResponse {
   message: string;
-  result: {
-    data: Patient[];
-    currentPage: number;
-    limit: number;
-    totalPages: number;
-    totalRecords: number;
-  }[];
+  result: PatientCard[];
+}
+export interface PatientInsurance {
+  id: number;
+  front: string;
+  back: string;
+}
+export interface PatientInsuranceResponse {
+  message: string;
+  result: PatientInsurance[];
 }
 export interface PatientsDetailsResponse {
   message: string;
@@ -1245,6 +1247,42 @@ export default class OMSApi extends HttpClient {
     const url = `patients/${id}/card`;
     try {
       const response: AxiosResponse<PatientCardResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getPatientInsuranceFront(
+    id: number
+  ): Promise<PatientInsuranceResponse> {
+    const url = `patients/${id}/insurance/front`;
+    try {
+      const response: AxiosResponse<PatientInsuranceResponse> =
+        await this.instance.get(url);
+      const { status } = response;
+      if (status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        return Promise.reject(new Error());
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getPatientInsuranceBack(id: number): Promise<PatientInsuranceResponse> {
+    const url = `patients/${id}/insurance/back`;
+    try {
+      const response: AxiosResponse<PatientInsuranceResponse> =
         await this.instance.get(url);
       const { status } = response;
       if (status === 200) {

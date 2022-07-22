@@ -356,7 +356,7 @@
     </v-row>
     <!-- end patient -->
 
-    <v-row v-show="patientCard.token">
+    <v-row v-show="patientInsurance.front">
       <v-col class="py-0">
         <v-card class="mb-6 pb-10">
           <v-row>
@@ -364,7 +364,51 @@
               <v-card-title>
                 <v-row align="center" style="height: 64px">
                   <v-col
-                    >
+                    ><span class="primary--text">Insurance</span>
+                  </v-col>
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col sm="12" md="12">
+                    <v-row>
+                      <v-col cols="4">
+                        <v-img
+                          class="hover-pointer"
+                          @click="showInsuranceDialog(patientInsurance.front)"
+                          max-height="250px"
+                          :src="patientInsurance.front"
+                        />
+                      </v-col>
+                      <v-col cols="4">
+                        <v-img
+                          class="hover-pointer"
+                          @click="showInsuranceDialog(patientInsurance.back)"
+                          max-height="250px"
+                          :src="patientInsurance.back"
+                        />
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-col>
+          </v-row>
+        </v-card>
+        <v-dialog v-model="insuranceDialog" max-width="800px" scrollable>
+          <v-img max-width="100%" :src="insuranceDialogImg" />
+        </v-dialog>
+      </v-col>
+    </v-row>
+
+    <v-row v-show="patientCard.token">
+      <v-col class="py-0">
+        <v-card class="mb-6 pb-10">
+          <v-row>
+            <v-col>
+              <v-card-title>
+                <v-row align="center" style="height: 64px">
+                  <v-col>
                     <span class="primary--text">Payment</span>
                   </v-col>
                 </v-row>
@@ -1046,6 +1090,7 @@ import moment from "moment";
 import "moment-timezone";
 import phone from "phone";
 import email from "email-validator";
+import { isEmpty } from "lodash";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
 import { EllipsisMiddle, States, VisitStatuses } from "@/utils";
@@ -1065,7 +1110,6 @@ export default Vue.extend({
     await this.getProviders();
     await this.getServices();
     await this.getProviderCoordinates();
-    await this.getPatientCard();
     this.$store.commit("SET_LOADING", false);
   },
   data() {
@@ -1115,6 +1159,7 @@ export default Vue.extend({
       },
       patientNote: false,
       patientCard: {},
+      patientInsurance: {},
       showToken: false,
       showCVV: false,
       visitForm: {
@@ -1176,6 +1221,8 @@ export default Vue.extend({
         lng: 0,
       },
       providerCoordinates: null,
+      insuranceDialog: false,
+      insuranceDialogImg: null,
       refreshCount: 0,
       isLoadingUnassign: false,
       isLoadingAssign: null,
@@ -1209,6 +1256,14 @@ export default Vue.extend({
     },
   },
   methods: {
+    showInsuranceDialog(insuranceImg) {
+      this.insuranceDialog = true;
+      this.insuranceDialogImg = insuranceImg;
+    },
+    hideInsuranceDialog() {
+      this.insuranceDialog = false;
+      this.insuranceDialogImg = null;
+    },
     setProviderCoordinatesTimer() {
       if (
         this.visitDetails.status !== "booked" &&
@@ -1366,6 +1421,12 @@ export default Vue.extend({
             );
           });
 
+          if (res.result.price) {
+            this.getPatientCard();
+          } else {
+            this.getPatientInsurance();
+          }
+
           this.timeZoneAddress =
             this.timeZone && this.timeZone.length > 0
               ? this.timeZone[0].timeZone
@@ -1410,22 +1471,35 @@ export default Vue.extend({
         this.cancelLoading = false;
       }
     },
+    async getPatientInsurance() {
+      this.loading = true;
+      try {
+        const api = new OMSApi();
+        const responseFront = await api.getPatientInsuranceFront(
+          this.visitDetails.patient.id
+        );
+        const responseBack = await api.getPatientInsuranceBack(
+          this.visitDetails.patient.id
+        );
+        this.patientInsurance = {
+          front: responseFront,
+          back: responseBack,
+        };
+      } catch (error) {
+        console.error(error);
+        this.$root.snackbar.show({
+          message: "Failed to get payment information",
+          type: "error",
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
     async getPatientCard() {
       this.loading = true;
       try {
         const api = new OMSApi();
         const response = await api.getPatientCard(this.visitDetails.patient.id);
-        // const response = {
-        //   message: "",
-        //   result: {
-        //     token:
-        //       "9000000000009123;sut_02_1_cc_visa_01_20220629T141052Z_7200_hf-jrfg-2_3f09a495b75049058b3758f2b8b3a4b0_10b5b74ca7abfd59163b3fc7ff27989c35de7208eae1af0b108cf1f18033a354",
-        //     cvv: "000;sut_02_1_cvv_01_20220629T141052Z_7200_hf-jrfg-2_0f5074d38c8c4855aec4b44a19e3b0fb_a9d8ecf9b564d47a8fb4d55dcb7c75692229e430b079b7ce8ae9df6364bf8945",
-        //     zipCode: "55175",
-        //     expiration: "12/2024",
-        //     lastFour: "9123",
-        //   },
-        // };
         this.patientCard = {
           cardNumber: `xxxx xxxx xxxx ${response.result.lastFour}`,
           cardType: this.getPatientCardType(response.result.token),
@@ -1433,6 +1507,10 @@ export default Vue.extend({
         };
       } catch (error) {
         console.error(error);
+        this.$root.snackbar.show({
+          message: "Failed to get payment information",
+          type: "error",
+        });
       } finally {
         this.loading = false;
       }
@@ -1760,5 +1838,9 @@ export default Vue.extend({
 .v-chip .v-chip__content {
   width: 100% !important;
   justify-content: center !important;
+}
+
+.hover-pointer {
+  cursor: pointer;
 }
 </style>

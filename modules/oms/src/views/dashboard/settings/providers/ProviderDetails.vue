@@ -849,7 +849,6 @@ export default Vue.extend({
       }
     },
     setDeleteService(props) {
-      console.log("Hereee", props);
       this.deletedService.id = props.id;
       this.deletedService.service = props.serviceName;
       this.deleteData.text = props.serviceName;
