@@ -1685,7 +1685,7 @@ export default Vue.extend({
                   .format()
               : moment(this.visitForm.checkOutTime).format()
             : null,
-          date: moment(this.visitForm.date).format("YYYY-MM-DD"),
+          date: moment(this.visitForm.date).startOf("day").toISOString(),
           payment: parseFloat(this.visitForm.payment),
           serviceId: this.visitForm.serviceId,
           scheduledEndTime: this.visitForm.scheduledEndTime,
