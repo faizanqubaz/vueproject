@@ -109,6 +109,7 @@ export default Vue.extend({
   },
   methods: {
     async createAccount () {
+      this.$store.commit('setLoading', true)
       this.$store.commit('setFirstName', this.firstName)
       this.$store.commit('setLastName', this.lastName)
       this.$store.commit('setEmail', this.email)
@@ -126,9 +127,12 @@ export default Vue.extend({
         await bookingApiClient.createAccount(account)
         this.$router.push('/login')
       } catch (error) {
+        console.log('error', error.response)
         this.snackbar.message = error.response && error.response.data && error.response.data.error
-          ? error.response.data.error : 'Sorry, something went wrong, please try again.'
+          ? (error.response.data.message && error.response.data.message.length > 0 ? error.response.data.message[0] : error.response.data.error) : 'Sorry, something went wrong, please try again.'
         this.snackbar.open = true
+      } finally {
+        this.$store.commit('setLoading', false)
       }
     }
   },

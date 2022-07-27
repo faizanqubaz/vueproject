@@ -10,6 +10,8 @@
       "
       v-model="inputVal"
       @keyup="rulesChecker"
+      @keypress="$emit('keypress', $event)"
+      @blur="$emit('blur')"
       ref="refInput"
     />
     <div class="bodySmall text-red" v-show="errorMessage">

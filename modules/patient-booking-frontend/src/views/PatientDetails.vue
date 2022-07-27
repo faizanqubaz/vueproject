@@ -11,6 +11,8 @@
         <wz-form
           class="py-7 grid md:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-x-5 gap-y-3"
           autocomplete="on"
+          v-model="isDetailsValid"
+          ref="patientDetailsForm"
         >
         <wz-input
           icon="user"
@@ -40,6 +42,7 @@
           :rules="phoneRules"
           :error="false"
           errorMessage=""
+          @keypress="onlyNumber"
         />
         <wz-select
           v-model="gender"
@@ -120,7 +123,8 @@ export default Vue.extend({
       emailRules: [
         (emailAddress: string) => !!emailAddress || 'Email is required',
         (emailAddress: string) => (emailAddress && email.validate(emailAddress)) || 'Email address is invalid'
-      ]
+      ],
+      isDetailsValid: false
     }
   },
   beforeMount () {
@@ -130,6 +134,11 @@ export default Vue.extend({
     this.gender = this.$store.getters.gender
     this.dob = this.$store.getters.dob
     this.email = this.$store.getters.email
+  },
+  mounted () {
+    if (this.firstName && this.lastName && this.phoneNumber && this.gender && this.dob && this.email) {
+      this.$refs.patientDetailsForm.validate()
+    }
   },
   methods: {
     proceed () {
@@ -150,16 +159,12 @@ export default Vue.extend({
       } else if (this.isDetailsValid) {
         this.$router.push('/review-appointment')
       }
-    }
-  },
-  computed: {
-    isDetailsValid (): boolean {
-      return !!this.firstName &&
-        !!this.lastName &&
-        !!this.phoneNumber &&
-        !!this.gender &&
-        this.dob !== null &&
-        !!this.email
+    },
+    onlyNumber (event:any) {
+      const keyCode = event.keyCode ? event.keyCode : event.which
+      if (keyCode < 48 || keyCode > 57) {
+        event.preventDefault()
+      }
     }
   }
 })

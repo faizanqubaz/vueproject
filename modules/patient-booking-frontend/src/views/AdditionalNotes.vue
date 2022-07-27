@@ -18,8 +18,10 @@
           :error="false"
           errorMessage=""
           class=""
+          @keypress="checkLength"
+          @blur="checkLength"
           />
-          <br>
+        <div class="text-right text-xs mb-4">{{notes.length}}/2000</div>
         <div class="pt-0">
           <wz-button color="primary" block @click="proceed">
             <p class="text-white">Proceed</p>
@@ -35,7 +37,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import Vue from 'vue'
 export default Vue.extend({
   data () {
@@ -43,15 +45,20 @@ export default Vue.extend({
       notes: ''
     }
   },
-  beforeMount () {
-    this.notes = this.$store.getters.notes
-  },
   methods: {
     proceed () {
       if (this.notes !== this.$store.getters.notes) {
         this.$store.commit('setNotes', this.notes)
       }
       this.$router.push('/timeslots')
+    },
+    checkLength (event) {
+      if (this.notes.length >= 2000) {
+        this.notes = this.notes.substring(0, 2000)
+        if (event) {
+          event.preventDefault()
+        }
+      }
     }
   }
 })

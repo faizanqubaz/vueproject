@@ -24,14 +24,14 @@
           <div class="grid grid-cols-12">
             <div class="">:</div>
             <div class="col-span-11">
-              <div class="">
+              <div class="break-words">
                 {{ $store.getters.firstName }} {{ $store.getters.lastName }}
               </div>
 
               <div class="">{{ printDate($store.getters.dob) }}</div>
               <div class="">{{ $store.getters.gender }}</div>
               <div class="">{{ $store.getters.phoneNumber }}</div>
-              <div class="">{{ $store.getters.email }}</div>
+              <div class="break-words">{{ $store.getters.email }}</div>
             </div>
           </div>
           <div class="font-semibold">Address</div>
@@ -66,7 +66,7 @@
             <div class="">:</div>
             <div class="col-span-11">
               <div class="">{{ $store.getters.serviceName }}</div>
-              <div class="" v-if="$store.getters.notes">
+              <div class="break-words" v-if="$store.getters.notes">
                 {{ $store.getters.notes }}
               </div>
             </div>
@@ -184,7 +184,7 @@ export default Vue.extend({
         this.$store.commit('setVisitId', response.result.id)
         this.$router.push('/confirmation')
       } catch (error) {
-        this.snackbar.message = 'Sorry, something went wrong, please try again.'
+        this.snackbar.message = error.response.data.message[0]
         this.snackbar.open = true
       } finally {
         this.$store.commit('setLoading', false)

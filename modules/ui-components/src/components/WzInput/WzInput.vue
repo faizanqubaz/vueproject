@@ -24,6 +24,7 @@
         @blur="focus = false"
         v-model="inputVal"
         @keyup="rulesChecker"
+        @keypress="$emit('keypress', $event)"
       />
     </div>
     <div class="bodySmall text-red" v-show="errorMessage">

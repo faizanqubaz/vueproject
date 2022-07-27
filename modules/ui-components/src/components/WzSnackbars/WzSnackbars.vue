@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute left-0 right-0 bottom-5 flex items-center justify-center"
+    class="fixed left-0 right-0 bottom-5 flex items-center justify-center"
     v-show="inputVal"
     :class="
       inputVal

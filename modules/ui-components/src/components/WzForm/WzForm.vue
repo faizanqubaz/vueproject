@@ -80,15 +80,6 @@ export default {
       return true
     },
     updateValue(i) {
-      if (
-        this.$children[i].errorMessage ||
-        this.$children[i].checkboxVal === false ||
-        this.$children[i].checkboxVal === null
-      ) {
-        this.$emit('input', false)
-        return false
-      }
-
       // check if all component is filled
       let refCheck = this.$children.filter((el, index) => {
         return (
@@ -100,32 +91,42 @@ export default {
         )
       })
 
-      let valCheck = this.$children.filter((el, index) => {
-        if (
-          el.$refs.refInput &&
-          el.$options._componentTag !== 'wz-checkbox' &&
-          el.$options._componentTag !== 'wz-radio-button'
-        ) {
-          return (
-            el.$refs.refInput.value &&
-            (el.required ||
-              (typeof el.rules !== 'undefined' && el.rules.length > 0) ||
-              el.$options._componentTag === 'wz-checkbox' ||
-              el.$options._componentTag === 'wz-radio-button')
-          )
-        } else {
-          if (typeof el.value !== 'undefined' && el.value.length > 0) {
-            return el.value
+      setTimeout(() => {
+        let valCheck = this.$children.filter((el, index) => {
+          if (
+            el.$refs.refInput &&
+            el.$options._componentTag !== 'wz-checkbox' &&
+            el.$options._componentTag !== 'wz-radio-button'
+          ) {
+            return (
+              el.$refs.refInput.value &&
+              (el.required ||
+                (typeof el.rules !== 'undefined' &&
+                  el.rules.length > 0 &&
+                  el.errorMessage === null) ||
+                el.$options._componentTag === 'wz-checkbox' ||
+                el.$options._componentTag === 'wz-radio-button')
+            )
+          } else {
+            if (typeof el.value !== 'undefined' && el.value.length > 0) {
+              return el.value
+            }
           }
+        })
+        if (
+          this.$children[i].errorMessage ||
+          this.$children[i].checkboxVal === false ||
+          this.$children[i].checkboxVal === null
+        ) {
+          this.$emit('input', false)
+          return false
         }
-      })
+        if (refCheck.length === valCheck.length) {
+          this.$emit('input', true)
+        }
+      }, 100)
 
       // pass validation
-      if (refCheck.length === valCheck.length) {
-        this.$emit('input', true)
-      } else {
-        this.$emit('input', false)
-      }
     }
   }
 }

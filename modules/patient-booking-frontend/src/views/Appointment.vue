@@ -211,8 +211,11 @@ export default Vue.extend({
         this.fromBack = false
         return
       }
-
       if (newValue) {
+        if (!this.autocomplete) {
+          this.initMap()
+          return
+        }
         this.autocomplete.getPlacePredictions(
           { input: this.location.address, componentRestrictions: { country: 'us' } },
           this.displaySuggestions
