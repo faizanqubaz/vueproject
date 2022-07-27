@@ -27,7 +27,7 @@
         <div class="absolute right-4 top-4">
           <div
             class="w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
-            @click.stop=";(preview = null), (img = null), (errorMessage = '')"
+            @click.stop=";(preview = null), (img = {}), (errorMessage = '')"
           >
             <wz-icon name="close" color="red" />
           </div>
@@ -73,24 +73,23 @@ export default {
     },
 
     createBase64(file) {
+      this.preview = null
+
       const reader = new FileReader()
       reader.readAsDataURL(file)
-      reader.onload = (e) => {
-        this.preview = e.target.result
-        this.img = {
-          ...this.img,
-          string: e.target.result
-        }
-      }
 
-      const maxSize = 5000000 // 5 MB
+      const maxSize = 10000000 // 10 MB
       if (file.size > maxSize) {
-        this.errorMessage = 'File cannot be larger than 5 MB'
-        this.img = null
+        this.errorMessage = 'File cannot be larger than 10 MB'
+        this.img = {}
+        this.preview = null
       } else {
-        this.img = {
-          ...this.img,
-          file
+        reader.onload = (e) => {
+          this.preview = e.target.result
+          this.img = {
+            file,
+            string: e.target.result
+          }
         }
       }
     }

@@ -42,6 +42,7 @@ export default Vue.extend({
       ],
       phoneNumber: '',
       phoneError: false
+      insuranceFront: {}
     }
   },
 })
@@ -62,6 +63,7 @@ export default Vue.extend({
         </template>
 
       </wz-menu>
+      <wz-upload v-model="insuranceFront" />
       <div class="grid grid-cols-2 gap-4 my-4">
         <wz-service-card color="gray-300" v-model="service" itemKey="satu">
           <template>

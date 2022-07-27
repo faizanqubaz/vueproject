@@ -1,6 +1,7 @@
 <template>
   <button
     class="px-md py-2 rounded transition duration-100 ease-in-out"
+    :disabled="disabled"
     :class="[
       block ? 'w-full' : '',
       disabled

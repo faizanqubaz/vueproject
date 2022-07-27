@@ -21,7 +21,9 @@
         </wz-upload>
       </div>
       <div class="pt-8">
-        <wz-button color="primary" block :disabled="!isValid" @click="proceed">
+        <wz-button color="primary" block
+        :disabled="!insuranceFront.file || !insuranceBack.file"
+        @click="proceed">
           <p class="text-white">Proceed</p>
         </wz-button>
       </div>
@@ -36,7 +38,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { isEmpty } from 'lodash'
 
 interface InsuranceFile {
   file: File[];
@@ -50,21 +51,14 @@ export default Vue.extend({
       insuranceBack: {} as InsuranceFile
     }
   },
-  computed: {
-    isValid (): boolean {
-      return this.insuranceFront && !isEmpty(this.insuranceFront.file) && this.insuranceBack && !isEmpty(this.insuranceBack.file)
-    }
-  },
   methods: {
     proceed () {
-      if (this.isValid) {
-        const insurance = {
-          front: this.insuranceFront.string,
-          back: this.insuranceBack.string
-        }
-        this.$store.commit('setInsuranceInfo', insurance)
-        this.$router.push('/review-appointment')
+      const insurance = {
+        front: this.insuranceFront.string,
+        back: this.insuranceBack.string
       }
+      this.$store.commit('setInsuranceInfo', insurance)
+      this.$router.push('/review-appointment')
     }
   }
 })
