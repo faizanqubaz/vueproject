@@ -1,3 +1,4 @@
+import moment from "moment";
 import phone from "phone";
 
 export const EllipsisMiddle = (str: string): string => {
@@ -5,6 +6,15 @@ export const EllipsisMiddle = (str: string): string => {
     return str.substr(0, 15) + "..." + str.substr(str.length - 10, str.length);
   }
   return str;
+};
+
+export const ToISODateString = (date: string): string => {
+  const timezoneOffset = moment(date).utcOffset();
+  return moment(date)
+    .utc()
+    .add(timezoneOffset, "minutes")
+    .startOf("day")
+    .toISOString();
 };
 
 export const FormRules = {

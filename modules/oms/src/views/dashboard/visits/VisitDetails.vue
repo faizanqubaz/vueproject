@@ -363,9 +363,7 @@
             <v-col>
               <v-card-title>
                 <v-row align="center" style="height: 64px">
-                  <v-col
-                    ><span class="primary--text">Insurance</span>
-                  </v-col>
+                  <v-col><span class="primary--text">Insurance</span> </v-col>
                 </v-row>
               </v-card-title>
               <v-card-text>
@@ -1090,10 +1088,14 @@ import moment from "moment";
 import "moment-timezone";
 import phone from "phone";
 import email from "email-validator";
-import { isEmpty } from "lodash";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
-import { EllipsisMiddle, States, VisitStatuses } from "@/utils";
+import {
+  EllipsisMiddle,
+  States,
+  VisitStatuses,
+  ToISODateString,
+} from "@/utils";
 import DatePicker from "@/components/DatePicker.vue";
 import Confirmation from "@/components/Confirmation.vue";
 
@@ -1685,7 +1687,7 @@ export default Vue.extend({
                   .format()
               : moment(this.visitForm.checkOutTime).format()
             : null,
-          date: moment(this.visitForm.date).startOf("day").toISOString(),
+          date: ToISODateString(this.visitForm.date),
           payment: parseFloat(this.visitForm.payment),
           serviceId: this.visitForm.serviceId,
           scheduledEndTime: this.visitForm.scheduledEndTime,

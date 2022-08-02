@@ -449,7 +449,7 @@ import email from "email-validator";
 import phone from "phone";
 import moment from "moment";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
-import { VisitStatuses } from "@/utils";
+import { VisitStatuses, ToISODateString } from "@/utils";
 import DatePicker from "@/components/DatePicker.vue";
 
 export default Vue.extend({
@@ -741,7 +741,7 @@ export default Vue.extend({
         const patientForm = {
           ...this.patientForm,
           phone,
-          dob: moment(this.patientForm.dob).format("YYYY-MM-DD"),
+          dob: ToISODateString(this.patientForm.dob),
         };
         const response = await api.addPatients(patientForm);
         if (response) {
@@ -820,9 +820,6 @@ export default Vue.extend({
       );
       return isFilterActive;
     },
-    dateFormat(date) {
-      return moment(date).format("MM/DD/YYYY");
-    },
   },
   watch: {
     options: {
@@ -832,8 +829,6 @@ export default Vue.extend({
       deep: true,
     },
     visitDate(val) {
-      console.log("val", val);
-      console.log("val", this.serviceTimeSlots);
       let newDate = moment(val).day();
       let newService = this.serviceTimeSlots.filter((res) => {
         return res.dayOfWeek == newDate;
