@@ -137,7 +137,7 @@ export default Vue.extend({
   },
   mounted () {
     if (this.firstName && this.lastName && this.phoneNumber && this.gender && this.dob && this.email) {
-      this.$refs.patientDetailsForm.validate()
+      (this.$refs.patientDetailsForm as Vue & { validate: () => boolean }).validate()
     }
   },
   methods: {
