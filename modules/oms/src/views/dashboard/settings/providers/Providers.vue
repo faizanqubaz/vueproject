@@ -24,8 +24,8 @@
                   </v-btn>
                 </template>
                 <template>
-                  <v-stepper v-model="stepNumber" class="pt-5">
-                    <v-stepper-header>
+                  <v-stepper v-model="stepNumber" class="stepper">
+                    <v-stepper-header class="stepperHeader">
                       <v-stepper-step :complete="stepNumber > 1" step="1">
                         Profile
                       </v-stepper-step>
@@ -78,6 +78,8 @@
                                   <v-autocomplete
                                     v-model="newProvider.gender"
                                     :items="genderList"
+                                    item-text="label"
+                                    item-value="value"
                                     label="Gender"
                                     :rules="requiredRules"
                                     required
@@ -116,7 +118,7 @@
                           <v-btn
                             depressed
                             color="primary"
-                            @click="addProvider"
+                            @click="stepNumber = 2"
                             :loading="saveLoading"
                           >
                             Continue
@@ -161,14 +163,14 @@
                             depressed
                             color="blue-grey"
                             text
-                            @click="closeAddDialog(true)"
+                            @click="stepNumber = 1"
                           >
-                            Cancel
+                            Previous
                           </v-btn>
                           <v-btn
                             depressed
                             color="primary"
-                            @click="addAddress"
+                            @click="stepNumber = 3"
                             :loading="saveLoading"
                           >
                             Continue
@@ -220,9 +222,9 @@
                             depressed
                             color="blue-grey"
                             text
-                            @click="closeAddDialog(true)"
+                            @click="stepNumber = 2"
                           >
-                            Cancel
+                            Previous
                           </v-btn>
                           <v-btn
                             depressed
@@ -287,13 +289,14 @@
 </template>
 
 <script>
-import Vue from "vue";
-import OMSApi from "@/api/OMSApi";
-import phone from "phone";
-import email from "email-validator";
-import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
-import DatePicker from "@/components/DatePicker.vue";
-import Confirmation from "@/components/Confirmation.vue";
+import Vue from 'vue'
+import OMSApi from '@/api/OMSApi'
+import phone from 'phone'
+import email from 'email-validator'
+import GoogleAutocomplete from '@/components/GoogleAutocomplete.vue'
+import DatePicker from '@/components/DatePicker.vue'
+import Confirmation from '@/components/Confirmation.vue'
+import { ToISODateString } from '@/utils'
 
 export default Vue.extend({
   components: {
@@ -307,41 +310,41 @@ export default Vue.extend({
       newProviderId: 0,
       headers: [
         {
-          text: "Id",
-          value: "id",
+          text: 'Id',
+          value: 'id',
         },
         {
-          text: "First Name",
-          value: "firstName",
+          text: 'First Name',
+          value: 'firstName',
         },
         {
-          text: "Last Name",
-          value: "lastName",
+          text: 'Last Name',
+          value: 'lastName',
         },
         {
-          text: "Email",
-          value: "email",
+          text: 'Email',
+          value: 'email',
         },
         {
-          text: "Phone",
-          value: "phone",
+          text: 'Phone',
+          value: 'phone',
         },
         {
-          text: "Actions",
-          value: "actions",
-          align: "center",
-          width: "240px",
+          text: 'Actions',
+          value: 'actions',
+          align: 'center',
+          width: '240px',
           sortable: false,
         },
       ],
       validProviderAddressForm: false,
       autocompleteAddress: {},
       newAddress: {
-        street: "",
-        apartment: "",
-        city: "",
-        state: "",
-        zipCode: "",
+        street: '',
+        apartment: '',
+        city: '',
+        state: '',
+        zipCode: '',
         primary: false,
         longitude: 0,
         latitude: 0,
@@ -368,233 +371,222 @@ export default Vue.extend({
         phone: null,
         email: null,
       },
-      genderList: ["male", "female"],
+      genderList: [
+        { label: 'Male', value: 'male' },
+        { label: 'Female', value: 'female' },
+        { label: 'Other', value: 'other' },
+      ],
       activePicker: null,
-      requiredRules: [(v) => !!v || "Required"],
+      requiredRules: [(v) => !!v || 'Required'],
       phoneRules: [
-        (phoneNumber) => !!phoneNumber || "Phone number is required",
+        (phoneNumber) => !!phoneNumber || 'Phone number is required',
         (phoneNumber) =>
-          (phoneNumber && phone(phoneNumber, { country: "USA" }).isValid) ||
-          "Phone number is invalid",
+          (phoneNumber && phone(phoneNumber, { country: 'USA' }).isValid) ||
+          'Phone number is invalid',
       ],
       emailRules: [
-        (emailAddress) => !!emailAddress || "Email is required",
+        (emailAddress) => !!emailAddress || 'Email is required',
         (emailAddress) =>
           (emailAddress && email.validate(emailAddress)) ||
-          "Email address is invalid",
+          'Email address is invalid',
       ],
-      search: "",
+      search: '',
       deletedProvider: {
         firstName: null,
         id: null,
       },
       deletedProviderModel: false,
-    };
+    }
   },
   async created() {
-    this.$store.commit("SET_LOADING", true);
-    await this.getProviders();
-    await this.getServices();
-    await this.getCities();
-    this.populateServiceListByCity();
-    this.$store.commit("SET_LOADING", false);
+    this.$store.commit('SET_LOADING', true)
+    await this.getProviders()
+    await this.getServices()
+    await this.getCities()
+    this.populateServiceListByCity()
+    this.$store.commit('SET_LOADING', false)
   },
   methods: {
     async getProviders() {
-      this.loading = true;
+      this.loading = true
       try {
-        const api = new OMSApi();
-        const response = await api.getProviders();
+        const api = new OMSApi()
+        const response = await api.getProviders()
         if (response.result.data.length) {
-          this.providerList = response.result.data;
-          this.loading = false;
+          this.providerList = response.result.data
+          this.loading = false
         }
       } catch (error) {
-        this.loading = false;
+        this.loading = false
       }
     },
     async getServices() {
       try {
-        const api = new OMSApi();
-        const response = await api.getServices();
+        const api = new OMSApi()
+        const response = await api.getServices()
         if (response.result.data.length) {
-          this.serviceList = response.result.data;
+          this.serviceList = response.result.data
         }
       } catch (error) {
-        console.error(error);
+        console.error(error)
         this.$root.snackbar.show({
-          message: "Failed to get services list",
-          type: "error",
-        });
+          message: 'Failed to get services list',
+          type: 'error',
+        })
       }
     },
     async getCities() {
       try {
-        const api = new OMSApi();
-        const response = await api.getCities();
+        const api = new OMSApi()
+        const response = await api.getCities()
         if (response.result.data.length) {
-          this.cityList = response.result.data;
+          this.cityList = response.result.data
         }
       } catch (error) {
-        console.error(error);
+        console.error(error)
         this.$root.snackbar.show({
-          message: "Failed to get city list",
-          type: "error",
-        });
+          message: 'Failed to get city list',
+          type: 'error',
+        })
       }
     },
     async closeAddDialog(isRefresh) {
-      this.addDialog = false;
-      this.stepNumber = 1;
+      this.addDialog = false
+      this.stepNumber = 1
       if (isRefresh) {
-        this.loading = true;
-        await this.getProviders();
-        this.loading = false;
+        this.loading = true
+        await this.getProviders()
+        this.loading = false
       }
     },
     async addProvider() {
-      this.saveLoading = true;
-      try {
-        const api = new OMSApi();
-        this.newProviderId = 0;
-        const phone = "+1" + this.newProvider.phone;
-        const response = await api.createProvider({
-          ...this.newProvider,
-          phone,
-        });
-        if (response && response.result) {
-          this.newProviderId = response.result.id;
-          this.saveLoading = false;
-          this.stepNumber = 2;
-        }
-      } catch (error) {
-        this.saveLoading = false;
-        this.$root.snackbar.show({
-          message: "Failed to add provider",
-          type: "error",
-        });
+      const api = new OMSApi()
+      this.newProviderId = 0
+      const phone = '+1' + this.newProvider.phone
+      const dob = ToISODateString(this.newProvider.dob)
+      const response = await api.createProvider({
+        ...this.newProvider,
+        phone,
+        dob,
+      })
+      if (response && response.result) {
+        this.newProviderId = response.result.id
+        this.saveLoading = false
+      } else {
+        return response
       }
     },
     async addAddress() {
-      this.saveLoading = true;
-      try {
-        const api = new OMSApi();
-        const address = {
-          ...this.autocompleteAddress,
-          apartment: this.newAddress.apartment,
-          primary: this.newAddress.primary || false,
-          guardianId: null,
-          patientId: null,
-          providerId: this.newProviderId,
-        };
-        const response = await api.createAddress(address);
-        if (response) {
-          this.saveLoading = false;
-          this.stepNumber = 3;
-        }
-      } catch (error) {
-        this.saveLoading = false;
-        this.$root.snackbar.show({
-          message: "Failed to add address",
-          type: "error",
-        });
+      const api = new OMSApi()
+      const address = {
+        ...this.autocompleteAddress,
+        apartment: this.newAddress.apartment,
+        primary: this.newAddress.primary || false,
+        guardianId: null,
+        patientId: null,
+        providerId: this.newProviderId,
       }
+      return await api.createAddress(address)
     },
     populateServiceListByCity() {
       this.cityList.forEach((city) => {
-        this.serviceListByCity[city.id] = [];
-      });
+        this.serviceListByCity[city.id] = []
+      })
     },
     async addService() {
-      this.saveLoading = true;
       try {
-        const api = new OMSApi();
-        const cityIds = Object.keys(this.serviceListByCity);
+        this.saveLoading = true
+        this.$store.commit('SET_LOADING', true)
+        await this.addProvider()
+        await this.addAddress()
+        const api = new OMSApi()
+        const cityIds = Object.keys(this.serviceListByCity)
         await Promise.all(
           cityIds.map(async (cityId) => {
-            const services = this.serviceListByCity[cityId];
+            const services = this.serviceListByCity[cityId]
             if (cityId && services.length > 0) {
               const service = {
                 providerId: this.newProviderId,
                 services,
                 cityId: parseInt(cityId),
-              };
-              await api.createProviderService(service);
+              }
+              await api.createProviderService(service)
             }
           })
-        );
+        )
 
-        this.saveLoading = false;
-        this.closeAddDialog(true);
+        this.closeAddDialog(true)
         this.$root.snackbar.show({
-          message: "Service added successfully",
-          type: "success",
-        });
+          message: 'Provider added successfully',
+          type: 'success',
+        })
       } catch (error) {
-        this.saveLoading = false;
         this.$root.snackbar.show({
-          message: "Failed to add service",
-          type: "error",
-        });
+          message: 'Failed to add Provider',
+          type: 'error',
+        })
+      } finally {
+        this.saveLoading = false
+        this.$store.commit('SET_LOADING', false)
       }
     },
     details(provider) {
       this.$router.push({
-        name: "Provider Details",
+        name: 'Provider Details',
         params: {
           provider,
           providerId: provider.id,
         },
-      });
+      })
     },
     setDelete(props) {
-      this.deletedProvider.firstName = props.firstName;
-      this.deletedProvider.id = props.id;
-      this.deletedProviderModel = true;
+      this.deletedProvider.firstName = props.firstName
+      this.deletedProvider.id = props.id
+      this.deletedProviderModel = true
     },
     async deleteProvider() {
       try {
-        this.saveLoading = true;
-        const api = new OMSApi();
-        const response = await api.deleteProvider(this.deletedProvider.id);
+        this.saveLoading = true
+        const api = new OMSApi()
+        const response = await api.deleteProvider(this.deletedProvider.id)
         if (response) {
-          this.saveLoading = false;
+          this.saveLoading = false
           this.$root.snackbar.show({
             message: response.message,
-            type: "success",
-          });
-          this.deletedProviderModel = false;
-          this.loading = true;
-          await this.getProviders();
-          this.loading = false;
+            type: 'success',
+          })
+          this.deletedProviderModel = false
+          this.loading = true
+          await this.getProviders()
+          this.loading = false
         }
       } catch (error) {
-        this.saveLoading = false;
+        this.saveLoading = false
         this.$root.snackbar.show({
-          message: "Failed to delete provider",
-          type: "error",
-        });
+          message: 'Failed to delete provider',
+          type: 'error',
+        })
       }
     },
     formatDate(date) {
       if (!date) {
-        return null;
+        return null
       }
-      const [year, month, day] = date.split("-");
-      return `${month}/${day}/${year}`;
+      const [year, month, day] = date.split('-')
+      return `${month}/${day}/${year}`
     },
     parseDate(date) {
       if (!date) {
-        return null;
+        return null
       }
-      const [month, day, year] = date.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      const [month, day, year] = date.split('/')
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     },
   },
   computed: {
     isProviderValid() {
       if (this.$refs.providerForm) {
-        this.$refs.providerForm.validate();
+        this.$refs.providerForm.validate()
       }
       return (
         this.newProvider.firstName &&
@@ -604,11 +596,11 @@ export default Vue.extend({
         this.newProvider.phone &&
         this.newProvider.email &&
         this.validProviderForm
-      );
+      )
     },
     isProviderAddressValid() {
       if (this.$refs.providerAddressForm) {
-        this.$refs.providerAddressForm.validate();
+        this.$refs.providerAddressForm.validate()
       }
       return (
         this.newAddress.street &&
@@ -618,27 +610,27 @@ export default Vue.extend({
         this.newAddress.longitude &&
         this.newAddress.latitude &&
         this.validProviderAddressForm
-      );
+      )
     },
     isProviderServiceValid() {
       if (this.$refs.providerServiceForm) {
-        this.$refs.providerServiceForm.validate();
+        this.$refs.providerServiceForm.validate()
       }
-      return this.newService.cityId && this.validProviderServiceForm;
+      return this.newService.cityId && this.validProviderServiceForm
     },
   },
   watch: {
     addDialog(newVal) {
       if (!newVal) {
-        this.$refs.providerForm.reset();
-        this.$refs.providerAddressForm.reset();
-        this.newAddress.primary = false;
-        this.newAddress.apartment = "";
-        this.$refs.providerServiceForm.reset();
+        this.$refs.providerForm.reset()
+        this.$refs.providerAddressForm.reset()
+        this.newAddress.primary = false
+        this.newAddress.apartment = ''
+        this.$refs.providerServiceForm.reset()
       }
     },
   },
-});
+})
 </script>
 
 <style scoped>
@@ -647,5 +639,14 @@ export default Vue.extend({
 }
 .v-stepper__content {
   padding-top: 0px;
+}
+.stepper {
+  overflow: visible;
+}
+.stepperHeader {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
 }
 </style>
