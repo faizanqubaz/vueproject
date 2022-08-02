@@ -131,6 +131,7 @@
 import Vue from 'vue'
 import BookingApiClient from '../api/BookingApiClient'
 import moment from 'moment'
+import { ToISODateString } from '@/utils'
 export default Vue.extend({
   data () {
     return {
@@ -165,7 +166,7 @@ export default Vue.extend({
           }
         },
         visit: {
-          date: moment(this.$store.getters.date).startOf('day').toISOString(),
+          date: ToISODateString(this.$store.getters.date),
           scheduledStartTime: this.$store.getters.startTime,
           scheduledEndTime: this.$store.getters.endTime,
           serviceId: this.$store.getters.serviceId
