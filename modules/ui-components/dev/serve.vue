@@ -41,7 +41,7 @@ export default Vue.extend({
         (phoneNumber: string) => !!phoneNumber || 'Phone number is required'
       ],
       phoneNumber: '',
-      phoneError: false
+      phoneError: false,
       insuranceFront: {}
     }
   },
