@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import OMSApi from '../../api/OMSApi'
+import BookingApiClient from '../../api/BookingApiClient'
 import moment from 'moment'
 
 export default Vue.extend({
@@ -66,43 +66,32 @@ export default Vue.extend({
         search: null
       },
       visitList: [],
-      userDetails: {
-        id: 0
-      },
       selectedVisitId: 0,
-      cancelModal: false
+      cancelModal: false,
+      token: ''
     }
   },
   created () {
-    this.$auth.getUser().then((userData: any) => {
-      if (userData) {
-        this.getUserDetails(userData.sub)
-      }
-    })
+    this.getVisits()
   },
   methods: {
     async getVisits () {
       try {
-        const api = new OMSApi()
-        const params = {
-          page: 1,
-          limit: 20,
-          status: 'booked',
-          sortOrder: 'ASC',
-          patient: this.userDetails.id
-        }
-        const res = await api.getVisits(params)
-        if (res.result) {
-          this.visitList = res.result.data
+        const bookingApiClient = new BookingApiClient()
+        const token = await this.$auth.getTokenSilently({}) ?? ''
+        const response = await bookingApiClient.getVisits(token)
+        if (response.result) {
+          this.visitList = response.result.data
         }
       } catch (error) {
-        console.error(error)
-      } finally {}
+        console.log('error', error.response)
+      }
     },
     async cancelVisits () {
       try {
-        const api = new OMSApi()
-        const res = await api.cancelVisit(this.selectedVisitId)
+        const bookingApiClient = new BookingApiClient()
+        const token = await this.$auth.getTokenSilently({}) ?? ''
+        const res = await bookingApiClient.cancelVisit(this.selectedVisitId, token)
         if (res) {
           this.visitList = this.visitList.filter((a: any) => a.id !== this.selectedVisitId)
         }
@@ -110,21 +99,6 @@ export default Vue.extend({
         console.error(error)
       } finally {
         this.cancelModal = false
-      }
-    },
-    async getUserDetails (authID: string) {
-      try {
-        const api = new OMSApi()
-        const params = {
-          authID: authID
-        }
-        const res = await api.getUserDetails(params)
-        if (res.result) {
-          this.userDetails = res.result
-          this.getVisits()
-        }
-      } catch (error) {
-        console.error(error)
       }
     },
     getProviderName (provider: any) {
@@ -141,8 +115,6 @@ export default Vue.extend({
       this.selectedVisitId = 0
       this.cancelModal = false
     }
-  },
-  computed: {
   },
   filters: {
     timeFormat (time: string) {

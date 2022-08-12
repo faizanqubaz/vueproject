@@ -44,7 +44,7 @@ Vue.use(VueMeta, {
 Vue.use(Auth0Plugin, {
   domain: process.env.VUE_APP_WELZ_AUTH0_DOMAIN,
   clientId: process.env.VUE_APP_WELZ_PBF_AUTH0_CLIENT_ID,
-  audience: process.env.VUE_APP_WELZ_OMS_AUTH0_AUDIENCE,
+  audience: process.env.VUE_APP_WELZ_PBF_AUTH0_AUDIENCE,
   onRedirectCallback: (appState: { targetUrl: string }) => {
     router.push(
       appState && appState.targetUrl
