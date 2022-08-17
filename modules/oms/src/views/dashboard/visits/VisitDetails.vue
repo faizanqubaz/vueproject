@@ -1,5 +1,12 @@
 <template>
   <v-container fluid>
+    <v-row v-show="!patientInsurance.front">
+      <v-col class="text-right">
+        <v-btn color="primary" @click="insuranceFormDialog = true" depressed>
+          Add Insurance
+        </v-btn>
+      </v-col>
+    </v-row>
     <!-- patient -->
     <v-row v-if="visitDetails">
       <v-col class="pb-0">
@@ -358,43 +365,117 @@
 
     <v-row v-show="patientInsurance.front">
       <v-col class="py-0">
-        <v-card class="mb-6 pb-10">
-          <v-row>
-            <v-col>
-              <v-card-title>
-                <v-row align="center" style="height: 64px">
-                  <v-col><span class="primary--text">Insurance</span> </v-col>
-                </v-row>
-              </v-card-title>
-              <v-card-text>
-                <v-row>
-                  <v-col sm="12" md="12">
-                    <v-row>
-                      <v-col cols="4">
-                        <v-img
-                          class="hover-pointer"
-                          @click="showInsuranceDialog(patientInsurance.front)"
-                          max-height="250px"
-                          :src="patientInsurance.front"
-                        />
-                      </v-col>
-                      <v-col cols="4">
-                        <v-img
-                          class="hover-pointer"
-                          @click="showInsuranceDialog(patientInsurance.back)"
-                          max-height="250px"
-                          :src="patientInsurance.back"
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-col>
-          </v-row>
-        </v-card>
+        <v-hover v-slot="{ hover }"
+          ><v-card class="mb-6 pb-10">
+            <v-row>
+              <v-col>
+                <v-card-title>
+                  <v-row align="center" style="height: 64px">
+                    <v-col>
+                      <span class="primary--text">Insurancesss</span>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col
+                      v-if="
+                        hover &&
+                        visitDetails.status != 'canceled' &&
+                        visitDetails.status != 'completed'
+                      "
+                    >
+                      <div class="text-right">
+                        <v-btn
+                          color="primary"
+                          @click="insuranceFormDialog = true"
+                          depressed
+                        >
+                          <v-icon class="mr-2">mdi-pencil</v-icon>
+                          Edit
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col sm="12" md="12">
+                      <v-row>
+                        <v-col cols="4">
+                          <v-img
+                            class="hover-pointer"
+                            @click="showInsuranceDialog(patientInsurance.front)"
+                            max-height="250px"
+                            :src="patientInsurance.front"
+                          />
+                        </v-col>
+                        <v-col cols="4">
+                          <v-img
+                            class="hover-pointer"
+                            @click="showInsuranceDialog(patientInsurance.back)"
+                            max-height="250px"
+                            :src="patientInsurance.back"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-col>
+            </v-row> </v-card
+        ></v-hover>
+
         <v-dialog v-model="insuranceDialog" max-width="800px" scrollable>
           <v-img max-width="100%" :src="insuranceDialogImg" />
+        </v-dialog>
+        <v-dialog v-model="insuranceFormDialog" max-width="800px" scrollable>
+          <v-card>
+            <v-card-title class="pa-0">
+              <v-toolbar dark color="primary">
+                <v-toolbar-title>Submit Insurance</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon @click="insuranceFormDialog = false">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-toolbar>
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col md="6">
+                  <image-uploader
+                    :value="insuranceForm.front"
+                    v-model="insuranceForm.front"
+                  />
+                  <p class="text-center mb-0">Front</p>
+                </v-col>
+                <v-col md="6">
+                  <image-uploader
+                    :value="insuranceForm.back"
+                    v-model="insuranceForm.back"
+                  />
+                  <p class="text-center mb-0">Back</p>
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="blue-grey"
+                text
+                @click="insuranceFormDialog = false"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                :loading="insuranceFormLoading"
+                depressed
+                color="primary"
+                :disabled="!insuranceForm.front || !insuranceForm.back"
+                @click="submitInsurance"
+                large
+              >
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
         </v-dialog>
       </v-col>
     </v-row>
@@ -1090,6 +1171,7 @@ import phone from "phone";
 import email from "email-validator";
 import GoogleAutocomplete from "@/components/GoogleAutocomplete.vue";
 import DirectionsRenderer from "@/components/DirectionsRenderer.vue";
+import ImageUploader from "@/components/ImageUploader.vue";
 import {
   EllipsisMiddle,
   States,
@@ -1105,6 +1187,7 @@ export default Vue.extend({
     GoogleAutocomplete,
     DirectionsRenderer,
     Confirmation,
+    ImageUploader,
   },
   async created() {
     this.$store.commit("SET_LOADING", true);
@@ -1224,6 +1307,12 @@ export default Vue.extend({
       },
       providerCoordinates: null,
       insuranceDialog: false,
+      insuranceFormDialog: false,
+      insuranceForm: {
+        front: null,
+        back: null,
+      },
+      insuranceFormLoading: false,
       insuranceDialogImg: null,
       refreshCount: 0,
       isLoadingUnassign: false,
@@ -1294,6 +1383,37 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
+      }
+    },
+    async submitInsurance() {
+      try {
+        this.insuranceFormLoading = true;
+        const api = new OMSApi();
+        const payload = {
+          front: this.insuranceForm.front,
+          back: this.insuranceForm.back,
+          patientId: this.visitDetails.patient.id,
+        };
+        const response = await api.addPatientInsurance(payload);
+        if (response) {
+          this.getVisitDetails(this.$router.currentRoute.params.id);
+          this.$root.snackbar.show({
+            message: "Insurance Submitted",
+            type: "success",
+          });
+          this.insuranceFormDialog = false;
+          this.insuranceForm = {
+            front: null,
+            back: null,
+          };
+        }
+      } catch (error) {
+        this.$root.snackbar.show({
+          message: "Failed to submit insurance",
+          type: "error",
+        });
+      } finally {
+        this.insuranceFormLoading = false;
       }
     },
     async getProviders() {
@@ -1487,10 +1607,14 @@ export default Vue.extend({
           front: responseFront,
           back: responseBack,
         };
+        this.insuranceForm = {
+          front: responseFront,
+          back: responseBack,
+        };
       } catch (error) {
         console.error(error);
         this.$root.snackbar.show({
-          message: "Failed to get payment information",
+          message: "Failed to get insurance information",
           type: "error",
         });
       } finally {
