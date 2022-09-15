@@ -3,14 +3,14 @@
     <nav class="w-full bg-white">
       <div class="h-8 bg-primary" />
       <div
-        class="container mx-auto flex justify-center md:justify-between text-center w-full bg-white"
+        class="container mx-auto flex justify-between text-center w-full bg-white"
       >
         <div class="py-4">
           <a href="https://www.welz.com">
             <img src="@/assets/welz_logo.png" alt="logo" class="h-7" />
           </a>
         </div>
-        <div class="hidden md:flex justify-around">
+        <div class="hidden md:flex justify-center flex-1">
           <div
             v-for="(nav, i) in bookingStepList"
             :key="nav.id"
@@ -48,9 +48,6 @@
               </p>
             </div>
           </div>
-        </div>
-        <div class="hidden md:block py-4">
-          <p class="text-gray-400 uppercase cursor-pointer">Exit</p>
         </div>
       </div>
     </nav>

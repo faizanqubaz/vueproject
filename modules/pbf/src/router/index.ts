@@ -8,13 +8,23 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
+    redirect: "/booking",
+  },
+  {
+    path: "/",
     component: () => import("@/views/Home.vue"),
     children: [
       {
-        path: "/confirmation",
+        path: "confirmation",
         name: "Confirmation",
         component: () => import("@/views/confirmation/Confirmation.vue"),
+        beforeEnter(to, from, next) {
+          if (!store.state.Appointment.location.address) {
+            next("/");
+          } else {
+            next();
+          }
+        },
       },
     ],
   },

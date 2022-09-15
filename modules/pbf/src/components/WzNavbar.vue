@@ -1,17 +1,5 @@
 <template>
   <div class="top-0 left-0 right-0 z-50">
-    <!-- <div
-      class="bg-primary text-center flex items-center justify-center"
-      :class="
-        padding
-          ? 'lg:h-0 h-9 transition-all duration-500 ease-in-out'
-          : 'h-9 transition-all duration-500 ease-in-out'
-      "
-    >
-      <p class="text-sm text-white lg:hidden block">
-        Need help? call us: 1-646-556-8500
-      </p>
-    </div> -->
     <div class="bg-white">
       <div
         class="container mx-auto px-4 md:px-0"
