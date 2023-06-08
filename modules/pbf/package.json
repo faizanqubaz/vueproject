@@ -11,7 +11,6 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.22.2",
     "@cardknox/vue-cardknox-ifields": "^1.0.1",
-    "@tailwindcss/forms": "^0.5.2",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "email-validator": "^2.0.4",
@@ -49,7 +48,7 @@
     "postcss": "^8.4.16",
     "sass": "^1.32.7",
     "sass-loader": "^12.0.0",
-    "tailwindcss": "^3.1.8",
+
     "ts-jest": "^27.0.4",
     "typescript": "~4.5.5",
     "vue-template-compiler": "^2.6.14"

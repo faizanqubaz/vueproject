@@ -41,33 +41,33 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const toBooking = to.path.includes("booking");
-  if (toBooking) {
-    const validBookingId = [
-      "location",
-      "services",
-      "symptoms",
-      "notes",
-      "timeslot",
-      "patient-payment",
-      "payment",
-      "card",
-      "insurance",
-      "patient",
-      "review",
-    ];
-    if (
-      !to.params.id ||
-      !validBookingId.includes(to.params.id) ||
-      (to.params.id &&
-        to.params.id !== "location" &&
-        !store.state.Appointment.location.address)
-    ) {
-      next("/booking/location");
-    }
-    next();
-  } else {
-    next();
-  }
+  // if (toBooking) {
+  //   const validBookingId = [
+  //     "location",
+  //     "services",
+  //     "symptoms",
+  //     "notes",
+  //     "timeslot",
+  //     "patient-payment",
+  //     "payment",
+  //     "card",
+  //     "insurance",
+  //     "patient",
+  //     "review",
+  //   ];
+  //   if (
+  //     !to.params.id ||
+  //     !validBookingId.includes(to.params.id) ||
+  //     (to.params.id &&
+  //       to.params.id !== "location" &&
+  //       !store.state.Appointment.location.address)
+  //   ) {
+  //     next("/booking/location");
+  //   }
+  //   next();
+  // } else {
+  //   next();
+  // }
 });
 
 export default router;
